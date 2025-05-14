@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 255, 255)),
       ),
-      home: RegisterPage(),
+      home: Homepage(),
     );
   } 
 } 
