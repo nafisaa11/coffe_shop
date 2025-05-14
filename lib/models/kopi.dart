@@ -20,7 +20,7 @@ var kopiList = [
   Kopi(
     id: 1,
     gambar:
-        'https://coffeedeets.com/wp-content/uploads/2023/03/cappuccino-what-image-e1679318626885.jpeg',
+        'https://i.ibb.co/F4GmpsgK/cappuccino-what-image-e1679318626885.jpg',
     nama: 'Kopi Susu',
     tambahan: 'Susu, Gula',
     deskripsi: 'Kopi Susu adalah minuman kopi yang dicampur dengan susu. Ada banyak varian rasa yang bisa dipilih. Jenis kopi ini sangat populer di kalangan pecinta kopi.',
@@ -29,7 +29,7 @@ var kopiList = [
   Kopi(
     id: 2,
     gambar:
-        'https://techcresendo.com/wp-content/uploads/2015/09/Black-Coffee.jpg',
+        'https://i.ibb.co/v4xG3nRc/download-6.jpg',
     nama: 'Kopi Hitam',
     tambahan: 'Gula',
     deskripsi: 'Kopi Hitam adalah minuman kopi yang disajikan tanpa susu. Rasa kopi ini lebih kuat dan pahit. Bisa dinikmati dengan atau tanpa gula. Warnanya hitam pekat.',
@@ -38,7 +38,7 @@ var kopiList = [
   Kopi(
     id: 3,
     gambar:
-        'https://media.istockphoto.com/id/505586853/id/foto/secangkir-kacang-kopi-cappuccino-dan-arabika.jpg?s=170667a&w=0&k=20&c=BNVFGfD004jBqMijhtXxeBSDVC5OB4xh1t5xbH7HkbQ=',
+        'https://i.ibb.co/HTwkJH51/Easy-Vanilla-Matcha-Latte-Quick-Healthy-Treat-for-Busy-Mornings.jpg',
     nama: 'Kopi Arabika',
     tambahan: 'Susu, Gula, Krim',
     deskripsi: 'Kopi Arabika adalah jenis kopi yang memiliki rasa yang lebih halus. Kopi ini berasal dari biji kopi Arabika yang ditanam di daerah pegunungan. Aromanya sangat khas dan nikmat.',
