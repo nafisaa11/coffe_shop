@@ -33,11 +33,14 @@ class CoffeeCard extends StatelessWidget {
                   height: constraints.maxWidth * 0.7,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFD3864A), width: 2),
+                    border: Border.all(
+                      color: const Color(0xFFD3864A),
+                      width: 2,
+                    ),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
+                    child: Image.asset(
                       kopi.gambar,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -47,7 +50,10 @@ class CoffeeCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,

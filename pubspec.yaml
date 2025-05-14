@@ -49,6 +49,9 @@ flutter:
   assets:
     - assets/kopiqu.png
     - assets/iconlogin.png
+    - assets/matcha.jpg
+    - assets/baner1.jpg
+    - assets/baner2.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
