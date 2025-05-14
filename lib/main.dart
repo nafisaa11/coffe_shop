@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFD3864A)),
       ),
-      home: DetailProdukScreen(id: 0,),
+      home: Homepage(),
     );
-  }
+  } 
 }
