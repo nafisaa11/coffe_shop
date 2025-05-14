@@ -22,10 +22,10 @@ class _HomepageState extends State<Homepage> {
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Jumlah kolom
-            crossAxisSpacing: 16, // Spasi horizontal antar item
-            mainAxisSpacing: 16, // Spasi vertikal antar item
-            childAspectRatio: 0.75, // Rasio lebar/tinggi card
+            crossAxisCount: 2, 
+            crossAxisSpacing: 16, 
+            mainAxisSpacing: 16, 
+            childAspectRatio: 0.75, 
           ),
           itemCount: kopiList.length,
           itemBuilder: (context, index) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/Homepage.dart';
-import 'package:kopiqu/screens/detailProdukScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'KopiQu',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFD3864A)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 255, 255)),
       ),
       home: Homepage(),
     );
