@@ -63,9 +63,18 @@ class CustomButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         onPressed: onPressed,
-        icon: const Icon(Icons.login),
-        label: Text(text),
+        icon: const Icon(
+          Icons.login,
+          color: Colors.white,  
+        ),
+        label: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
       ),
+    ),
     );
   }
 }
