@@ -28,7 +28,7 @@ class LoginPage extends StatelessWidget {
                 hintText: 'Masukkan Email',
                 controller: emailController,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               CustomTextField(
                 label: 'Password',
                 hintText: 'Masukkan Password',
