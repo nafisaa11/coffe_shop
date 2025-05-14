@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/kopi_card.dart';
 import 'package:kopiqu/widgets/tag_list.dart';
+import 'package:kopiqu/widgets/navbar_bottom.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -11,6 +12,14 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  int selectedIndex = 0;
+
+  void onItemSelected(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +29,7 @@ class _HomepageState extends State<Homepage> {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          const TagList(), // Widget tag
+          const TagList(),
           const SizedBox(height: 16),
           Expanded(
             child: Padding(
@@ -40,6 +49,10 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: NavbarBottom(
+        selectedIndex: selectedIndex,
+        onItemSelected: onItemSelected,
       ),
     );
   }
