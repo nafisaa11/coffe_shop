@@ -44,4 +44,13 @@ var kopiList = [
     deskripsi: 'Kopi Arabika adalah jenis kopi yang memiliki rasa yang lebih halus. Kopi ini berasal dari biji kopi Arabika yang ditanam di daerah pegunungan. Aromanya sangat khas dan nikmat.',
     harga: 25000,
   ),
+  Kopi(
+    id: 4,
+    gambar:
+        'https://i.ibb.co/cc3WPNwq/download-7.jpg',
+    nama: 'Matcha Latte',
+    tambahan: 'Susu, Gula',
+    deskripsi: 'Kopi Robusta adalah jenis kopi yang memiliki rasa yang lebih kuat dan pahit. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
+    harga: 18000,
+  ),
 ];
