@@ -14,7 +14,7 @@ class NavbarBottom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WaterDropNavBar(
-      backgroundColor: const Color(0xFD3864A), 
+      backgroundColor: const Color.fromARGB(74, 216, 130, 65), 
       waterDropColor: const Color(0xFF804E23), 
       selectedIndex: selectedIndex,
       onItemSelected: onItemSelected,
