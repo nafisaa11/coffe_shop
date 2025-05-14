@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
+import 'package:kopiqu/screens/loginpage.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class RegisterPage extends StatelessWidget {
+  RegisterPage({super.key});
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +29,23 @@ class LoginPage extends StatelessWidget {
                 hintText: 'Masukkan Email',
                 controller: emailController,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               CustomTextField(
                 label: 'Password',
                 hintText: 'Masukkan Password',
                 obscureText: true,
                 controller: passwordController,
               ),
-              const SizedBox(height: 160), // jarak textfield ke tombol
+              const SizedBox(height: 15),
+              CustomTextField(
+                label: 'Konfirmasi Password',
+                hintText: 'Masukkan Konfirmasi Password',
+                obscureText: true,
+                controller: confirmPasswordController,
+              ),
+              const SizedBox(height: 60), // jarak textfield ke tombol
               CustomButton(
-                text: 'Masuk',  
+                text: 'Daftar',
                 onPressed: () {
                   // action login di sini
                 },
@@ -46,16 +54,16 @@ class LoginPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Belum memiliki akun? '),
+                  const Text('Sudah memiliki akun? '),
                   GestureDetector(
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => RegisterPage()),
-                      );// navigate ke halaman registrasi
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
                     },
                     child: const Text(
-                      'Registrasi',
+                      'Masuk',
                       style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
