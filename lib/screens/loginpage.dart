@@ -42,7 +42,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Masuk',a
+                  text: 'Masuk',
                   onPressed: () {
                     // action login di sini
                   },
