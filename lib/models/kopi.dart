@@ -53,4 +53,22 @@ var kopiList = [
     deskripsi: 'Kopi Robusta adalah jenis kopi yang memiliki rasa yang lebih kuat dan pahit. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
     harga: 18000,
   ),
+   Kopi(
+    id: 5,
+    gambar:
+        'https://i.ibb.co/cc3WPNwq/download-7.jpg',
+    nama: 'Matcha Latte',
+    tambahan: 'Susu, Gula',
+    deskripsi: 'Kopi Robusta adalah jenis kopi yang memiliki rasa yang lebih kuat dan pahit. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
+    harga: 18000,
+  ),
+   Kopi(
+    id: 6,
+    gambar:
+        'https://i.ibb.co/cc3WPNwq/download-7.jpg',
+    nama: 'Matcha Latte',
+    tambahan: 'Susu, Gula',
+    deskripsi: 'Kopi Robusta adalah jenis kopi yang memiliki rasa yang lebih kuat dan pahit. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
+    harga: 18000,
+  ),
 ];

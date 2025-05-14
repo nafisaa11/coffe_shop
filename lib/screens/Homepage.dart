@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/models/kopi.dart';
+import 'package:kopiqu/widgets/KopiQu_header.dart';
 import 'package:kopiqu/widgets/kopi_card.dart';
 import 'package:kopiqu/widgets/tag_list.dart';
 import 'package:kopiqu/widgets/navbar_bottom.dart';
@@ -23,14 +24,12 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu Kopi'),
-      ),
+      appBar: null, // Dihilangkan agar header bisa dikontrol sendiri
       body: Column(
         children: [
-          const SizedBox(height: 16),
+          const KopiQuHeader(), // Header tampil penuh
+          const SizedBox(height: 20),
           const TagList(),
-          const SizedBox(height: 16),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
