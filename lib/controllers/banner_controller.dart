@@ -10,7 +10,7 @@ class BannerController {
         currentPage = (currentPage + 1) % bannerImages.length;
         pageController.animateToPage(
           currentPage,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 800),
           curve: Curves.easeInOut,
         );
         update(); // callback untuk trigger scroll berikutnya
