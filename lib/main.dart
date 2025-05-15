@@ -6,6 +6,8 @@ import 'package:kopiqu/screens/keranjangScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/registerpage.dart';
+import 'package:kopiqu/screens/profile_page.dart';
+import 'package:kopiqu/screens/menupage.dart';
 
 void main() {
   runApp(
@@ -19,7 +21,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,7 +31,12 @@ class MyApp extends StatelessWidget {
           seedColor: Color.fromARGB(255, 255, 255, 255),
         ),
       ),
-      home: Homepage(), // Ganti dengan id yang sesuai
+      initialRoute: '/home',
+      routes: {
+        '/menu': (context) => const MenuPage(),
+        '/home': (context) => const Homepage(),
+        '/profile': (context) => const ProfilePage(),
+      },
     );
   }
 }

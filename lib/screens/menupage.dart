@@ -1,43 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/banner_controller.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/KopiQu_header.dart';
 import 'package:kopiqu/widgets/kopi_card.dart';
 import 'package:kopiqu/widgets/search_widget.dart';
 import 'package:kopiqu/widgets/tag_list.dart';
 import 'package:kopiqu/widgets/navbar_bottom.dart';
-import 'package:kopiqu/widgets/banner_slider.dart'; // Ganti dari banner_carousel.dart
 
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
-
-  @override
-  State<Homepage> createState() => _HomepageState();
-}
-
-class _HomepageState extends State<Homepage> {
-  int selectedIndex = 1;
-  final bannerImages = ['assets/baner1.jpg', 'assets/baner2.jpg'];
-  final bannerController = BannerController();
-
- @override
-@override
-void initState() {
-  super.initState();
-  // Memulai auto scroll untuk banner
-  bannerController.startAutoScroll(bannerImages, () {
-    if (mounted) {
-      setState(() {}); // Memperbarui tampilan setelah animasi selesai
-    }
-  });
-}
-
+class MenuPage extends StatefulWidget {
+  const MenuPage({super.key});
 
   @override
-  void dispose() {
-    bannerController.dispose();
-    super.dispose();
-  }
+  State<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  int selectedIndex = 0; // misal default index menu di navbar-nya 1
 
 void onItemSelected(int index) {
   setState(() {
@@ -60,7 +37,6 @@ void onItemSelected(int index) {
 }
 
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,27 +47,20 @@ void onItemSelected(int index) {
             padding: const EdgeInsets.only(top: 100),
             child: CustomScrollView(
               slivers: [
-                //search 
+                // search
                 SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SearchWidget(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SearchWidget(),
                   ),
                 ),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-                //banner
-                SliverToBoxAdapter(
-                  child: BannerSlider( // Ganti dari BannerCarousel
-                    bannerImages: bannerImages,
-                    pageController: bannerController.pageController,
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                // tag list
                 const SliverToBoxAdapter(child: TagList()),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                
+
+                // grid kopi
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
