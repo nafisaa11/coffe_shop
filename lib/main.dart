@@ -10,9 +10,7 @@ import 'package:kopiqu/screens/registerpage.dart';
 void main() {
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => KeranjangController()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => KeranjangController())],
       child: MyApp(),
     ),
   );
@@ -25,11 +23,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {'/keranjang': (context) => KeranjangScreen()},
       title: 'KopiQu',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 255, 255)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromARGB(255, 255, 255, 255),
+        ),
       ),
       home: Homepage(), // Ganti dengan id yang sesuai
     );
-  } 
-} 
+  }
+}

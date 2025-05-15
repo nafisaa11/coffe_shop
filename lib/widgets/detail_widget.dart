@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kopiqu/controllers/KeranjangController.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/ukuranGelas_widget.dart';
+import 'package:provider/provider.dart';
 
 class DetailWidget extends StatefulWidget {
   final Kopi kopi;
@@ -64,35 +66,48 @@ class _DetailWidgetState extends State<DetailWidget> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(color: const Color(0xFFF7E9DE)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              formatRupiah.format(widget.kopi.harga),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.brown,
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                widget.onTambah(ukuranDipilih);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.brown,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      bottomNavigationBar: Consumer<KeranjangController>(
+        builder: (context, keranjangCtrl, _) {
+          final sudahAda = keranjangCtrl.sudahAda(widget.kopi, ukuranDipilih);
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: const BoxDecoration(color: Color(0xFFF7E9DE)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formatRupiah.format(widget.kopi.harga),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown,
+                  ),
                 ),
-              ),
-              child: const Text('Tambah'),
+                ElevatedButton(
+                  onPressed: () {
+                    if (sudahAda) {
+                      Navigator.pushNamed(context, '/keranjang');
+                    } else {
+                      Provider.of<KeranjangController>(
+                        context,
+                        listen: false,
+                      ).tambah(widget.kopi, ukuranDipilih);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.brown,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(sudahAda ? 'Lihat Keranjang' : 'Tambah'),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
