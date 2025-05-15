@@ -4,6 +4,8 @@ import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
 import 'package:kopiqu/screens/keranjangScreen.dart';
 import 'package:provider/provider.dart';
+import 'package:kopiqu/screens/loginpage.dart';
+import 'package:kopiqu/screens/registerpage.dart';
 
 void main() {
   runApp(
@@ -25,9 +27,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'KopiQu',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFD3864A)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 255, 255)),
       ),
       home: Homepage(), // Ganti dengan id yang sesuai
     );
   } 
-}
+} 
