@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {'/keranjang': (context) => KeranjangScreen()},
       title: 'KopiQu',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -36,6 +35,7 @@ class MyApp extends StatelessWidget {
         '/menu': (context) => const MenuPage(),
         '/home': (context) => const Homepage(),
         '/profile': (context) => const ProfilePage(),
+        '/keranjang': (context) => KeranjangScreen()
       },
     );
   }
