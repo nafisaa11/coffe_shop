@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
+
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -38,9 +40,11 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 160), // jarak textfield ke tombol
               CustomButton(
                 text: 'Masuk',  
-                onPressed: () {
-                  // action login di sini
-                },
+                onPressed: ()  { Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Homepage()),
+                      );
+                    },
               ),
               const SizedBox(height: 20),
               Row(
