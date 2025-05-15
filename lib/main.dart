@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:kopiqu/controllers/KeranjangController.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
+import 'package:kopiqu/screens/keranjangScreen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => KeranjangController()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFD3864A)),
       ),
-      home: Homepage(),
+      home: Homepage(), // Ganti dengan id yang sesuai
     );
   } 
 }
