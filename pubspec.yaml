@@ -19,6 +19,7 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.20.2
+  provider: ^6.1.5
   water_drop_nav_bar: ^2.1.0
   curved_navigation_bar: ^1.0.3
   phosphor_flutter: ^2.1.0
@@ -50,11 +51,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/kopiqu.png
-    - assets/iconlogin.png
-    - assets/matcha.jpg
-    - assets/baner1.jpg
-    - assets/baner2.jpg
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

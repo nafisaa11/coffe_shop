@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/detail_widget.dart';
-import 'package:intl/intl.dart';
 
 class DetailProdukScreen extends StatefulWidget {
   final int id;
@@ -15,12 +14,7 @@ class DetailProdukScreen extends StatefulWidget {
 
 class _DetailProdukScreenState extends State<DetailProdukScreen> {
   late Kopi kopi;
-  String ukuranDipilih = 'Kecil';
-  final formatRupiah = NumberFormat.currency(
-    locale: 'id_ID',
-    symbol: 'Rp ',
-    decimalDigits: 0,
-  );
+  // String ukuranDipilih = 'Kecil';
 
   @override
   void initState() {
@@ -31,7 +25,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
       // fallback jika id tidak ditemukan
       kopi = kopiList.first;
     }
-    kopi = kopiList[widget.id]; // Pastikan id valid
   }
 
   void tambahKeKeranjang(BuildContext context, String ukuran) {
@@ -50,7 +43,7 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
         children: [
           Stack(
             children: [
-              Image.network(
+              Image.asset(
                 kopi.gambar,
                 height: 280,
                 width: double.infinity,
@@ -83,50 +76,12 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
             ],
           ),
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-              ),
-              child: SingleChildScrollView(
-                child: DetailWidget(
-                  kopi: kopi,
-                  onTambah: (ukuran) => tambahKeKeranjang(context, ukuran),
-                ),
-              ),
+            child: DetailWidget(
+              kopi: kopi,
+              onTambah: (ukuran) => tambahKeKeranjang(context, ukuran),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(color: const Color(0xFFF7E9DE)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              formatRupiah.format(kopi.harga),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.brown,
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.brown,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () => tambahKeKeranjang(context, ukuranDipilih),
-              child: const Text('Tambah'),
-            ),
-          ],
-        ),
       ),
     );
   }

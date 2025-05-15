@@ -20,7 +20,7 @@ var kopiList = [
   Kopi(
     id: 1,
     gambar:
-        'assets/matcha.jpg',
+        'assets/kopisusu.jpg',
     nama: 'Kopi Susu',
     tambahan: 'Susu, Gula',
     deskripsi: 'Kopi Susu adalah minuman kopi yang dicampur dengan susu. Ada banyak varian rasa yang bisa dipilih. Jenis kopi ini sangat populer di kalangan pecinta kopi.',
@@ -29,7 +29,7 @@ var kopiList = [
   Kopi(
     id: 2,
     gambar:
-        'assets/matcha.jpg',
+        'assets/kopihitam.jpg',
     nama: 'Kopi Hitam',
     tambahan: 'Gula',
     deskripsi: 'Kopi Hitam adalah minuman kopi yang disajikan tanpa susu. Rasa kopi ini lebih kuat dan pahit. Bisa dinikmati dengan atau tanpa gula. Warnanya hitam pekat.',
@@ -38,7 +38,7 @@ var kopiList = [
   Kopi(
     id: 3,
     gambar:
-        'assets/matcha.jpg',
+        'assets/kopiarabika.jpg',
     nama: 'Kopi Arabika',
     tambahan: 'Susu, Gula, Krim',
     deskripsi: 'Kopi Arabika adalah jenis kopi yang memiliki rasa yang lebih halus. Kopi ini berasal dari biji kopi Arabika yang ditanam di daerah pegunungan. Aromanya sangat khas dan nikmat.',
@@ -56,19 +56,10 @@ var kopiList = [
    Kopi(
     id: 5,
     gambar:
-        'assets/matcha.jpg',
-    nama: 'Matcha Latte',
+        'assets/redvelvate.jpg',
+    nama: 'Red Velvate',
     tambahan: 'Susu, Gula',
-    deskripsi: 'Kopi Robusta adalah jenis kopi yang memiliki rasa yang lebih kuat dan pahit. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
-    harga: 18000,
-  ),
-   Kopi(
-    id: 6,
-    gambar:
-        'assets/matcha.jpg',
-    nama: 'Matcha Latte',
-    tambahan: 'Susu, Gula',
-    deskripsi: 'Kopi Robusta adalah jenis kopi yang memiliki rasa yang lebih kuat dan pahit. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
+    deskripsi: 'Red Velvate adalah jenis susu yang memiliki rasa yang manis. Kopi ini berasal dari biji kopi Robusta yang ditanam di daerah dataran rendah.',
     harga: 18000,
   ),
 ];
