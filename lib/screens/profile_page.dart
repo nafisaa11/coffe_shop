@@ -10,7 +10,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int selectedIndex = 2;
-  
+
 void onItemSelected(int index) {
   setState(() {
     selectedIndex = index;
@@ -35,7 +35,7 @@ void onItemSelected(int index) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Center(child: Text('Halaman Profile (Kosong)')),
+      body: const Center(child: Text('Sek mager , Kapan Kapan ae')),
       bottomNavigationBar: NavbarBottom(
         selectedIndex: selectedIndex,
         onItemSelected: onItemSelected,
