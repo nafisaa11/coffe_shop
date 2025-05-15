@@ -46,7 +46,10 @@ class SearchWidget extends StatelessWidget {
         // Cart Icon
         IconButton(
           onPressed: () {
-            KeranjangScreen();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => KeranjangScreen()),
+            );
           },
           icon: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
         ),
