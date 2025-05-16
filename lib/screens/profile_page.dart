@@ -1,33 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:kopiqu/widgets/navbar_bottom.dart';
 import 'package:kopiqu/widgets/profile_header.dart';
 import 'package:kopiqu/screens/loginpage.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-
-  @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
-  int selectedIndex = 2;
-
-  void onItemSelected(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-
-    if (index == 0 && ModalRoute.of(context)!.settings.name != '/menu') {
-      Navigator.pushReplacementNamed(context, '/menu');
-    } else if (index == 1 && ModalRoute.of(context)!.settings.name != '/home') {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (index == 2 &&
-        ModalRoute.of(context)!.settings.name != '/profile') {
-      Navigator.pushReplacementNamed(context, '/profile');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,34 +19,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildMenuItem(
                   icon: PhosphorIcons.user(),
                   text: 'Profil Saya',
-                  onTap: () {
-                    // TODO: Navigasi ke halaman profil
-                  },
+                  onTap: () {},
                 ),
                 _buildMenuItem(
                   icon: PhosphorIcons.clockCounterClockwise(),
                   text: 'Riwayat Pembelian',
-                  onTap: () {
-                    // TODO: Navigasi ke riwayat
-                  },
+                  onTap: () {},
                 ),
                 _buildMenuItem(
                   icon: PhosphorIcons.signOut(),
                   text: 'Log Out',
-                  onTap: () { Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    },
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
                 ),
               ],
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: NavbarBottom(
-        selectedIndex: selectedIndex,
-        onItemSelected: onItemSelected,
       ),
     );
   }

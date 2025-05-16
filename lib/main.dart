@@ -8,6 +8,7 @@ import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';
+import 'package:kopiqu/screens/mainscreen.dart';
 
 void main() {
   runApp(
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
           seedColor: Color.fromARGB(255, 255, 255, 255),
         ),
       ),
-      initialRoute: '/home',
+      home: const MainScreen(),
       routes: {
         '/menu': (context) => const MenuPage(),
         '/home': (context) => const Homepage(),

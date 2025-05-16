@@ -47,7 +47,10 @@ class RegisterPage extends StatelessWidget {
               CustomButton(
                 text: 'Daftar',
                 onPressed: () {
-                  // action login di sini
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
                 },
               ),
               const SizedBox(height: 20),
