@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/KeranjangController.dart';
+import 'package:kopiqu/widgets/keranjangCard_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:intl/intl.dart';
 
 class KeranjangScreen extends StatelessWidget {
-  const KeranjangScreen({super.key});
+  KeranjangScreen({super.key});
 
   String formatRupiah(int harga) {
-    return NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-        .format(harga);
+    return NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    ).format(harga);
   }
 
   @override
@@ -19,7 +23,10 @@ class KeranjangScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Keranjang KopiQu', style: TextStyle(color: Colors.brown)),
+        title: const Text(
+          'Keranjang KopiQu',
+          style: TextStyle(color: Colors.brown),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.brown),
           onPressed: () => Navigator.pop(context),
@@ -39,67 +46,38 @@ class KeranjangScreen extends StatelessWidget {
                     final kopi = item['kopi'] as Kopi;
                     final jumlah = item['jumlah'];
                     final dipilih = item['dipilih'];
+                    final ukuran = item['ukuran'] ?? 'Sedang';
 
-                    return Card(
-                      margin: const EdgeInsets.all(8),
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: dipilih,
-                            onChanged: (_) => keranjangCtrl.togglePilih(kopi),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(kopi.gambar),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(kopi.nama,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold)),
-                                Text('Kecil'),
-                                Text(formatRupiah(kopi.harga)),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.remove),
-                            onPressed: () =>
-                                keranjangCtrl.ubahJumlah(kopi, -1),
-                          ),
-                          Text('$jumlah'),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () =>
-                                keranjangCtrl.ubahJumlah(kopi, 1),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => keranjangCtrl.hapus(kopi),
-                          ),
-                        ],
-                      ),
+                    return KeranjangCardWidget(
+                      kopi: kopi,
+                      jumlah: jumlah,
+                      dipilih: dipilih,
+                      ukuran: ukuran,
+                      onUkuranChanged: (newUkuran) {
+                        if (newUkuran != null) {
+                          keranjangCtrl.ubahUkuran(
+                            kopi,
+                            ukuran,
+                            newUkuran,
+                          ); // Pass ukuran lama juga
+                        }
+                      },
                     );
                   },
                 ),
               ),
+
+              // Total Harga yang dipilih
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black12,
@@ -112,26 +90,34 @@ class KeranjangScreen extends StatelessWidget {
                   children: [
                     Checkbox(
                       value: keranjangCtrl.semuaDipilih,
-                      onChanged: (val) =>
-                          keranjangCtrl.pilihSemua(val ?? false),
+                      onChanged:
+                          (val) => keranjangCtrl.pilihSemua(val ?? false),
                     ),
                     const Text('Semua'),
                     const Spacer(),
+
+                    // Nutton melanjutkan ke checkout
                     ElevatedButton(
-                      onPressed: keranjangCtrl.totalHarga > 0
-                          ? () {
-                              // Navigasi ke checkout / transaksi
-                            }
-                          : null,
+                      onPressed:
+                          keranjangCtrl.totalHarga > 0
+                              ? () {
+                                // Navigasi ke checkout / transaksi
+                              }
+                              : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.brown,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 24),
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: Text('Pesan ${formatRupiah(keranjangCtrl.totalHarga)}'),
+                      child: Text(
+                        'Pesan ${formatRupiah(keranjangCtrl.totalHarga)}',
+                      ),
                     ),
                   ],
                 ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kopiqu/controllers/KeranjangController.dart';
+import 'package:kopiqu/screens/keranjangScreen.dart';
 
 class SearchWidget extends StatelessWidget {
   // final TextEditingController controller;
@@ -44,7 +46,10 @@ class SearchWidget extends StatelessWidget {
         // Cart Icon
         IconButton(
           onPressed: () {
-            // Aksi saat tombol keranjang ditekan
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => KeranjangScreen()),
+            );
           },
           icon: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
         ),

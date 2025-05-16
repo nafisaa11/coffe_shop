@@ -4,40 +4,85 @@ import 'package:kopiqu/models/kopi.dart';
 class KeranjangController extends ChangeNotifier {
   final List<Map<String, dynamic>> _keranjang = [];
 
+  bool sudahAda(Kopi kopi, String ukuran) {
+    return _keranjang.any(
+      (item) => item['kopi'] == kopi && item['ukuran'] == ukuran,
+    );
+  }
+
   List<Map<String, dynamic>> get keranjang => _keranjang;
 
-  void tambah(Kopi kopi) {
-    final index = _keranjang.indexWhere((item) => item['kopi'].id == kopi.id);
+  void ubahUkuran(Kopi kopi, String oldUkuran, String newUkuran) {
+    final index = _keranjang.indexWhere(
+      (item) => item['kopi'] == kopi && item['ukuran'] == oldUkuran,
+    );
+
     if (index != -1) {
-      _keranjang[index]['jumlah'] += 1;
-    } else {
+      final item = _keranjang[index];
+
+      // Cek apakah kombinasi baru sudah ada
+      final newIndex = _keranjang.indexWhere(
+        (item) => item['kopi'] == kopi && item['ukuran'] == newUkuran,
+      );
+
+      if (newIndex != -1) {
+        // Kalau sudah ada, tambahkan jumlahnya ke item yang sudah ada
+        _keranjang[newIndex]['jumlah'] += item['jumlah'];
+        _keranjang.removeAt(index);
+      } else {
+        // Kalau belum ada, ubah ukuran
+        item['ukuran'] = newUkuran;
+      }
+
+      notifyListeners();
+    }
+  }
+
+  void tambah(Kopi kopi, String ukuran) {
+    final index = _keranjang.indexWhere(
+      (item) => item['kopi'] == kopi && item['ukuran'] == ukuran,
+    );
+
+    if (index == -1) {
       _keranjang.add({
         'kopi': kopi,
+        'ukuran': ukuran,
         'jumlah': 1,
-        'dipilih': false,
+        'dipilih': true,
       });
+    } else {
+      _keranjang[index]['jumlah'] += 1;
     }
+
     notifyListeners();
   }
 
-  void hapus(Kopi kopi) {
-    _keranjang.removeWhere((item) => item['kopi'].id == kopi.id);
+  void hapus(Kopi kopi, String ukuran) {
+    _keranjang.removeWhere(
+      (item) => item['kopi'] == kopi && item['ukuran'] == ukuran,
+    );
     notifyListeners();
   }
 
-  void ubahJumlah(Kopi kopi, int delta) {
-    final index = _keranjang.indexWhere((item) => item['kopi'].id == kopi.id);
+  void ubahJumlah(Kopi kopi, String ukuran, int delta) {
+    final index = _keranjang.indexWhere(
+      (item) => item['kopi'] == kopi && item['ukuran'] == ukuran,
+    );
+
     if (index != -1) {
-      final newJumlah = _keranjang[index]['jumlah'] + delta;
-      if (newJumlah >= 1) {
-        _keranjang[index]['jumlah'] = newJumlah;
-        notifyListeners();
+      _keranjang[index]['jumlah'] += delta;
+      if (_keranjang[index]['jumlah'] <= 0) {
+        _keranjang.removeAt(index);
       }
+      notifyListeners();
     }
   }
 
-  void togglePilih(Kopi kopi) {
-    final index = _keranjang.indexWhere((item) => item['kopi'].id == kopi.id);
+  void togglePilih(Kopi kopi, String ukuran) {
+    final index = _keranjang.indexWhere(
+      (item) => item['kopi'] == kopi && item['ukuran'] == ukuran,
+    );
+
     if (index != -1) {
       _keranjang[index]['dipilih'] = !_keranjang[index]['dipilih'];
       notifyListeners();
@@ -54,7 +99,10 @@ class KeranjangController extends ChangeNotifier {
   int get totalHarga {
     return _keranjang
         .where((item) => item['dipilih'])
-        .fold(0, (total, item) => total + (item['kopi'].harga * item['jumlah']) as int);
+        .fold(
+          0,
+          (total, item) => total + (item['kopi'].harga * item['jumlah']) as int,
+        );
   }
 
   bool get semuaDipilih => _keranjang.every((item) => item['dipilih']);
