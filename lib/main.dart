@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/KeranjangController.dart';
+import 'package:kopiqu/dummy/dummy_transaksi.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
 import 'package:kopiqu/screens/keranjangScreen.dart';
+import 'package:kopiqu/screens/struk.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/registerpage.dart';
@@ -29,7 +31,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 255, 255)),
       ),
-      home: Homepage(), // Ganti dengan id yang sesuai
+      home: StrukPage(transaksi: dummyTransaksi), // Ganti dengan halaman awal yang diinginkan
+      //StrukPage(transaksi: dummyTransaksi), // Ganti dengan id yang sesuai
     );
   } 
 } 
