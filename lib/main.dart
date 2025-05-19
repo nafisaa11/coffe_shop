@@ -11,6 +11,7 @@ import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';
 import 'package:kopiqu/screens/mainscreen.dart';
+import 'package:kopiqu/screens/riwayat_pembelian_page.dart';
 
 void main() {
   runApp(
@@ -38,9 +39,8 @@ class MyApp extends StatelessWidget {
         '/menu': (context) => const MenuPage(),
         '/home': (context) => const Homepage(),
         '/profile': (context) => const ProfilePage(),
-        '/keranjang': (context) => KeranjangScreen()
+        '/keranjang': (context) => KeranjangScreen(),
       },
-
     );
   }
 }
