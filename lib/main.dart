@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/KeranjangController.dart';
-import 'package:kopiqu/dummy/dummy_transaksi.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
 import 'package:kopiqu/screens/keranjangScreen.dart';
-import 'package:kopiqu/screens/struk.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';
-import 'package:kopiqu/screens/mainscreen.dart';
-import 'package:kopiqu/screens/riwayat_pembelian_page.dart';
 
 void main() {
   runApp(
@@ -34,12 +30,12 @@ class MyApp extends StatelessWidget {
           seedColor: Color.fromARGB(255, 255, 255, 255),
         ),
       ),
-      home: const MainScreen(),
+      initialRoute: '/home',
       routes: {
         '/menu': (context) => const MenuPage(),
         '/home': (context) => const Homepage(),
         '/profile': (context) => const ProfilePage(),
-        '/keranjang': (context) => KeranjangScreen(),
+        '/keranjang': (context) => KeranjangScreen()
       },
     );
   }

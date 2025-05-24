@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/banner_controller.dart';
 import 'package:kopiqu/models/kopi.dart';
-import 'package:kopiqu/widgets/KopiQu_header.dart';
+import 'package:kopiqu/widgets/Homepage/banner_slider.dart';
 import 'package:kopiqu/widgets/Homepage/kopi_card.dart';
 import 'package:kopiqu/widgets/Homepage/search_widget.dart';
 import 'package:kopiqu/widgets/Homepage/tag_list.dart';
-import 'package:kopiqu/widgets/navbar_bottom.dart';
-import 'package:kopiqu/widgets/Homepage/banner_slider.dart'; 
+import 'package:kopiqu/widgets/KopiQu_header.dart';
+import 'package:kopiqu/widgets/navbar_bottom.dart'; // Ganti dari banner_carousel.dart
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -16,16 +16,22 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  int selectedIndex = 1;
   final bannerImages = ['assets/baner1.jpg', 'assets/baner2.jpg'];
   final bannerController = BannerController();
 
-  @override
-  void initState() {
-    super.initState();
-    bannerController.startAutoScroll(bannerImages, () {
-      if (mounted) setState(() {});
-    });
-  }
+ @override
+@override
+void initState() {
+  super.initState();
+  // Memulai auto scroll untuk banner
+  bannerController.startAutoScroll(bannerImages, () {
+    if (mounted) {
+      setState(() {}); // Memperbarui tampilan setelah animasi selesai
+    }
+  });
+}
+
 
   @override
   void dispose() {
@@ -33,24 +39,51 @@ class _HomepageState extends State<Homepage> {
     super.dispose();
   }
 
+void onItemSelected(int index) {
+  setState(() {
+    selectedIndex = index;
+  });
+
+  if (index == 0) {
+    if (ModalRoute.of(context)!.settings.name != '/menu') {
+      Navigator.pushReplacementNamed(context, '/menu');
+    }
+  } else if (index == 1) {
+    if (ModalRoute.of(context)!.settings.name != '/home') {
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  } else if (index == 2) {
+    if (ModalRoute.of(context)!.settings.name != '/profile') {
+      Navigator.pushReplacementNamed(context, '/profile');
+    }
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: null,
       body: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 100),
             child: CustomScrollView(
               slivers: [
+                //search 
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SearchWidget(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SearchWidget(
                   ),
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                //banner
                 SliverToBoxAdapter(
-                  child: BannerSlider(
+                  child: BannerSlider( // Ganti dari BannerCarousel
                     bannerImages: bannerImages,
                     pageController: bannerController.pageController,
                   ),
@@ -58,6 +91,7 @@ class _HomepageState extends State<Homepage> {
                 const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 const SliverToBoxAdapter(child: TagList()),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
@@ -85,6 +119,10 @@ class _HomepageState extends State<Homepage> {
             child: KopiQuHeader(),
           ),
         ],
+      ),
+      bottomNavigationBar: NavbarBottom(
+        selectedIndex: selectedIndex,
+        onItemSelected: onItemSelected,
       ),
     );
   }
