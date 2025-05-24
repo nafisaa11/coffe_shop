@@ -39,7 +39,7 @@ void initState() {
     super.dispose();
   }
 
-void onItemSelected(int index) {
+void _onItemSelected(int index) {
   setState(() {
     selectedIndex = index;
   });
@@ -119,10 +119,6 @@ void onItemSelected(int index) {
             child: KopiQuHeader(),
           ),
         ],
-      ),
-      bottomNavigationBar: NavbarBottom(
-        selectedIndex: selectedIndex,
-        onItemSelected: onItemSelected,
       ),
     );
   }

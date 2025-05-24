@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/KeranjangController.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/keranjangScreen.dart';
+import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/struk.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
           seedColor: Color.fromARGB(255, 255, 255, 255),
         ),
       ),
-      initialRoute: '/home',
+      home:  LoginPage(),
       routes: {
         '/menu': (context) => const MenuPage(),
         '/home': (context) => const Homepage(),
