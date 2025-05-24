@@ -8,7 +8,7 @@ class LoginPage extends StatelessWidget {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool _isloading = false;
+  
 
   @override
   Widget build(BuildContext context) {
