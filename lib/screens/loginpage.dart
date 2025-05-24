@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/screens/mainscreen.dart';
 import 'package:kopiqu/screens/registerpage.dart';
+import 'package:kopiqu/services/auth_service.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
 
 class LoginPage extends StatelessWidget {
@@ -8,6 +8,7 @@ class LoginPage extends StatelessWidget {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _isloading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +40,11 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 160), // jarak textfield ke tombol
               CustomButton(
                 text: 'Masuk',
-                onPressed: () {
-                  Navigator.pushReplacement(
+                onPressed: () async {
+                  await AuthService().login(
+                    emailController.text,
+                    passwordController.text,
                     context,
-                    MaterialPageRoute(builder: (context) => MainScreen()),
                   );
                 },
               ),
