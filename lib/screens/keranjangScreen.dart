@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/KeranjangController.dart';
+import 'package:kopiqu/screens/struk.dart';
+import 'package:kopiqu/screens/transaksiScreen.dart';
 import 'package:kopiqu/widgets/keranjangCard_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
@@ -101,7 +103,14 @@ class KeranjangScreen extends StatelessWidget {
                       onPressed:
                           keranjangCtrl.totalHarga > 0
                               ? () {
-                                // Navigasi ke checkout / transaksi
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const PeriksaPesananScreen(),
+                                  ),
+                                );
                               }
                               : null,
                       style: ElevatedButton.styleFrom(

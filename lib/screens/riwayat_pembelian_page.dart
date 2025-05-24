@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kopiqu/dummy/dummy_transaksi.dart'; // Import dari folder dummy
+import 'package:kopiqu/models/transaksi.dart';
 
 class RiwayatPembelianPage extends StatelessWidget {
   const RiwayatPembelianPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final transaksi = dummyTransaksi;
+    final transaksi = ModalRoute.of(context)?.settings.arguments as Transaksi;
 
     final totalHarga = transaksi.items.fold(
       0,

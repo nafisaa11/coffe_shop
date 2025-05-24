@@ -4,7 +4,7 @@ import '../models/kopi.dart';
 class KopiService {
   final supabase = Supabase.instance.client;
 
-  Future<List<Kopi>> getAllKopi() async {
+  Future<List<Future<List<Kopi>>>> getAllKopi() async {
     final response = await supabase.from('kopi').select();
 
     final data = response as List;

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/KeranjangController.dart';
-import 'package:kopiqu/screens/keranjangScreen.dart';
 
 class SearchWidget extends StatelessWidget {
   // final TextEditingController controller;

@@ -14,6 +14,10 @@ class Kopi {
     required this.deskripsi,
     required this.harga,
   });
+
+  static Future<List<Kopi>> fromJson(item) {
+    throw UnimplementedError('fromJson is not implemented yet');
+  }
 }
 
 var kopiList = [

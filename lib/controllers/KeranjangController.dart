@@ -105,5 +105,35 @@ class KeranjangController extends ChangeNotifier {
         );
   }
 
+  // Method untuk membersihkan keranjang setelah transaksi selesai
+  void bersihkanKeranjang() {
+    _keranjang.clear();
+    notifyListeners();
+  }
+
+  // Method untuk membersihkan hanya item yang dipilih
+  void bersihkanItemDipilih() {
+    _keranjang.removeWhere((item) => item['dipilih'] == true);
+    notifyListeners();
+  }
+
+  // Method untuk mendapatkan item yang dipilih saja
+  List<Map<String, dynamic>> get itemDipilih {
+    return _keranjang.where((item) => item['dipilih'] == true).toList();
+  }
+
+  // Method untuk menghitung total item yang dipilih
+  int get totalItemDipilih {
+    int total = 0;
+    for (var item in _keranjang) {
+      if (item['dipilih'] == true) {
+        total += item['jumlah'] as int;
+      }
+    }
+    return total;
+  }
+
   bool get semuaDipilih => _keranjang.every((item) => item['dipilih']);
 }
+
+

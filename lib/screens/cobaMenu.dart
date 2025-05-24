@@ -11,13 +11,13 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  final kopiService = KopiController();
+  final kopiService = KopiService();
   late Future<List<Kopi>> futureKopi;
 
   @override
   void initState() {
     super.initState();
-    futureKopi = kopiService.getAllKopi();
+    futureKopi = kopiService.getAllKopi() as Future<List<Kopi>>;
   }
 
   @override
