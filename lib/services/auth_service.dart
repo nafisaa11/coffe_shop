@@ -69,6 +69,21 @@ class AuthService {
     String password,
     BuildContext context,
   ) async {
+    // Cek kalau masih ada kolom kosong
+    if (email.isEmpty || password.isEmpty) {
+      Flushbar(
+        message: 'Semua kolom wajib diisi!',
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 2),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.error, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+      return; // Stop proses login
+    }
+
     try {
       final AuthResponse res = await supabase.auth.signInWithPassword(
         email: email,
@@ -78,15 +93,28 @@ class AuthService {
       final User? user = res.user;
 
       if (user != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
-          (route) => false,
-        );
+        Flushbar(
+          message: 'Berhasil Masuk.',
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+          flushbarPosition: FlushbarPosition.TOP,
+          margin: const EdgeInsets.all(8),
+          borderRadius: BorderRadius.circular(8),
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          animationDuration: const Duration(milliseconds: 500),
+        ).show(context);
+
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );
+        });
       }
-    } on AuthException catch (e) {
+    } on AuthException catch (_) {
+      // Kalau email/password salah
       Flushbar(
-        message: e.message,
+        message: 'Email atau password salah!',
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
         flushbarPosition: FlushbarPosition.TOP,
@@ -96,8 +124,9 @@ class AuthService {
         animationDuration: const Duration(milliseconds: 500),
       ).show(context);
     } catch (e) {
+      // Error lain di luar AuthException
       Flushbar(
-        message: e.toString(),
+        message: 'Terjadi kesalahan: ${e.toString()}',
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
         flushbarPosition: FlushbarPosition.TOP,
