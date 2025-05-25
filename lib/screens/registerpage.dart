@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/services/auth_service.dart'; // import AuthService
-import 'package:another_flushbar/flushbar.dart';
+
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -48,37 +48,13 @@ class RegisterPage extends StatelessWidget {
               const SizedBox(height: 60),
               CustomButton(
                 text: 'Daftar',
-                onPressed: () {
-                  final email = emailController.text.trim();
-                  final password = passwordController.text.trim();
-                  final confirmPassword = confirmPasswordController.text.trim();
-
-                  if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-                    Flushbar(
-                      message: 'Semua kolom wajib diisi!',
-                      backgroundColor: Colors.red,
-                      duration: const Duration(seconds: 3),
-                      flushbarPosition: FlushbarPosition.TOP,
-                      margin: const EdgeInsets.all(8),
-                      borderRadius: BorderRadius.circular(8),
-                    ).show(context);
-                    return;
-                  }
-
-                  if (password != confirmPassword) {
-                    Flushbar(
-                      message: 'Password dan konfirmasi password tidak sama!',
-                      backgroundColor: Colors.red,
-                      duration: const Duration(seconds: 3),
-                      flushbarPosition: FlushbarPosition.TOP,
-                      margin: const EdgeInsets.all(8),
-                      borderRadius: BorderRadius.circular(8),
-                    ).show(context);
-                    return;
-                  }
-
-                  // Panggil AuthService register
-                  AuthService().register(email, password, context);
+                onPressed: () async {
+                  await AuthService().register(
+                    emailController.text,
+                    passwordController.text,
+                    confirmPasswordController.text,
+                    context,
+                  );
                 },
               ),
               const SizedBox(height: 20),
