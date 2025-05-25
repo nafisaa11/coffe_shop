@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ProfileHeader extends StatelessWidget {
+class ProfileHeader extends StatefulWidget {
   const ProfileHeader({super.key});
+
+  @override
+  State<ProfileHeader> createState() => _ProfileHeaderState();
+}
+
+class _ProfileHeaderState extends State<ProfileHeader> {
+  String displayName = 'Pengguna';
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Supabase.instance.client.auth.currentUser;
+    setState(() {
+      displayName = user?.userMetadata?['display_name'] ?? 'Pengguna';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +51,13 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Teks Guest + Edit
+          // Display name dari metadata + icon edit
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Guest',
-                style: TextStyle(
+              Text(
+                displayName,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
