@@ -108,4 +108,42 @@ class AuthService {
       ).show(context);
     }
   }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      await supabase.auth.signOut();
+
+      // Tampilkan notifikasi sukses
+      Flushbar(
+        message: 'Berhasil logout.',
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+
+      // Delay sebentar biar user lihat flushbar-nya
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false,
+        );
+      });
+    } catch (e) {
+      Flushbar(
+        message: 'Gagal logout: $e',
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.error, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    }
+  }
 }
