@@ -210,4 +210,106 @@ class AuthService {
       ).show(context);
     }
   }
+
+  Future<void> resetPassword(String email, BuildContext context) async {
+    if (email.isEmpty) {
+      Flushbar(
+        message: 'Masukkan email terlebih dahulu!',
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.error, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+      return;
+    }
+
+    try {
+      await supabase.auth.resetPasswordForEmail(email);
+      Flushbar(
+        message: 'Link reset password dikirim ke email kamu.',
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    } catch (e) {
+      Flushbar(
+        message: 'Gagal kirim reset password: $e',
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.error, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    }
+  }
+
+  Future<void> updateEmail(String newEmail, BuildContext context) async {
+    try {
+      await supabase.auth.updateUser(UserAttributes(email: newEmail));
+
+      Flushbar(
+        message: 'Email berhasil diperbarui.',
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    } catch (e) {
+      Flushbar(
+        message: 'Gagal update email: $e',
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.error, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    }
+  }
+
+  Future<void> updateDisplayName(
+    String newDisplayName,
+    BuildContext context,
+  ) async {
+    try {
+      await supabase.auth.updateUser(
+        UserAttributes(data: {'display_name': newDisplayName}),
+      );
+
+      Flushbar(
+        message: 'Display name berhasil diperbarui.',
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    } catch (e) {
+      Flushbar(
+        message: 'Gagal update display name: $e',
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.error, color: Colors.white),
+        animationDuration: const Duration(milliseconds: 500),
+      ).show(context);
+    }
+  }
 }
