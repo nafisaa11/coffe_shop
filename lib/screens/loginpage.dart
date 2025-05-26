@@ -43,6 +43,24 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 controller: passwordController,
               ),
+
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    print("Klik Lupa Password");
+                  },
+                  child: const Text(
+                    'Lupa Password?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 160),
 
               // Tombol login atau animasi loading

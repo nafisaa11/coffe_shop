@@ -11,6 +11,7 @@ class ProfileHeader extends StatefulWidget {
 
 class _ProfileHeaderState extends State<ProfileHeader> {
   String displayName = 'Pengguna';
+  String email = 'example@email.com';
 
   @override
   void initState() {
@@ -18,6 +19,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     final user = Supabase.instance.client.auth.currentUser;
     setState(() {
       displayName = user?.userMetadata?['display_name'] ?? 'Pengguna';
+      email = user?.email ?? 'example@email.com';
     });
   }
 
@@ -70,6 +72,15 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 size: 18,
               ),
             ],
+          ),
+          const SizedBox(height: 4),
+          // Email pengguna
+          Text(
+            email,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white70,
+            ),
           ),
         ],
       ),
