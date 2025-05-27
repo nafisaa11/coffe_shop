@@ -1,11 +1,25 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:kopiqu/screens/mainscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:another_flushbar/flushbar.dart';
 import 'package:kopiqu/screens/loginpage.dart';
+import 'package:kopiqu/widgets/flushbarhelper.dart';
 
 class AuthService {
   final supabase = Supabase.instance.client;
+
+  // Validasi isian kosong
+  bool _validateFields(List<String> fields, BuildContext context) {
+    if (fields.any((field) => field.isEmpty)) {
+      FlushbarHelper.show(
+        context,
+        message: 'Semua kolom wajib diisi!',
+        backgroundColor: Colors.red,
+        icon: Icons.error,
+      );
+      return false;
+    }
+    return true;
+  }
 
   Future<void> register(
     String email,
@@ -13,89 +27,53 @@ class AuthService {
     String confirmPassword,
     BuildContext context,
   ) async {
-    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      Flushbar(
-        message: 'Semua kolom wajib diisi!',
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
-      return;
-    }
-
+    if (!_validateFields([email, password, confirmPassword], context)) return;
     if (password != confirmPassword) {
-      Flushbar(
-        message: 'Password dan konfirmasi password tidak sama!',
+      FlushbarHelper.show(
+        context,
+        message: 'Password dan konfirmasi tidak sama!',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
       return;
     }
 
     try {
-      // Ambil nama depan dari email sebelum tanda @
       final displayName = email.split('@')[0];
-
-      final AuthResponse res = await supabase.auth.signUp(
+      final res = await supabase.auth.signUp(
         email: email,
         password: password,
-        data: {
-          'display_name': displayName, // ← simpan ke user_metadata
-        },
+        data: {'display_name': displayName},
       );
 
-      final User? user = res.user;
-
-      if (user != null) {
-        Flushbar(
+      if (res.user != null) {
+        await FlushbarHelper.show(
+          context,
           message: 'Registrasi berhasil! Silakan login.',
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
-          flushbarPosition: FlushbarPosition.TOP,
-          margin: const EdgeInsets.all(8),
-          borderRadius: BorderRadius.circular(8),
-          icon: const Icon(Icons.check_circle, color: Colors.white),
-          animationDuration: const Duration(milliseconds: 500),
-        ).show(context);
-
+          icon: Icons.check_circle,
+        );
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
+            MaterialPageRoute(builder: (_) => LoginPage()),
           );
         });
       }
     } on AuthException catch (e) {
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: e.message,
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     } catch (e) {
-      Flushbar(
-        message: e.toString(),
+      FlushbarHelper.show(
+        context,
+        message: 'Terjadi kesalahan: $e',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     }
   }
 
@@ -104,179 +82,115 @@ class AuthService {
     String password,
     BuildContext context,
   ) async {
-    // Cek kalau masih ada kolom kosong
-    if (email.isEmpty || password.isEmpty) {
-      Flushbar(
-        message: 'Semua kolom wajib diisi!',
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 2),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
-      return; // Stop proses login
-    }
+    if (!_validateFields([email, password], context)) return;
 
     try {
-      final AuthResponse res = await supabase.auth.signInWithPassword(
+      final res = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
-
-      final User? user = res.user;
-
-      if (user != null) {
-        Flushbar(
+      if (res.user != null) {
+        await FlushbarHelper.show(
+          context,
           message: 'Berhasil Masuk.',
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
-          flushbarPosition: FlushbarPosition.TOP,
-          margin: const EdgeInsets.all(8),
-          borderRadius: BorderRadius.circular(8),
-          icon: const Icon(Icons.check_circle, color: Colors.white),
-          animationDuration: const Duration(milliseconds: 500),
-        ).show(context);
-
+          icon: Icons.check_circle,
+        );
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => MainScreen()),
+            MaterialPageRoute(builder: (_) => MainScreen()),
           );
         });
       }
-    } on AuthException catch (_) {
-      // Kalau email/password salah
-      Flushbar(
+    } on AuthException {
+      FlushbarHelper.show(
+        context,
         message: 'Email atau password salah!',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     } catch (e) {
-      // Error lain di luar AuthException
-      Flushbar(
-        message: 'Terjadi kesalahan: ${e.toString()}',
+      FlushbarHelper.show(
+        context,
+        message: 'Terjadi kesalahan: $e',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     }
   }
 
   Future<void> logout(BuildContext context) async {
     try {
       await supabase.auth.signOut();
-
-      // Tampilkan notifikasi sukses
-      Flushbar(
+      await FlushbarHelper.show(
+        context,
         message: 'Berhasil logout.',
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
-
-      // Delay sebentar biar user lihat flushbar-nya
+        icon: Icons.check_circle,
+      );
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
+          MaterialPageRoute(builder: (_) => LoginPage()),
           (route) => false,
         );
       });
     } catch (e) {
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Gagal logout: $e',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     }
   }
 
   Future<void> resetPassword(String email, BuildContext context) async {
     if (email.isEmpty) {
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Masukkan email terlebih dahulu!',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
       return;
     }
 
     try {
       await supabase.auth.resetPasswordForEmail(email);
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Link reset password dikirim ke email kamu.',
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.check_circle,
+      );
     } catch (e) {
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Gagal kirim reset password: $e',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     }
   }
 
   Future<void> updateEmail(String newEmail, BuildContext context) async {
     try {
       await supabase.auth.updateUser(UserAttributes(email: newEmail));
-
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Email berhasil diperbarui.',
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.check_circle,
+      );
     } catch (e) {
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Gagal update email: $e',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     }
   }
 
@@ -288,28 +202,19 @@ class AuthService {
       await supabase.auth.updateUser(
         UserAttributes(data: {'display_name': newDisplayName}),
       );
-
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Display name berhasil diperbarui.',
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.check_circle,
+      );
     } catch (e) {
-      Flushbar(
+      FlushbarHelper.show(
+        context,
         message: 'Gagal update display name: $e',
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        flushbarPosition: FlushbarPosition.TOP,
-        margin: const EdgeInsets.all(8),
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.error, color: Colors.white),
-        animationDuration: const Duration(milliseconds: 500),
-      ).show(context);
+        icon: Icons.error,
+      );
     }
   }
 }
