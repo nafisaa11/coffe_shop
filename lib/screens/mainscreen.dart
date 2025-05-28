@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/menupage.dart';
 import 'package:kopiqu/screens/profile_page.dart';
-import 'package:kopiqu/widgets/navbar_bottom.dart';
+import 'package:kopiqu/widgets/Layout/bottomNavbar_widget.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,7 +14,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int selectedIndex = 1;
 
-  final List<Widget> pages = const [
+  final List<Widget> pages = [
     MenuPage(),
     Homepage(),
     ProfilePage(),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/KopiController.dart';
-import 'package:kopiqu/widgets/Homepage/kopi_card.dart';
+import 'package:kopiqu/controllers/Kopi_Controller.dart';
+import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import '../models/kopi.dart';
 
 class MenuScreen extends StatefulWidget {

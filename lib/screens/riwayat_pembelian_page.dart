@@ -14,10 +14,10 @@ class RiwayatPembelianPage extends StatelessWidget {
       (total, item) => total + (item.kopi.harga * item.jumlah),
     );
 
-    final daftarNamaKopi = transaksi.items
-        .map((item) => item.kopi.nama)
-        .toList()
-        .join(', ');
+    // final daftarNamaKopi = transaksi.items
+    //     .map((item) => item.kopi.nama)
+    //     .toList()
+    //     .join(', ');
 
     return Scaffold(
       backgroundColor: const Color(0xFFFDEFE5),
@@ -56,12 +56,12 @@ class RiwayatPembelianPage extends StatelessWidget {
               'No. Transaksi\n${transaksi.noTransaksi}',
               style: const TextStyle(fontSize: 14),
             ),
-            subtitle: Text(
-              daftarNamaKopi.length > 40
-                  ? daftarNamaKopi.substring(0, 40) + '...'
-                  : daftarNamaKopi,
-              style: const TextStyle(fontSize: 12),
-            ),
+            // subtitle: Text(
+            //   daftarNamaKopi.length > 40
+            //       ? daftarNamaKopi.substring(0, 40) + '...'
+            //       : daftarNamaKopi,
+            //   style: const TextStyle(fontSize: 12),
+            // ),
             trailing: Text(
               'Rp ${NumberFormat('#,###', 'id_ID').format(totalHarga)}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

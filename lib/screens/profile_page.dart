@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:kopiqu/widgets/profile_header.dart';
+import 'package:kopiqu/widgets/Layout/headerProfile_widget.dart';
 import 'package:kopiqu/services/auth_service.dart';
 
 class ProfilePage extends StatelessWidget {

@@ -187,7 +187,7 @@ class StrukPage extends StatelessWidget {
                                         vertical: 8,
                                         horizontal: 4,
                                       ),
-                                      child: Text(item.kopi.nama.toUpperCase()),
+                                      // child: Text(item.kopi.nama.toUpperCase()),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(

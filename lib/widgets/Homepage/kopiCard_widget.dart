@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class CoffeeCard extends StatelessWidget {
+class CoffeeCard extends StatefulWidget {
   final Kopi kopi;
+
+  CoffeeCard({super.key, required this.kopi});
+
+  @override
+  State<CoffeeCard> createState() => _CoffeeCardState();
+}
+
+class _CoffeeCardState extends State<CoffeeCard> {
+  final supabase = Supabase.instance.client;
+  List<Kopi> data = [];
 
   final formatRupiah = NumberFormat.currency(
     locale: 'id_ID',
@@ -12,7 +23,16 @@ class CoffeeCard extends StatelessWidget {
     decimalDigits: 0,
   );
 
-  CoffeeCard({super.key, required this.kopi});
+  Future<void> getData() async {
+    try {
+      final response = await supabase.from('kopi').select('*');
+      setState(() {
+        data = Kopi.listFromJson(response);
+      });
+    } catch (e) {
+      print('Error getData: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +41,7 @@ class CoffeeCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailProdukScreen(id: kopi.id),
+            builder: (context) => DetailProdukScreen(id: widget.kopi.id),
           ),
         );
       },
@@ -57,10 +77,34 @@ class CoffeeCard extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        kopi.gambar,
+                      child: Image.network(
+                        widget.kopi.gambar,
                         width: double.infinity,
                         fit: BoxFit.cover,
+                        // Tambahkan errorBuilder untuk menangani jika URL gambar tidak valid atau gagal dimuat
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.broken_image,
+                            size: 50,
+                          ); // Tampilan placeholder jika gambar error
+                        },
+                        // Tambahkan loadingBuilder untuk menampilkan indikator saat gambar sedang dimuat
+                        loadingBuilder: (
+                          BuildContext context,
+                          Widget child,
+                          ImageChunkEvent? loadingProgress,
+                        ) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value:
+                                  loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -81,7 +125,7 @@ class CoffeeCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              kopi.nama,
+                              widget.kopi.nama_kopi,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -91,9 +135,9 @@ class CoffeeCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            
+
                             Text(
-                              formatRupiah.format(kopi.harga),
+                              formatRupiah.format(widget.kopi.harga),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/models/kopi.dart';
-import 'package:kopiqu/controllers/KeranjangController.dart';
+import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -76,7 +76,7 @@ class KeranjangCardWidget extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                kopi.nama,
+                                kopi.nama_kopi,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,

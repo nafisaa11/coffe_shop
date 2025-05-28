@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/KeranjangController.dart';
+import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/keranjangScreen.dart';
 import 'package:kopiqu/screens/loginpage.dart';
-import 'package:kopiqu/screens/struk.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart';
+import 'package:kopiqu/services/getKopi_servce.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       ),
       home:  LoginPage(),
       routes: {
-        '/menu': (context) => const MenuPage(),
+        '/menu': (context) => MenuPage(),
         '/home': (context) => const Homepage(),
         '/profile': (context) => const ProfilePage(),
         '/keranjang': (context) => KeranjangScreen(),
