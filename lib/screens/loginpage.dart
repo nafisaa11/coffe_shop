@@ -13,8 +13,69 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final resetEmailController = TextEditingController();
 
-  bool _isLoading = false; // 👈 state loading
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    resetEmailController.dispose();
+    super.dispose();
+  }
+
+  void _showForgotPasswordDialog() {
+    showDialog(
+      context:
+          context, // Konteks ini adalah milik LoginPage, aman untuk showDialog
+      builder: (dialogContext) {
+        // Gunakan dialogContext untuk aksi di dalam dialog
+        return AlertDialog(
+          title: const Text('Lupa Password'),
+          content: CustomTextField(
+            label: 'Email',
+            hintText: 'Masukkan email terdaftar',
+            controller: resetEmailController,
+          ),
+          actions: [
+            TextButton(
+              onPressed:
+                  () =>
+                      Navigator.of(
+                        dialogContext,
+                      ).pop(), // Gunakan dialogContext
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (resetEmailController.text.isNotEmpty) {
+                  Navigator.of(
+                    dialogContext,
+                  ).pop(); // Tutup dialog menggunakan dialogContext
+
+                  // Gunakan context dari _LoginPageState (this.context) untuk AuthService
+                  // karena sendPasswordResetEmail mungkin menampilkan Flushbar di LoginPage
+                  setState(() => _isLoading = true);
+                  await AuthService().sendPasswordResetEmail(
+                    resetEmailController.text,
+                    context, // this.context (milik _LoginPageState)
+                  );
+
+                  // Periksa apakah widget masih mounted sebelum setState
+                  if (mounted) {
+                    setState(() => _isLoading = false);
+                  }
+                  resetEmailController.clear();
+                }
+              },
+              child: const Text('Kirim Link Reset'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +104,11 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 controller: passwordController,
               ),
-
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
-                  onTap: () {
-                    print("Klik Lupa Password");
-                  },
+                  onTap: _showForgotPasswordDialog,
                   child: const Text(
                     'Lupa Password?',
                     style: TextStyle(
@@ -61,31 +119,28 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 160),
-
-              // Tombol login atau animasi loading
+              const SizedBox(height: 136), // Sesuaikan dengan layout Anda
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : CustomButton(
+                    // Pastikan CustomButton sudah didefinisikan atau ganti dengan ElevatedButton
                     text: 'Masuk',
+                    iconData:
+                        Icons.login, // Jika CustomButton Anda mendukung ikon
                     onPressed: () async {
-                      setState(() {
-                        _isLoading = true;
-                      });
-
+                      setState(() => _isLoading = true);
                       await AuthService().login(
                         emailController.text,
                         passwordController.text,
                         context,
                       );
-
-                      setState(() {
-                        _isLoading = false;
-                      });
+                      // Periksa apakah widget masih mounted sebelum setState
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                      }
                     },
                   ),
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

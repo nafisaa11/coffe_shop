@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/widgets/flushbarhelper.dart';
 
-
-
 class AuthService {
   final supabase = Supabase.instance.client;
 
@@ -41,13 +39,15 @@ class AuthService {
     }
 
     // Validasi email untuk pembeli (opsional, jika ingin membatasi domain)
-    if (!email.endsWith('@gmail.com')) { // Contoh jika ingin membatasi
+    if (!email.endsWith('@gmail.com')) {
+      // Contoh jika ingin membatasi
       FlushbarHelper.show(
         context,
-        message: 'Untuk pembeli, gunakan email @gmail.com',
+        message: 'Untuk pembeli,diharap menggunakan email google aktif',
         backgroundColor: Colors.red,
         icon: Icons.error,
       );
+
       return;
     }
 
@@ -133,8 +133,7 @@ class AuthService {
             // Jika role tidak dikenali atau email admin tidak sesuai
             FlushbarHelper.show(
               context,
-              message:
-                  'Email address atau role tidak sesuai.',
+              message: 'Email address atau role tidak sesuai.',
               backgroundColor: Colors.orange,
               icon: Icons.warning,
             );
@@ -193,7 +192,10 @@ class AuthService {
     }
   }
 
-  Future<void> resetPassword(String email, BuildContext context) async {
+  Future<void> sendPasswordResetEmail(
+    String email,
+    BuildContext context,
+  ) async {
     if (email.isEmpty) {
       FlushbarHelper.show(
         context,
@@ -205,17 +207,103 @@ class AuthService {
     }
 
     try {
-      await supabase.auth.resetPasswordForEmail(email);
+      await supabase.auth.resetPasswordForEmail(
+        email,
+        redirectTo: 'io.supabase.kopiqu://login-callback/',
+      );
       FlushbarHelper.show(
         context,
-        message: 'Link reset password dikirim ke email kamu.',
+        message:
+            'Link reset password telah dikirim ke email Anda. Silakan cek email.',
         backgroundColor: Colors.green,
         icon: Icons.check_circle,
+      );
+    } on AuthException catch (e) {
+      FlushbarHelper.show(
+        context,
+        message: 'Gagal mengirim link reset: ${e.message}',
+        backgroundColor: Colors.red,
+        icon: Icons.error,
       );
     } catch (e) {
       FlushbarHelper.show(
         context,
-        message: 'Gagal kirim reset password: $e',
+        message: 'Terjadi kesalahan: $e',
+        backgroundColor: Colors.red,
+        icon: Icons.error,
+      );
+    }
+  }
+
+  Future<void> updateUserPassword(
+    BuildContext context,
+    String newPassword,
+    String confirmNewPassword,
+  ) async {
+    if (!_validateFields([newPassword, confirmNewPassword], context)) return;
+
+    if (newPassword != confirmNewPassword) {
+      FlushbarHelper.show(
+        context,
+        message: 'Password baru dan konfirmasi tidak sama!',
+        backgroundColor: Colors.red,
+        icon: Icons.error,
+      );
+      return;
+    }
+    if (newPassword.length < 6) {
+      FlushbarHelper.show(
+        context,
+        message: 'Password minimal 6 karakter!',
+        backgroundColor: Colors.red,
+        icon: Icons.error,
+      );
+      return;
+    }
+
+    try {
+      if (supabase.auth.currentUser == null) {
+        FlushbarHelper.show(
+          context,
+          message: 'Sesi tidak valid. Silakan coba lagi dari link email.',
+          backgroundColor: Colors.red,
+          icon: Icons.error,
+        );
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => LoginPage()),
+            (route) => false,
+          );
+        });
+        return;
+      }
+
+      await supabase.auth.updateUser(UserAttributes(password: newPassword));
+
+      await FlushbarHelper.show(
+        context,
+        message:
+            'Password berhasil diperbarui! Silakan login dengan password baru Anda.',
+        backgroundColor: Colors.green,
+        icon: Icons.check_circle,
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => LoginPage()),
+          (route) => false,
+        );
+      });
+    } on AuthException catch (e) {
+      FlushbarHelper.show(
+        context,
+        message: 'Gagal memperbarui password: ${e.message}',
+        backgroundColor: Colors.red,
+        icon: Icons.error,
+      );
+    } catch (e) {
+      FlushbarHelper.show(
+        context,
+        message: 'Terjadi kesalahan saat memperbarui password: $e',
         backgroundColor: Colors.red,
         icon: Icons.error,
       );
@@ -253,7 +341,7 @@ class AuthService {
         UserAttributes(
           data: {
             'display_name': newDisplayName,
-            'role': currentUserRole // jika ingin memastikan role tetap ada
+            'role': currentUserRole, // jika ingin memastikan role tetap ada
           },
         ),
       );
