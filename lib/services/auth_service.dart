@@ -248,12 +248,12 @@ class AuthService {
     try {
       // Anda bisa juga menyimpan role di sini jika diperlukan saat update,
       // tapi biasanya role di-set saat pembuatan user.
-      // final currentUserRole = supabase.auth.currentUser?.userMetadata?['role'];
+      final currentUserRole = supabase.auth.currentUser?.userMetadata?['role'];
       await supabase.auth.updateUser(
         UserAttributes(
           data: {
             'display_name': newDisplayName,
-            // 'role': currentUserRole // jika ingin memastikan role tetap ada
+            'role': currentUserRole // jika ingin memastikan role tetap ada
           },
         ),
       );
