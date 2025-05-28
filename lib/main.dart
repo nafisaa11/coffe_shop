@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:kopiqu/screens/admin/admindashboard.dart';
 
 Future<void> main() async {
   // Wajib: inisialisasi Flutter sebelum async
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/keranjang': (context) => KeranjangScreen(),
         '/periksa': (context) => const PeriksaPesananScreen(),
+        '/admin': (context) => const AdminDashboardScreen(),
       },
     );
   }
