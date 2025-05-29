@@ -6,7 +6,6 @@ import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import 'package:kopiqu/widgets/Homepage/search_widget.dart';
 import 'package:kopiqu/widgets/Homepage/tag_list.dart';
 import 'package:kopiqu/widgets/Layout/header_widget.dart';
-import 'package:kopiqu/widgets/Layout/bottomNavbar_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Ganti dari banner_carousel.dart
 
 class Homepage extends StatefulWidget {

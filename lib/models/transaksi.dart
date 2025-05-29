@@ -1,98 +1,90 @@
-// File: models/transaksi.dart
-import 'package:kopiqu/models/kopi.dart';
-
-class TransaksiItem {
-  final Kopi kopi;
-  final int jumlah;
-  final String ukuran;
-  final int hargaSatuan;
-  final int total;
-
-  TransaksiItem({
-    required this.kopi,
-    required this.jumlah,
-    required this.ukuran,
-    required this.hargaSatuan,
-    required this.total,
-  });
-}
+// models/transaksi.dart
+import 'package:kopiqu/models/kopi.dart'; // Pastikan path ini benar
+import 'package:intl/intl.dart'; // Untuk pemformatan tanggal
 
 class Transaksi {
-  final String noTransaksi;
+  final String id;
   final String pembeli;
-  final DateTime tanggal;
-  final List<TransaksiItem> items;
-  final int totalHarga;
+  final List<Map<String, dynamic>> items; // Setiap map merepresentasikan item di keranjang
+                                         // dengan key 'kopi', 'jumlah', 'ukuran'
+  final int totalProduk;
+  final int subtotal;
   final int pajak;
-  final int totalBayar;
-  final int totalJumlah;
+  final int totalPembayaran;
+  final DateTime tanggalTransaksi;
 
   Transaksi({
-    required this.noTransaksi,
+    required this.id,
     required this.pembeli,
-    required this.tanggal,
     required this.items,
-    required this.totalHarga,
+    required this.totalProduk,
+    required this.subtotal,
     required this.pajak,
-    required this.totalBayar,
-    required this.totalJumlah,
+    required this.totalPembayaran,
+    required this.tanggalTransaksi,
   });
 
-  // Factory method untuk membuat transaksi dari data keranjang
+  // Factory constructor untuk membuat objek Transaksi dari item keranjang yang dipilih dan nama pembeli
+  // Logika perhitungan (subtotal, pajak, total) dilakukan di sini berdasarkan item yang diterima.
   factory Transaksi.fromKeranjang({
-    required List<Map<String, dynamic>> keranjangItems,
+    required List<Map<String, dynamic>> keranjangItemsDipilih, // Ini adalah item yang sudah dipilih dan difilter
     required String pembeli,
   }) {
-    // Generate nomor transaksi
-    String noTransaksi = 'TRX${DateTime.now().millisecondsSinceEpoch}';
-    
-    // Konversi keranjang items ke transaksi items
-    List<TransaksiItem> items = [];
-    int totalHarga = 0;
-    int totalJumlah = 0;
-    
-    for (var item in keranjangItems) {
-      if (item['dipilih'] == true) {
-        final kopi = item['kopi'] as Kopi;
-        final jumlah = item['jumlah'] as int;
-        final ukuran = item['ukuran'] ?? 'Sedang';
-        
-        // Hitung harga berdasarkan ukuran
-        int hargaSatuan = kopi.harga;
-        if (ukuran == 'Besar') {
-          hargaSatuan += 5000;
-        } else if (ukuran == 'Kecil') {
-          hargaSatuan -= 3000;
-        }
-        
-        int totalItem = hargaSatuan * jumlah;
-        
-        items.add(TransaksiItem(
-          kopi: kopi,
-          jumlah: jumlah,
-          ukuran: ukuran,
-          hargaSatuan: hargaSatuan,
-          total: totalItem,
-        ));
-        
-        totalHarga += totalItem;
-        totalJumlah += jumlah;
+    int calculatedTotalProduk = 0;
+    int calculatedSubtotal = 0;
+
+    // Membuat salinan item untuk disimpan dalam transaksi agar tidak terpengaruh perubahan di keranjang
+    List<Map<String, dynamic>> itemsUntukTransaksi = [];
+
+    for (var itemMap in keranjangItemsDipilih) {
+      final Kopi kopi = itemMap['kopi'] as Kopi;
+      final int jumlah = itemMap['jumlah'] as int;
+      final String ukuran = itemMap['ukuran'] as String? ?? 'Sedang';
+
+      calculatedTotalProduk += jumlah;
+
+      int hargaItemSatuan = kopi.harga;
+      // Penyesuaian harga berdasarkan ukuran
+      if (ukuran == 'Besar') {
+        hargaItemSatuan += 5000;
+      } else if (ukuran == 'Kecil') {
+        hargaItemSatuan -= 3000; // Pastikan harga tidak menjadi negatif
+        if (hargaItemSatuan < 0) hargaItemSatuan = 0;
       }
+      calculatedSubtotal += hargaItemSatuan * jumlah;
+
+      // Menambahkan item yang sudah diproses (termasuk harga satuan yang disesuaikan) ke daftar transaksi
+      itemsUntukTransaksi.add({
+        'kopi': kopi, // Sebaiknya simpan ID atau representasi Kopi yang lebih stabil jika Kopi bisa berubah
+        'nama_kopi': kopi.nama_kopi, // Simpan detail yang relevan saat transaksi
+        'gambar': kopi.gambar,
+        'jumlah': jumlah,
+        'ukuran': ukuran,
+        'harga_satuan_saat_transaksi': hargaItemSatuan, // Simpan harga saat itu
+        'total_harga_item': hargaItemSatuan * jumlah,
+      });
     }
+
+    final int calculatedPajak = (calculatedSubtotal * 0.1).round();
+    final int calculatedTotalPembayaran = calculatedSubtotal + calculatedPajak;
     
-    // Hitung pajak 10%
-    int pajak = (totalHarga * 0.1).round();
-    int totalBayar = totalHarga + pajak;
-    
+    // ID Transaksi sederhana berbasis waktu
+    final String transaksiId = 'TRX-${DateTime.now().millisecondsSinceEpoch}';
+
     return Transaksi(
-      noTransaksi: noTransaksi,
+      id: transaksiId,
       pembeli: pembeli,
-      tanggal: DateTime.now(),
-      items: items,
-      totalHarga: totalHarga,
-      pajak: pajak,
-      totalBayar: totalBayar,
-      totalJumlah: totalJumlah,
+      items: itemsUntukTransaksi, // Gunakan daftar item yang sudah diproses
+      totalProduk: calculatedTotalProduk,
+      subtotal: calculatedSubtotal,
+      pajak: calculatedPajak,
+      totalPembayaran: calculatedTotalPembayaran,
+      tanggalTransaksi: DateTime.now(),
     );
+  }
+
+  // Helper untuk memformat tanggal jika diperlukan untuk tampilan
+  String get tanggalFormatted {
+    return DateFormat('dd MMMM yyyy, HH:mm', 'id_ID').format(tanggalTransaksi);
   }
 }

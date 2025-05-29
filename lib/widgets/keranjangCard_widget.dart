@@ -1,23 +1,17 @@
+// widgets/keranjang_card_widget.dart
 import 'package:flutter/material.dart';
-import 'package:kopiqu/models/kopi.dart';
+import 'package:kopiqu/models/keranjang.dart';
+import 'package:kopiqu/models/kopi.dart'; // Untuk tipe Kopi
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class KeranjangCardWidget extends StatelessWidget {
-  final Kopi kopi;
-  final int jumlah;
-  final bool dipilih;
-  final String ukuran; // Tambahan: ukuran dipilih
-  final void Function(String?) onUkuranChanged;
+  final KeranjangItem item; // Menerima satu objek KeranjangItem
 
   const KeranjangCardWidget({
     super.key,
-    required this.kopi,
-    required this.jumlah,
-    required this.dipilih,
-    required this.ukuran, // Tambahkan ukuran sebagai parameter
-    required this.onUkuranChanged, // Tambahkan callback untuk perubahan ukuran
+    required this.item,
   });
 
   String formatRupiah(int harga) {
@@ -30,10 +24,13 @@ class KeranjangCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final keranjangCtrl = Provider.of<KeranjangController>(
-      context,
-      listen: false,
-    );
+    final keranjangCtrl = Provider.of<KeranjangController>(context, listen: false);
+    
+    // Mengambil data dari objek item untuk kemudahan
+    final Kopi kopi = item.kopi;
+    final String currentUkuran = item.ukuran; // Gunakan nama variabel berbeda untuk menghindari kebingungan di closure
+    final int jumlah = item.jumlah;
+    final bool dipilih = item.dipilih;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -42,7 +39,7 @@ class KeranjangCardWidget extends StatelessWidget {
         children: [
           Checkbox(
             value: dipilih,
-            onChanged: (_) => keranjangCtrl.togglePilih(kopi, ukuran),
+            onChanged: (_) => keranjangCtrl.togglePilihDiSupabase(kopi, currentUkuran),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),
@@ -59,12 +56,44 @@ class KeranjangCardWidget extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      kopi.gambar,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
+                    child: kopi.gambar.startsWith('http')
+                        ? Image.network(
+                            kopi.gambar,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                width: 80,
+                                height: 80,
+                                color: Colors.grey[200],
+                                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 80,
+                                height: 80,
+                                color: Colors.grey[200],
+                                child: Icon(Icons.broken_image, color: Colors.grey[400]),
+                              );
+                            },
+                          )
+                        : Image.asset( // Fallback jika bukan URL
+                            kopi.gambar, // Pastikan path ini ada di assets jika digunakan
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 80,
+                                height: 80,
+                                color: Colors.grey[200],
+                                child: Icon(Icons.broken_image, color: Colors.grey[400]),
+                              );
+                            },
+                          ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -81,116 +110,96 @@ class KeranjangCardWidget extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap:
-                                      () => keranjangCtrl.hapus(kopi, ukuran),
-                                  child: const CircleAvatar(
-                                    backgroundColor: Colors.red,
-                                    radius: 16,
-                                    child: Icon(
-                                      Icons.delete,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                            GestureDetector(
+                              onTap: () => keranjangCtrl.hapus(kopi, currentUkuran),
+                              child: const CircleAvatar(
+                                backgroundColor: Colors.redAccent,
+                                radius: 14, // Sedikit lebih kecil
+                                child: Icon(
+                                  Icons.delete_outline,
+                                  size: 16,
+                                  color: Colors.white,
                                 ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
-
-                        // Ganti text menjadi Dropdown ukuran
+                        const SizedBox(height: 4),
                         DropdownButton<String>(
-                          value: ukuran,
-                          items:
-                              ['Besar', 'Sedang', 'Kecil'].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                );
-                              }).toList(),
-                          onChanged: onUkuranChanged,
+                          value: currentUkuran,
+                          isDense: true, // Membuat dropdown lebih ringkas
+                          underline: Container(height: 1, color: Colors.brown[100]),
+                          items: ['Besar', 'Sedang', 'Kecil'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: const TextStyle(fontSize: 13, color: Colors.black87),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (String? newUkuran) {
+                            if (newUkuran != null && newUkuran != currentUkuran) {
+                              keranjangCtrl.ubahUkuran(kopi, currentUkuran, newUkuran);
+                            }
+                          },
                         ),
-
-                        // const SizedBox(height: 4),
-
+                        const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              formatRupiah(kopi.harga),
+                              formatRupiah(kopi.harga * jumlah), // Menampilkan total harga per item (harga * jumlah)
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 17, // Sedikit lebih besar
+                                color: Colors.brown,
                               ),
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 InkWell(
-                                  onTap:
-                                      () => keranjangCtrl.ubahJumlah(
-                                        kopi,
-                                        ukuran,
-                                        -1,
-                                      ),
+                                  onTap: () => keranjangCtrl.ubahJumlah(kopi, currentUkuran, -1),
                                   child: Container(
-                                    width: 32,
-                                    height: 32,
+                                    width: 30, // Ukuran konsisten
+                                    height: 30,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.brown[200]!,
-                                        width: 1,
-                                      ),
+                                      border: Border.all(color: Colors.brown[300]!, width: 1),
+                                      color: Colors.white,
                                     ),
-                                    child: const Icon(
-                                      Icons.remove,
-                                      size: 20,
-                                      color: Colors.black,
+                                    child: Icon(Icons.remove, size: 18, color: Colors.brown[700]),
+                                  ),
+                                ),
+                                Container( // Menggunakan Container untuk padding yang konsisten
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(
+                                    '$jumlah',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '$jumlah',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
                                 InkWell(
-                                  onTap:
-                                      () => keranjangCtrl.ubahJumlah(
-                                        kopi,
-                                        ukuran,
-                                        1,
-                                      ),
+                                  onTap: () => keranjangCtrl.ubahJumlah(kopi, currentUkuran, 1),
                                   child: Container(
-                                    width: 32,
-                                    height: 32,
+                                    width: 30,
+                                    height: 30,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.brown[200]!,
-                                        width: 1,
-                                      ),
+                                      color: Colors.brown,
+                                      border: Border.all(color: Colors.brown[700]!, width: 1),
                                     ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      size: 20,
-                                      color: Colors.black,
-                                    ),
+                                    child: const Icon(Icons.add, size: 18, color: Colors.white),
                                   ),
                                 ),
                               ],

@@ -1,21 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
-import 'package:kopiqu/screens/struk.dart';
+import 'package:kopiqu/models/keranjang.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart';
 import 'package:kopiqu/widgets/keranjangCard_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:intl/intl.dart';
 
-class KeranjangScreen extends StatelessWidget {
+class KeranjangScreen extends StatefulWidget {
   KeranjangScreen({super.key});
 
+  @override
+  State<KeranjangScreen> createState() => _KeranjangScreenState();
+}
+
+class _KeranjangScreenState extends State<KeranjangScreen> {
   String formatRupiah(int harga) {
     return NumberFormat.currency(
       locale: 'id',
       symbol: 'Rp ',
       decimalDigits: 0,
     ).format(harga);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Hanya fetch jika keranjang kosong atau jika diperlukan
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final keranjangCtrl = Provider.of<KeranjangController>(context, listen: false);
+      if (keranjangCtrl.keranjang.isEmpty) {
+        keranjangCtrl.fetchKeranjangItems();
+      }
+    });
   }
 
   @override
@@ -44,26 +61,10 @@ class KeranjangScreen extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: keranjang.length,
                   itemBuilder: (context, index) {
-                    final item = keranjang[index];
-                    final kopi = item['kopi'] as Kopi;
-                    final jumlah = item['jumlah'];
-                    final dipilih = item['dipilih'];
-                    final ukuran = item['ukuran'] ?? 'Sedang';
+                    final KeranjangItem item = keranjang[index];
 
                     return KeranjangCardWidget(
-                      kopi: kopi,
-                      jumlah: jumlah,
-                      dipilih: dipilih,
-                      ukuran: ukuran,
-                      onUkuranChanged: (newUkuran) {
-                        if (newUkuran != null) {
-                          keranjangCtrl.ubahUkuran(
-                            kopi,
-                            ukuran,
-                            newUkuran,
-                          ); // Pass ukuran lama juga
-                        }
-                      },
+                      item: item, // Teruskan seluruh objek KeranjangItem
                     );
                   },
                 ),

@@ -1,3 +1,4 @@
+// screens/periksa_pesanan_screen.dart
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:kopiqu/models/transaksi.dart';
@@ -5,6 +6,7 @@ import 'package:kopiqu/screens/struk.dart';
 import 'package:kopiqu/widgets/Transaksi/ringkasanPesanan_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
+import 'package:kopiqu/models/keranjang.dart';
 import 'package:intl/intl.dart';
 
 class PeriksaPesananScreen extends StatefulWidget {
@@ -31,14 +33,38 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
         const SnackBar(
           content: Text('Silakan masukkan nama pembeli'),
           backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
         ),
       );
       return;
     }
 
-    // Buat transaksi dari data keranjang
+    // PERBAIKAN: Gunakan itemDipilih yang sudah benar dari controller
+    final List<KeranjangItem> itemKeranjangDipilih = keranjangCtrl.itemDipilih;
+    
+    // Pastikan ada item yang dipilih sebelum membuat transaksi
+    if (itemKeranjangDipilih.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak ada item yang dipilih untuk dipesan.'),
+          backgroundColor: Colors.orangeAccent,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Konversi KeranjangItem ke format yang dibutuhkan Transaksi.fromKeranjang
+    final List<Map<String, dynamic>> itemYangAkanDipesan = itemKeranjangDipilih.map((keranjangItem) => {
+      'kopi': keranjangItem.kopi,
+      'jumlah': keranjangItem.jumlah,
+      'ukuran': keranjangItem.ukuran,
+      'dipilih': keranjangItem.dipilih,
+    }).toList();
+
+    // Buat transaksi dari item yang sudah dipilih
     final transaksi = Transaksi.fromKeranjang(
-      keranjangItems: keranjangCtrl.keranjang,
+      keranjangItemsDipilih: itemYangAkanDipesan,
       pembeli: _namaPembeliController.text.trim(),
     );
 
@@ -47,9 +73,10 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
       context,
       MaterialPageRoute(builder: (context) => StrukPage(transaksi: transaksi)),
     ).then((_) {
-      // Setelah kembali dari struk, bersihkan keranjang
-      keranjangCtrl.bersihkanKeranjang();
-      // Kembali ke halaman utama
+      // Setelah kembali dari struk, bersihkan HANYA item yang sudah dipesan (yang dipilih)
+      keranjangCtrl.bersihkanItemDipilih();
+      
+      // Kembali ke halaman utama (root)
       Navigator.popUntil(context, (route) => route.isFirst);
     });
   }
@@ -71,51 +98,50 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
           'Periksa Pesanan',
           style: TextStyle(
             color: Colors.brown,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.brown),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.brown),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Consumer<KeranjangController>(
         builder: (context, keranjangCtrl, _) {
-          // Filter hanya item yang dipilih
-          final itemDipilih =
-              keranjangCtrl.keranjang
-                  .where((item) => item['dipilih'] == true)
-                  .toList();
+          // PERBAIKAN: Ambil item yang dipilih langsung dari controller
+          final List<KeranjangItem> itemKeranjangDipilih = keranjangCtrl.itemDipilih;
+          
+          // Konversi ke format Map untuk kompatibilitas dengan RingkasanPesanan widget
+          final List<Map<String, dynamic>> itemUntukDitampilkan = itemKeranjangDipilih.map((keranjangItem) => {
+            'kopi': keranjangItem.kopi,
+            'jumlah': keranjangItem.jumlah,
+            'ukuran': keranjangItem.ukuran,
+            'dipilih': keranjangItem.dipilih,
+          }).toList();
 
-          // Hitung total item
           int totalItem = 0;
-          for (var item in itemDipilih) {
-            totalItem += item['jumlah'] as int;
+          for (var keranjangItem in itemKeranjangDipilih) {
+            totalItem += keranjangItem.jumlah;
           }
 
-          // Hitung subtotal
           int subtotal = 0;
-          for (var item in itemDipilih) {
-            final kopi = item['kopi'] as Kopi;
-            final jumlah = item['jumlah'] as int;
-            final ukuran = item['ukuran'] ?? 'Sedang';
+          for (var keranjangItem in itemKeranjangDipilih) {
+            final kopi = keranjangItem.kopi;
+            final jumlah = keranjangItem.jumlah;
+            final ukuran = keranjangItem.ukuran;
 
             int hargaItem = kopi.harga;
-            // Tambah harga berdasarkan ukuran
             if (ukuran == 'Besar') {
               hargaItem += 5000;
             } else if (ukuran == 'Kecil') {
               hargaItem -= 3000;
+              if (hargaItem < 0) hargaItem = 0;
             }
-
             subtotal += hargaItem * jumlah;
           }
 
-          // Hitung pajak (10%)
           int pajak = (subtotal * 0.1).round();
-
-          // Total pembayaran
           int totalPembayaran = subtotal + pajak;
 
           return Column(
@@ -125,7 +151,7 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
                   padding: const EdgeInsets.all(16),
                   child: RingkasanPesanan(
                     namaPembeliController: _namaPembeliController,
-                    itemDipilih: itemDipilih,
+                    itemDipilih: itemUntukDitampilkan,
                     totalItem: totalItem,
                     subtotal: subtotal,
                     pajak: pajak,
@@ -137,13 +163,23 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
               // Button Buat Pesanan
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, -3),
+                    ),
+                  ],
                 ),
                 child: ElevatedButton(
-                  onPressed: () => _buatPesanan(keranjangCtrl),
+                  onPressed: itemUntukDitampilkan.isEmpty
+                      ? null 
+                      : () => _buatPesanan(keranjangCtrl),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown,
                     foregroundColor: Colors.white,
@@ -151,11 +187,9 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  child: const Text(
-                    'Buat Pesanan',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  child: const Text('Buat Pesanan Sekarang'),
                 ),
               ),
             ],

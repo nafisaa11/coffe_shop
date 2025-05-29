@@ -3,6 +3,7 @@ import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:kopiqu/screens/Homepage.dart';
 import 'package:kopiqu/screens/keranjangScreen.dart';
 import 'package:kopiqu/screens/loginpage.dart';
+import 'package:kopiqu/screens/mainscreen.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart';
 import 'package:kopiqu/services/getKopi_servce.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
           seedColor: Color.fromARGB(255, 255, 255, 255),
         ),
       ),
-      home:  LoginPage(),
+      home:  AuthGate(),
       routes: {
         '/menu': (context) => MenuPage(),
         '/home': (context) => const Homepage(),
@@ -52,6 +53,35 @@ class MyApp extends StatelessWidget {
         '/keranjang': (context) => KeranjangScreen(),
         '/periksa': (context) => const PeriksaPesananScreen(),
         '/admin': (context) => const AdminDashboardScreen(),
+      },
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Menggunakan StreamBuilder untuk mendengarkan perubahan status autentikasi
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        // Saat stream masih menunggu data awal (misalnya, memulihkan sesi)
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // Jika ada data sesi di stream (artinya pengguna sudah login)
+        if (snapshot.hasData && snapshot.data?.session != null) {
+          return const MainScreen(); // Arahkan ke Homepage
+        } else {
+          // Jika tidak ada sesi, atau terjadi error (snapshot.hasError)
+          // atau stream selesai tanpa sesi (jarang terjadi untuk onAuthStateChange)
+          return const LoginPage(); // Arahkan ke LoginPage
+        }
       },
     );
   }
