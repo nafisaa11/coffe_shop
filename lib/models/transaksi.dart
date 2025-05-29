@@ -1,4 +1,3 @@
-// models/transaksi.dart
 import 'package:kopiqu/models/kopi.dart'; // Pastikan path ini benar
 import 'package:intl/intl.dart'; // Untuk pemformatan tanggal
 
@@ -49,8 +48,7 @@ class Transaksi {
       calculatedSubtotal += hargaItemSatuan * jumlah;
 
       itemsUntukTransaksi.add({
-        // 'kopi': kopi, // 🚫 BARIS ASLI YANG MENYEBABKAN ERROR
-        'kopi_id': kopi.id, // ✅ PERBAIKAN: Simpan ID kopi (int, JSON-encodable)
+        'kopi_id': kopi.id, 
         'nama_kopi': kopi.nama_kopi,
         'gambar': kopi.gambar,
         'jumlah': jumlah,

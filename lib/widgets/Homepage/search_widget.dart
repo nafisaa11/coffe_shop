@@ -41,14 +41,7 @@ class SearchWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        // Cart Icon
-        IconButton(
-          onPressed: () {
-            //ini biar bisa balik ke homepage
-           Navigator.pushNamed(context, '/keranjang');
-          },
-          icon: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
-        ),
+       
       ],
     );
   }

@@ -1,13 +1,16 @@
+// controllers/Keranjang_Controller.dart
 import 'package:flutter/material.dart';
-import 'package:kopiqu/models/keranjang.dart';
-import 'package:kopiqu/models/kopi.dart';
+import 'package:kopiqu/models/keranjang.dart'; // Pastikan path dan nama model KeranjangItem Anda benar
+import 'package:kopiqu/models/kopi.dart'; // Pastikan path model Kopi Anda benar
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class KeranjangController extends ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;
-  List<KeranjangItem> _keranjang = [];
-  List<KeranjangItem> get keranjang =>
-      _keranjang; // Kembalikan List<KeranjangItem>
+  List<KeranjangItem> _keranjang =
+      []; // Daftar item keranjang lokal, di-update dari Supabase
+
+  // Getter untuk mengakses daftar item keranjang dari luar controller
+  List<KeranjangItem> get keranjang => _keranjang;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -15,12 +18,28 @@ class KeranjangController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  // Getter BARU: Untuk menghitung total KUANTITAS semua item di keranjang
+  // Ini akan digunakan untuk badge pada ikon keranjang.
+  int get totalItemDiKeranjang {
+    int total = 0;
+    for (var item in _keranjang) {
+      total += item.jumlah; // Asumsi KeranjangItem punya field 'jumlah'
+    }
+    return total;
+  }
+
+  // Method untuk mengecek apakah item dengan ukuran tertentu sudah ada di keranjang lokal
+  // Mungkin tidak terlalu relevan jika semua pengecekan dilakukan di Supabase,
+  // tapi bisa berguna untuk UI sebelum panggil Supabase.
   bool sudahAda(Kopi kopi, String ukuran) {
     return _keranjang.any(
       (item) => item.kopi.id == kopi.id && item.ukuran == ukuran,
     );
   }
 
+  // Method ubahUkuran (lokal) - Jika Anda ingin mengubah ukuran item yang sudah ada di keranjang
+  // sebelum disinkronkan atau jika ada logika UI khusus.
+  // Perhatikan bahwa operasi utama Anda sudah langsung ke Supabase.
   void ubahUkuran(Kopi kopi, String oldUkuran, String newUkuran) {
     final index = _keranjang.indexWhere(
       (item) => item.kopi.id == kopi.id && item.ukuran == oldUkuran,
@@ -28,25 +47,24 @@ class KeranjangController extends ChangeNotifier {
 
     if (index != -1) {
       final currentItem = _keranjang[index];
-
       final newIndex = _keranjang.indexWhere(
         (item) => item.kopi.id == kopi.id && item.ukuran == newUkuran,
       );
 
       if (newIndex != -1 && newIndex != index) {
-        // Pastikan newIndex bukan item yang sama
         _keranjang[newIndex].jumlah += currentItem.jumlah;
         _keranjang.removeAt(index);
       } else if (newIndex == -1) {
-        // Hanya ubah jika newIndex tidak ditemukan (atau sama dengan index saat ini jika tidak ada perubahan)
         currentItem.ukuran = newUkuran;
       }
-      // Jika newIndex == index, berarti tidak ada perubahan ukuran yang berarti, tidak perlu lakukan apa-apa
       notifyListeners();
+      // PERTIMBANGKAN: Apakah perubahan ukuran ini juga perlu di-update ke Supabase?
+      // Jika iya, Anda perlu method seperti `updateUkuranDiSupabase`
     }
   }
 
-  // Di KeranjangController, perbaiki method tambahKeSupabase
+  // Method untuk menambah item ke keranjang di Supabase.
+  // Ini akan dipanggil saat tombol "plus" ditekan di halaman menu.
   Future<void> tambahKeSupabase(Kopi kopi, String ukuran) async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) {
@@ -59,7 +77,6 @@ class KeranjangController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Cek apakah item sudah ada
       final existingResponse =
           await _supabase
               .from('keranjang')
@@ -67,47 +84,53 @@ class KeranjangController extends ChangeNotifier {
               .eq('id_user', currentUser.id)
               .eq('id_kopi', kopi.id)
               .eq('ukuran', ukuran)
-              .maybeSingle();
+              .maybeSingle(); // Mengambil satu baris atau null jika tidak ada
 
       if (existingResponse != null) {
-        // Update jumlah jika sudah ada
+        // Jika item sudah ada, update jumlahnya
         await _supabase
             .from('keranjang')
             .update({'jumlah': existingResponse['jumlah'] + 1})
             .eq('id', existingResponse['id']);
+        print('[KeranjangController] Jumlah item di Supabase diupdate.');
       } else {
-        // Insert baru jika belum ada
+        // Jika item belum ada, insert item baru
         await _supabase.from('keranjang').insert({
           'id_user': currentUser.id,
           'id_kopi': kopi.id,
           'ukuran': ukuran,
           'jumlah': 1,
-          'dipilih': true,
+          'dipilih': true, // Default item terpilih saat ditambahkan
         });
+        print('[KeranjangController] Item baru ditambahkan ke Supabase.');
       }
 
-      // Refresh data setelah menambah
-      await fetchKeranjangItems();
+      await fetchKeranjangItems(); // Refresh data keranjang lokal dari Supabase
       _errorMessage = null;
     } catch (e) {
       _errorMessage = "Gagal menambah item: ${e.toString()}";
-      print("Error tambahKeSupabase: $e");
+      print("[KeranjangController] Error tambahKeSupabase: $e");
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  // Method tambah() untuk kompatibilitas, tapi redirect ke Supabase
+  // Method 'tambah' ini sudah ada dan memanggil 'tambahKeSupabase'.
+  // Ini bisa digunakan oleh UI sebagai action utama penambahan item.
   void tambah(Kopi kopi, String ukuran) {
     tambahKeSupabase(kopi, ukuran);
   }
 
-  // Method untuk hapus item dari Supabase
+  // ... (method hapusKeSupabase, ubahJumlahDiSupabase, dll. tetap sama) ...
+  // Pastikan semua method yang memodifikasi data di Supabase memanggil fetchKeranjangItems()
+  // dan notifyListeners() agar UI (termasuk badge) terupdate.
+
   Future<void> hapusKeSupabase(Kopi kopi, String ukuran) async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) return;
-
+    _isLoading = true;
+    notifyListeners();
     try {
       await _supabase
           .from('keranjang')
@@ -115,22 +138,25 @@ class KeranjangController extends ChangeNotifier {
           .eq('id_user', currentUser.id)
           .eq('id_kopi', kopi.id)
           .eq('ukuran', ukuran);
-
-      await fetchKeranjangItems(); // Refresh data
+      await fetchKeranjangItems();
     } catch (e) {
       _errorMessage = "Gagal menghapus item: ${e.toString()}";
-      notifyListeners();
-      print("Error hapusKeSupabase: $e");
+      print("[KeranjangController] Error hapusKeSupabase: $e");
     }
+    _isLoading = false;
+    notifyListeners();
   }
 
-  // Method untuk ubah jumlah di Supabase
+  void hapus(Kopi kopi, String ukuran) {
+    hapusKeSupabase(kopi, ukuran);
+  }
+
   Future<void> ubahJumlahDiSupabase(Kopi kopi, String ukuran, int delta) async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) return;
-
+    _isLoading = true;
+    notifyListeners();
     try {
-      // Cari item terlebih dahulu
       final existingResponse =
           await _supabase
               .from('keranjang')
@@ -143,30 +169,23 @@ class KeranjangController extends ChangeNotifier {
       final newJumlah = existingResponse['jumlah'] + delta;
 
       if (newJumlah <= 0) {
-        // Hapus jika jumlah menjadi 0 atau kurang
         await _supabase
             .from('keranjang')
             .delete()
             .eq('id', existingResponse['id']);
       } else {
-        // Update jumlah
         await _supabase
             .from('keranjang')
             .update({'jumlah': newJumlah})
             .eq('id', existingResponse['id']);
       }
-
-      await fetchKeranjangItems(); // Refresh data
+      await fetchKeranjangItems();
     } catch (e) {
       _errorMessage = "Gagal mengubah jumlah: ${e.toString()}";
-      notifyListeners();
-      print("Error ubahJumlahDiSupabase: $e");
+      print("[KeranjangController] Error ubahJumlahDiSupabase: $e");
     }
-  }
-
-  // Update method lama untuk redirect ke Supabase
-  void hapus(Kopi kopi, String ukuran) {
-    hapusKeSupabase(kopi, ukuran);
+    _isLoading = false;
+    notifyListeners();
   }
 
   void ubahJumlah(Kopi kopi, String ukuran, int delta) {
@@ -177,127 +196,135 @@ class KeranjangController extends ChangeNotifier {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) return;
 
-    // Cari item di list lokal dulu untuk mendapatkan status 'dipilih' saat ini
     final itemIndex = _keranjang.indexWhere(
       (item) => item.kopi.id == kopi.id && item.ukuran == ukuran,
     );
     if (itemIndex != -1) {
       final itemToToggle = _keranjang[itemIndex];
       final newStatusDipilih = !itemToToggle.dipilih;
+      _isLoading = true;
+      notifyListeners();
       try {
         await _supabase
             .from('keranjang')
             .update({'dipilih': newStatusDipilih})
             .eq('id_user', currentUser.id)
-            .eq('id_kopi', kopi.id) // Asumsi model Kopi punya 'id'
+            .eq('id_kopi', kopi.id)
             .eq('ukuran', ukuran);
-
-        // Update lokal juga atau fetch ulang
+        // Update lokal juga untuk responsivitas instan sebelum fetch
         itemToToggle.dipilih = newStatusDipilih;
-        notifyListeners();
-        // atau await fetchKeranjangItems();
+        // await fetchKeranjangItems(); // Atau cukup update lokal dan notify
       } catch (e) {
         _errorMessage = "Gagal mengubah status pilihan: ${e.toString()}";
-        notifyListeners();
-        print("Error togglePilihDiSupabase: $e");
+        print("[KeranjangController] Error togglePilihDiSupabase: $e");
       }
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Method untuk pilih semua di Supabase
   Future<void> pilihSemuaDiSupabase(bool value) async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) return;
-
+    _isLoading = true;
+    notifyListeners();
     try {
       await _supabase
           .from('keranjang')
           .update({'dipilih': value})
           .eq('id_user', currentUser.id);
-
-      // Update lokal juga untuk responsivitas
       for (var item in _keranjang) {
+        // Update lokal
         item.dipilih = value;
       }
-      notifyListeners();
     } catch (e) {
       _errorMessage = "Gagal mengubah pilihan: ${e.toString()}";
-      notifyListeners();
-      print("Error pilihSemuaDiSupabase: $e");
+      print("[KeranjangController] Error pilihSemuaDiSupabase: $e");
     }
+    _isLoading = false;
+    notifyListeners();
   }
 
-  // Update method lama
   void pilihSemua(bool value) {
     pilihSemuaDiSupabase(value);
   }
 
+  // Getter totalHarga Anda sudah ada, mungkin perlu disesuaikan jika harga item bervariasi berdasarkan ukuran
+  // dan jika 'kopi.harga' adalah harga dasar sebelum penyesuaian ukuran.
+  // Untuk saat ini kita biarkan.
   int get totalHarga {
-    return _keranjang
-        .where((item) => item.dipilih)
-        .fold(0, (total, item) => total + (item.kopi.harga * item.jumlah));
+    int currentTotal = 0;
+    for (var item in _keranjang) {
+      if (item.dipilih) {
+        // Logika perhitungan harga di sini harus konsisten dengan bagaimana harga ditampilkan
+        // dan dihitung di tempat lain (misal, PeriksaPesananScreen atau Transaksi.fromKeranjang)
+        // Asumsi sementara, Kopi.harga adalah harga final untuk ukuran tersebut,
+        // atau Anda perlu logika penyesuaian harga di sini.
+        // Untuk sekarang, kita gunakan kopi.harga langsung.
+        // Jika Kopi.harga adalah harga dasar, dan ukuran memodifikasinya:
+        int hargaItem = item.kopi.harga;
+        if (item.ukuran == 'Besar') {
+          hargaItem += 5000;
+        } else if (item.ukuran == 'Kecil') {
+          hargaItem -= 3000;
+          if (hargaItem < 0) hargaItem = 0;
+        }
+        currentTotal += (hargaItem * item.jumlah);
+      }
+    }
+    return currentTotal;
   }
 
-  // Method untuk membersihkan hanya item yang dipilih dari Supabase
   Future<void> bersihkanItemDipilihDariSupabase() async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) return;
-
+    _isLoading = true;
+    notifyListeners();
     try {
-      // Hapus semua item yang dipilih (dipilih = true) dari Supabase
       await _supabase
           .from('keranjang')
           .delete()
           .eq('id_user', currentUser.id)
           .eq('dipilih', true);
-
-      // Refresh data setelah penghapusan
       await fetchKeranjangItems();
       _errorMessage = null;
     } catch (e) {
       _errorMessage = "Gagal membersihkan item dipilih: ${e.toString()}";
-      notifyListeners();
-      print("Error bersihkanItemDipilihDariSupabase: $e");
+      print("[KeranjangController] Error bersihkanItemDipilihDariSupabase: $e");
     }
+    _isLoading = false;
+    notifyListeners();
   }
 
-  // Update method bersihkanItemDipilih yang sudah ada
   void bersihkanItemDipilih() {
-    // Panggil method yang menghapus dari Supabase
     bersihkanItemDipilihDariSupabase();
   }
 
-  // Method untuk membersihkan seluruh keranjang dari Supabase
   Future<void> bersihkanKeranjangDariSupabase() async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) return;
-
+    _isLoading = true;
+    notifyListeners();
     try {
       await _supabase.from('keranjang').delete().eq('id_user', currentUser.id);
-
-      // Clear local data
-      _keranjang.clear();
-      notifyListeners();
+      _keranjang.clear(); // Langsung clear lokal setelah berhasil delete di DB
       _errorMessage = null;
     } catch (e) {
       _errorMessage = "Gagal membersihkan keranjang: ${e.toString()}";
-      notifyListeners();
-      print("Error bersihkanKeranjangDariSupabase: $e");
+      print("[KeranjangController] Error bersihkanKeranjangDariSupabase: $e");
     }
+    _isLoading = false;
+    notifyListeners();
   }
 
-  // Update method bersihkanKeranjang yang sudah ada
   void bersihkanKeranjang() {
     bersihkanKeranjangDariSupabase();
   }
 
-  // Method untuk mendapatkan item yang dipilih saja
   List<KeranjangItem> get itemDipilih {
-    // Kembalikan List<KeranjangItem>
     return _keranjang.where((item) => item.dipilih).toList();
   }
 
-  // Method untuk menghitung total item yang dipilih
   int get totalItemDipilih {
     int total = 0;
     for (var item in _keranjang) {
@@ -308,26 +335,24 @@ class KeranjangController extends ChangeNotifier {
     return total;
   }
 
+  // Method fetchKeranjangItems Anda sudah sangat baik dengan nested select.
   Future<void> fetchKeranjangItems() async {
     final currentUser = _supabase.auth.currentUser;
     if (currentUser == null) {
-      _keranjang = []; // Kosongkan keranjang jika tidak ada user
+      _keranjang = [];
       _errorMessage = "Pengguna belum login.";
+      // _isLoading tidak di-set true di sini, jadi tidak perlu false, tapi notifyListeners tetap penting
       notifyListeners();
       return;
     }
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    notifyListeners(); // Notify listener bahwa loading dimulai
 
     try {
-      // Query ke Supabase untuk mengambil item keranjang milik user saat ini
-      // dan melakukan JOIN (atau nested select) dengan tabel kopi
       final response = await _supabase
-          .from(
-            'keranjang',
-          ) // Ganti dengan nama tabel keranjang Anda di Supabase
+          .from('keranjang')
           .select(''' 
             id, 
             id_user,
@@ -336,53 +361,52 @@ class KeranjangController extends ChangeNotifier {
             jumlah,
             dipilih,
             kopi:id_kopi (id, nama_kopi, harga, gambar, komposisi, deskripsi) 
-          ''') // Nested select untuk mengambil detail kopi terkait
+          ''')
           .eq('id_user', currentUser.id);
 
       if (response is List) {
-        // Pastikan respons adalah list
         _keranjang =
             response
                 .map((itemData) {
                   final kopiData = itemData['kopi'];
                   if (kopiData == null) {
-                    // Handle kasus di mana data kopi tidak ditemukan (seharusnya tidak terjadi jika foreign key benar)
                     print(
                       'Data Kopi tidak ditemukan untuk item keranjang: ${itemData['id']}',
                     );
-                    // Anda bisa melempar error atau mengembalikan KeranjangItem dengan Kopi placeholder
-                    // Untuk saat ini, kita akan mengabaikan item ini atau membuat Kopi default.
-                    // Pilihan terbaik adalah memastikan data konsisten.
-                    // Atau, filter item yang kopiData-nya null:
                     return null;
                   }
+                  // Buat objek KeranjangItem dengan ID keranjang (cart_item_id)
+                  // jika model KeranjangItem Anda bisa menyimpannya.
+                  // Misalnya: KeranjangItem(cartItemId: itemData['id'] as int, kopi: ..., dst.)
                   return KeranjangItem(
-                    // Anda mungkin perlu menambahkan cart_item_id ke model KeranjangItem jika ingin memanipulasinya berdasarkan ID unik dari tabel keranjang
-                    kopi: Kopi.fromMap(
-                      kopiData as Map<String, dynamic>,
-                    ), // Pastikan Kopi.fromMap ada
+                    kopi: Kopi.fromMap(kopiData as Map<String, dynamic>),
                     ukuran: itemData['ukuran'] as String,
                     jumlah: itemData['jumlah'] as int,
                     dipilih: itemData['dipilih'] as bool,
                   );
                 })
                 .whereType<KeranjangItem>()
-                .toList(); // Filter item yang null (jika kopiData tidak ditemukan)
+                .toList();
+        print(
+          '[KeranjangController] Keranjang berhasil di-fetch. Jumlah item unik: ${_keranjang.length}, Total kuantitas: $totalItemDiKeranjang',
+        );
       } else {
-        // Handle jika format respons tidak sesuai
         _keranjang = [];
         _errorMessage = "Format data keranjang tidak valid.";
-        print('Unexpected response format for keranjang items: $response');
+        print(
+          '[KeranjangController] Unexpected response format for keranjang items: $response',
+        );
       }
     } catch (e) {
       _errorMessage = "Gagal memuat keranjang: ${e.toString()}";
-      print('Error fetching keranjang from Supabase: $e');
-      _keranjang = []; // Kosongkan keranjang jika ada error
+      print('[KeranjangController] Error fetching keranjang from Supabase: $e');
+      _keranjang = [];
     }
 
     _isLoading = false;
-    notifyListeners();
+    notifyListeners(); // Notify listener bahwa loading selesai dan data (mungkin) berubah
   }
 
-  bool get semuaDipilih => _keranjang.every((item) => item.dipilih);
+  bool get semuaDipilih =>
+      _keranjang.isNotEmpty && _keranjang.every((item) => item.dipilih);
 }

@@ -1,7 +1,6 @@
-// screens/daftar_riwayat_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Untuk formatting tanggal dan mata uang
-import 'package:kopiqu/models/riwayat_transaksi.dart'; // Model RiwayatTransaksi
+import 'package:kopiqu/models/riwayat_transaksi.dart'; 
 import 'package:kopiqu/screens/struk.dart';
 import 'package:kopiqu/services/riwayat_service.dart'; // Service untuk ambil data
 import 'package:kopiqu/screens/riwayat_pembelian_page.dart'; // Halaman detail riwayat Anda
@@ -199,9 +198,6 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
                     ),
                     isThreeLine: false, // Sesuaikan jika perlu
                     onTap: () {
-                      // Navigasi ke halaman detail riwayat (RiwayatPembelianPage)
-                      // Menggunakan method toTransaksiModel() dari RiwayatTransaksi
-                      // agar RiwayatPembelianPage yang mengharapkan objek Transaksi bisa digunakan.
                        Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -210,7 +206,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
                                 // 🎯 Navigasi ke StrukPage
                                 transaksi:
                                     riwayatItem
-                                        .toTransaksiModel(), // 👈 Kirim objek Transaksi hasil konversi
+                                        .toTransaksiModel(), 
                               ),
                         ),
                       );

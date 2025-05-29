@@ -5,6 +5,7 @@ import 'package:kopiqu/screens/keranjangScreen.dart'; // Pastikan ini benar Peri
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/mainscreen.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart'; // Ini adalah PeriksaPesananScreen, sudah di-import di routes
+import 'package:kopiqu/services/cart_ui_service.dart';
 // import 'package:kopiqu/screens/periksa_pesanan_screen.dart'; // Nama file dari kode struk Anda
 import 'package:kopiqu/services/getKopi_servce.dart'; // Tidak digunakan di sini, hapus jika tidak perlu
 import 'package:provider/provider.dart';
@@ -35,7 +36,9 @@ Future<void> main() async {
   // Jalankan aplikasi dengan MultiProvider
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => KeranjangController())],
+      providers: [ChangeNotifierProvider(create: (_) => KeranjangController()),
+      ChangeNotifierProvider(create: (_) => CartUIService()),
+      ],
       child: MyApp(),
     ),
   );

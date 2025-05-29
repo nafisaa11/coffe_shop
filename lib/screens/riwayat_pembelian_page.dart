@@ -1,16 +1,14 @@
 // screens/riwayat_pembelian_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kopiqu/models/transaksi.dart'; // Pastikan path model Transaksi benar
-import 'package:kopiqu/models/kopi.dart';    // Import model Kopi
+import 'package:kopiqu/models/transaksi.dart'; 
+import 'package:kopiqu/models/kopi.dart';   
 
 class RiwayatPembelianPage extends StatelessWidget {
   const RiwayatPembelianPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Mengambil objek Transaksi dari arguments route
-    // Pastikan objek Transaksi dikirim dengan benar saat navigasi ke halaman ini
     final transaksi = ModalRoute.of(context)?.settings.arguments as Transaksi?;
 
     if (transaksi == null) {
