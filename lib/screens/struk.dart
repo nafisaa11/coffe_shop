@@ -92,6 +92,10 @@ class StrukPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      '[DEBUG StrukPage] Build dimulai. Transaksi ID: ${transaksi.id}',
+    ); // BARU
+    print('[DEBUG StrukPage] Jumlah item di struk: ${transaksi.items.length}');
     final currencyFormat = NumberFormat.currency(
       locale: 'id_ID', // Menggunakan id_ID untuk format Rupiah yang benar
       symbol: 'Rp ',
@@ -150,10 +154,6 @@ class StrukPage extends StatelessWidget {
                               children: [
                                 Image.asset("assets/kopiqu.png", height: 50), // Pastikan path aset benar
                                 const SizedBox(height: 10),
-                                const Text(
-                                  "KOPIQU",
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1),
-                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   "Jl. Kertajaya Indah No.4, Surabaya",
