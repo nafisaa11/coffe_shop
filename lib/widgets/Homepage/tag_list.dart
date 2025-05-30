@@ -1,39 +1,83 @@
+// widgets/Homepage/tag_list.dart
 import 'package:flutter/material.dart';
 
 class TagList extends StatelessWidget {
-  const TagList({super.key});
+  final String activeTag; // Tag yang sedang aktif
+  final Function(String) onTagSelected; // Callback saat tag dipilih
+
+  const TagList({
+    super.key,
+    required this.activeTag,
+    required this.onTagSelected,
+  });
+
+  // Definisikan tag dan warnanya di sini agar mudah dikelola
+  static const String tagRekomendasi = 'Rekomendasi';
+  static const String tagPalingMurah = 'Paling Murah';
+
+  // Warna untuk tag aktif dan tidak aktif
+  static const Color activeBackgroundColor = Color(
+    0xFF4D2F15,
+  ); // Coklat tua (seperti di contoh Anda)
+  static const Color activeTextColor = Colors.white;
+  static const Color inactiveBackgroundColor = Color(
+    0xFFE3B28C,
+  ); // Krem (seperti di contoh Anda)
+  static const Color inactiveTextColor = Colors.black;
+  static const Color borderColor = Color(0xFF4D2F15);
+
+  Widget _buildTag(BuildContext context, String text) {
+    bool isActive = activeTag == text;
+    return GestureDetector(
+      onTap: () => onTagSelected(text), // Panggil callback saat tag ditekan
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
+        ), // Padding lebih besar
+        decoration: BoxDecoration(
+          color: isActive ? activeBackgroundColor : inactiveBackgroundColor,
+          borderRadius: BorderRadius.circular(
+            20.0,
+          ), // Border radius lebih besar untuk tampilan "pill"
+          border: Border.all(color: borderColor, width: 1.5),
+          boxShadow:
+              isActive
+                  ? [
+                    // Beri sedikit shadow jika aktif
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                  : [],
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isActive ? activeTextColor : inactiveTextColor,
+            fontWeight: FontWeight.w600, // Lebih tebal
+            fontSize: 14.0,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Wrap(
-        spacing: 8.0, // Jarak horizontal antar tag
+        // Menggunakan Wrap jika tag bisa lebih dari satu baris
+        spacing: 10.0, // Jarak horizontal antar tag
         runSpacing: 8.0, // Jarak vertikal antar baris tag
         children: [
-          _buildTag('Rekomendasi', backgroundColor: const Color(0xFF4D2F15), textColor: Colors.white),
-          _buildTag('Terbaru', backgroundColor: const Color(0xFFE3B28C), textColor: Colors.black),
-          _buildTag('Paling Murah', backgroundColor: const Color(0xFFE3B28C), textColor: Colors.black),
+          _buildTag(context, tagRekomendasi),
+          _buildTag(context, tagPalingMurah),
+          // Anda bisa menambahkan tag lain di sini jika perlu
         ],
-      ),
-    );
-  }
-
-  Widget _buildTag(String text, {required Color backgroundColor, required Color textColor}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(color: const Color(0xFF4D2F15), width: 1.0),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.w500,
-          fontSize: 14.0,
-        ),
       ),
     );
   }

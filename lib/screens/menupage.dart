@@ -301,7 +301,6 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          const SliverToBoxAdapter(child: TagList()), // Widget TagList Anda
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
           bodySlivers, // Masukkan sliver konten di sini (bisa SliverGrid atau SliverFillRemaining)
           const SliverToBoxAdapter(
