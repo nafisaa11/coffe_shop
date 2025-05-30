@@ -193,8 +193,8 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
   @override
   Widget build(BuildContext context) {
     // ... (Bagian atas build method tetap sama: SingleChildScrollView, Column, Welcome Container, Statistik) ...
-    final Color primaryDark = Theme.of(context).primaryColorDark;
-    final Color primary = Theme.of(context).primaryColor;
+    // final Color primaryDark = Theme.of(context).primaryColorDark;
+    // final Color primary = Theme.of(context).primaryColor;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),

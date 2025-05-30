@@ -29,13 +29,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   @override
   Widget build(BuildContext context) {
     // Ambil warna dari tema. primaryColorDark dijamin ada nilainya.
-    final Color appBarColor = Theme.of(context).primaryColorDark;
+    // final Color appBarColor = Theme.of(context).primaryColorDark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_pageTitles[_selectedIndex]),
         // Langsung gunakan appBarColor dari tema
-        backgroundColor: appBarColor,
+        backgroundColor: const Color(0xFF804E23),
         automaticallyImplyLeading: false,
       ),
       body: IndexedStack(index: _selectedIndex, children: _pages),
