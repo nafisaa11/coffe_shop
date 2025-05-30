@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart'; // Pastikan ini sudah ada di pubspec.yaml
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class CustomTextField extends StatefulWidget { // 1. Ubah menjadi StatefulWidget
+// Definisi Class CustomTextField
+class CustomTextField extends StatefulWidget {
   final String label;
   final String hintText;
-  final bool obscureTextInitially; // 2. Ganti nama dari obscureText
+  final bool obscureTextInitially;
   final TextEditingController controller;
   final bool readOnly;
   final TextStyle? customLabelStyle;
   final TextStyle? inputTextStyle;
-  final bool isPasswordTextField; // 3. Tambahkan flag ini
+  final bool isPasswordTextField;
+  final String? Function(String?)?
+  validator; // Pastikan validator sudah ada di sini
 
   const CustomTextField({
     super.key,
@@ -20,7 +23,8 @@ class CustomTextField extends StatefulWidget { // 1. Ubah menjadi StatefulWidget
     this.readOnly = false,
     this.customLabelStyle,
     this.inputTextStyle,
-    this.isPasswordTextField = false, // Defaultnya bukan field password
+    this.isPasswordTextField = false,
+    this.validator, // Dan di konstruktor
   });
 
   @override
@@ -28,33 +32,40 @@ class CustomTextField extends StatefulWidget { // 1. Ubah menjadi StatefulWidget
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  late bool _obscureTextCurrent; // 4. State untuk visibilitas password
+  late bool _obscureTextCurrent;
 
   @override
   void initState() {
     super.initState();
-    _obscureTextCurrent = widget.obscureTextInitially; // Inisialisasi state
+    _obscureTextCurrent = widget.obscureTextInitially;
   }
 
   @override
   Widget build(BuildContext context) {
+    // ... (Implementasi build CustomTextField Anda yang sudah ada dan benar) ...
+    // Pastikan menggunakan TextFormField jika ada validator
     final defaultReadOnlyLabelStyle = TextStyle(color: Colors.grey[600]);
     final defaultReadOnlyInputStyle = TextStyle(color: Colors.grey[700]);
-    final Color iconColor = Colors.grey[600]!; // Warna untuk ikon mata
+    final Color iconColor = Colors.grey[600]!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          style: widget.customLabelStyle ?? (widget.readOnly ? defaultReadOnlyLabelStyle : null),
+          style:
+              widget.customLabelStyle ??
+              (widget.readOnly ? defaultReadOnlyLabelStyle : null),
         ),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
+          // Menggunakan TextFormField untuk mendukung validator
           controller: widget.controller,
-          obscureText: _obscureTextCurrent, // Gunakan state internal
+          obscureText: _obscureTextCurrent,
           readOnly: widget.readOnly,
-          style: widget.inputTextStyle ?? (widget.readOnly ? defaultReadOnlyInputStyle : null),
+          style:
+              widget.inputTextStyle ??
+              (widget.readOnly ? defaultReadOnlyInputStyle : null),
           decoration: InputDecoration(
             hintText: widget.hintText,
             enabledBorder: OutlineInputBorder(
@@ -72,32 +83,33 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ),
             filled: widget.readOnly,
             fillColor: widget.readOnly ? Colors.grey[200] : null,
-            // 5. Tambahkan suffixIcon jika ini adalah field password
-            suffixIcon: widget.isPasswordTextField
-                ? IconButton(
-                    icon: Icon(
-                      _obscureTextCurrent
-                          ? PhosphorIcons.eyeClosed() // Ikon mata tertutup
-                          : PhosphorIcons.eye(),       // Ikon mata terbuka
-                      color: iconColor,
-                      size: 20, // Sesuaikan ukuran ikon jika perlu
-                    ),
-                    splashRadius: 20, // Mengurangi area splash agar lebih rapi
-                    onPressed: () {
-                      setState(() {
-                        _obscureTextCurrent = !_obscureTextCurrent; // Toggle state
-                      });
-                    },
-                  )
-                : null, // Tidak ada ikon jika bukan field password
+            suffixIcon:
+                widget.isPasswordTextField
+                    ? IconButton(
+                      icon: Icon(
+                        _obscureTextCurrent
+                            ? PhosphorIcons.eyeClosed()
+                            : PhosphorIcons.eye(),
+                        color: iconColor,
+                        size: 20,
+                      ),
+                      splashRadius: 20,
+                      onPressed: () {
+                        setState(() {
+                          _obscureTextCurrent = !_obscureTextCurrent;
+                        });
+                      },
+                    )
+                    : null,
           ),
+          validator: widget.validator, // Meneruskan validator
         ),
       ],
     );
   }
 }
 
-// CustomButton tetap sama, tidak perlu diubah
+// === Definisi Class CustomButton DI FILE YANG SAMA ===
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
@@ -112,38 +124,40 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ... (Implementasi build CustomButton Anda yang sudah ada dan benar) ...
     return SizedBox(
       width: double.infinity,
-      child: iconData != null
-          ? ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.brown,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+      child:
+          iconData != null
+              ? ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: onPressed,
-              icon: Icon(iconData, color: Colors.white),
-              label: Text(
-                text,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            )
-          : ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.brown,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                onPressed: onPressed,
+                icon: Icon(iconData, color: Colors.white),
+                label: Text(
+                  text,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
+              )
+              : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: onPressed,
+                child: Text(
+                  text,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
-              onPressed: onPressed,
-              child: Text(
-                text,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
     );
   }
 }

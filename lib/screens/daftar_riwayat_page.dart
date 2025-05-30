@@ -45,7 +45,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Pesanan Saya'),
-        backgroundColor: Color(0xFFD07C3D),  // Sesuaikan warna
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),  // Sesuaikan warna
         foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<RiwayatTransaksi>>(
