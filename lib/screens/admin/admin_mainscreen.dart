@@ -1,4 +1,3 @@
-// lib/screens/admin/admin_main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/admin/admin_dashboard_contentpage.dart';
 import 'package:kopiqu/screens/admin/admin_profilepage.dart';
@@ -13,30 +12,13 @@ class AdminMainScreen extends StatefulWidget {
 
 class _AdminMainScreenState extends State<AdminMainScreen> {
   int _selectedIndex = 0;
-  // late PageController _pageController; // HAPUS INI
 
-  final List<Widget> _pages = [ // Daftarkan halaman Anda di sini
+  final List<Widget> _pages = [
     const AdminDashboardContentPage(),
     const AdminProfilePage(),
   ];
 
-  final List<String> _pageTitles = [
-    'Dashboard Admin',
-    'Profil Admin',
-  ];
-
-  // initState dan dispose untuk PageController tidak diperlukan lagi
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _pageController = PageController(initialPage: _selectedIndex);
-  // }
-
-  // @override
-  // void dispose() {
-  //   _pageController.dispose();
-  //   super.dispose();
-  // }
+  final List<String> _pageTitles = ['Dashboard Admin', 'Profil Admin'];
 
   void _onItemSelected(int index) {
     setState(() {
@@ -46,20 +28,20 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Ambil warna dari tema. primaryColorDark dijamin ada nilainya.
+    final Color appBarColor = Theme.of(context).primaryColorDark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_pageTitles[_selectedIndex]),
-        backgroundColor: Theme.of(context).primaryColorDark ?? Colors.brown[700],
+        // Langsung gunakan appBarColor dari tema
+        backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
       ),
-      body: IndexedStack( // GUNAKAN IndexedStack di sini
-        index: _selectedIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: AdminBottomNavbar(
         selectedIndex: _selectedIndex,
         onItemSelected: _onItemSelected,
-        // pageController: _pageController, // HAPUS INI
       ),
     );
   }

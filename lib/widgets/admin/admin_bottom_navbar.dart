@@ -33,7 +33,7 @@ class AdminBottomNavbar extends StatelessWidget {
       buttonBackgroundColor: const Color(0xFF804E23),
       animationDuration: const Duration(milliseconds: 300),
       items: [
-        _buildNavItem(PhosphorIcons.gauge(), 0), // Ikon Dashboard
+        _buildNavItem(PhosphorIcons.squaresFour(), 0), // Ikon Dashboard
         _buildNavItem(PhosphorIcons.user(), 1), // Ikon Profil
       ],
     );

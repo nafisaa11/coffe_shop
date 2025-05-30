@@ -5,14 +5,12 @@ import 'package:kopiqu/screens/keranjangScreen.dart'; // Pastikan ini benar Peri
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/mainscreen.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart'; // Ini adalah PeriksaPesananScreen, sudah di-import di routes
-import 'package:kopiqu/services/cart_ui_service.dart';
-// import 'package:kopiqu/screens/periksa_pesanan_screen.dart'; // Nama file dari kode struk Anda
+import 'package:kopiqu/services/cart_ui_service.dart'; // Nama file dari kode struk Anda
 import 'package:kopiqu/services/getKopi_servce.dart'; // Tidak digunakan di sini, hapus jika tidak perlu
 import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:kopiqu/screens/admin/admindashboard.dart';
 import 'package:kopiqu/screens/resetpasswordpage.dart';
 import 'package:kopiqu/screens/admin/admin_mainscreen.dart'; // Pastikan ini benar
 
@@ -115,9 +113,9 @@ class _MyAppState extends State<MyApp> {
 
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 255, 255, 255),
+          seedColor: const Color.fromARGB(255, 0, 0, 0),
         ),
-        // primarySwatch: Colors.brown, // Anda bisa aktifkan ini jika mau tema dasar coklat
+        // primarySwatch: Colors.white, // Anda bisa aktifkan ini jika mau tema dasar coklat
       ),
       home: AuthGate(),
       routes: {

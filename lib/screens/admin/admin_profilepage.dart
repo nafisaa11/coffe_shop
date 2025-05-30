@@ -27,7 +27,10 @@ class AdminProfilePage extends StatelessWidget {
                 child: Icon(Icons.admin_panel_settings, size: 50),
               ),
               const SizedBox(height: 20),
-              Text('Nama: $displayName', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                'Nama: $displayName',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text('Email: $email', style: TextStyle(fontSize: 16)),
               const Text(
@@ -48,7 +51,7 @@ class AdminProfilePage extends StatelessWidget {
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: Color(0xFF795548),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 15,
