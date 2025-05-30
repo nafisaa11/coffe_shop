@@ -1,6 +1,6 @@
 // screens/Homepage.dart
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/Banner_Controller.dart';
+import 'package:kopiqu/controllers/Banner_Controller.dart'; // Pastikan ini mengarah ke Banner_Controller.dart yang baru
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/Homepage/banner_slider.dart';
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
@@ -8,7 +8,7 @@ import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/widgets/Homepage/search_widget.dart';
-import 'package:kopiqu/widgets/Homepage/tag_list.dart'; 
+import 'package:kopiqu/widgets/Homepage/tag_list.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Homepage extends StatefulWidget {
@@ -19,14 +19,24 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
-  final bannerImages = ['assets/baner1.jpg', 'assets/baner2.jpg'];
-  final bannerController = BannerController();
+  final bannerImages = [
+    'assets/baner1.jpg',
+    'assets/baner2.jpg',
+    'assets/baner3.jpg',
+    'assets/baner4.jpg',
+    'assets/baner5.jpg',
+  ];
+  // ✅ Inisialisasi BannerController tanpa parameter
+  final BannerController bannerController = BannerController();
+
   final supabase = Supabase.instance.client;
-  List<Kopi> kopiList = [];
+  List<Kopi> _masterKopiList = [];
+  List<Kopi> _filteredKopiList = [];
   bool _isLoadingKopi = true;
   String? _fetchKopiError;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
-  // Variabel untuk Animasi
   OverlayEntry? _overlayEntry;
   AnimationController? _animationController;
   Animation<Offset>? _slideAnimation;
@@ -35,9 +45,18 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    // Tidak perlu lagi `bannerController = BannerController(actualBannerImagesLength: bannerImages.length);`
+    // karena sudah diinisialisasi di atas.
+
     fetchKopi();
+
+    // ✅ Panggil startAutoScroll dengan list gambar dan callback setState
     bannerController.startAutoScroll(bannerImages, () {
       if (mounted) {
+        // Callback ini akan dipanggil oleh Timer di BannerController
+        // setelah animateToPage. Ini bisa digunakan untuk memicu rebuild
+        // jika ada UI yang bergantung pada currentPage dari controller,
+        // misalnya indikator titik halaman (dots).
         setState(() {});
       }
     });
@@ -46,13 +65,14 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   @override
   void dispose() {
     bannerController.dispose();
+    _searchController.dispose();
     _animationController?.dispose();
     _overlayEntry?.remove();
     super.dispose();
   }
 
+  // ... (method fetchKopi, _filterKopiList, _mulaiAnimasiTambahKeKeranjang tetap sama) ...
   Future<void> fetchKopi() async {
-    // ... (kode fetchKopi Anda tetap sama) ...
     setState(() {
       _isLoadingKopi = true;
       _fetchKopiError = null;
@@ -61,7 +81,8 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
       final response = await supabase.from('kopi').select();
       if (mounted) {
         setState(() {
-          kopiList = Kopi.listFromJson(response as List<dynamic>);
+          _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
+          _filteredKopiList = List.from(_masterKopiList);
           _isLoadingKopi = false;
         });
       }
@@ -74,6 +95,23 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
         print("Error fetching kopi on homepage: $e");
       }
     }
+  }
+
+  void _filterKopiList(String query) {
+    final List<Kopi> filteredList = [];
+    if (query.isEmpty) {
+      filteredList.addAll(_masterKopiList);
+    } else {
+      filteredList.addAll(
+        _masterKopiList.where(
+          (kopi) => kopi.nama_kopi.toLowerCase().contains(query.toLowerCase()),
+        ),
+      );
+    }
+    setState(() {
+      _searchQuery = query;
+      _filteredKopiList = filteredList;
+    });
   }
 
   void _mulaiAnimasiTambahKeKeranjang(
@@ -180,8 +218,8 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // ... (logika gridContent Anda tetap sama) ...
     Widget gridContent;
-    // ... (logika untuk _isLoadingKopi, _fetchKopiError, kopiList.isEmpty tetap sama) ...
     if (_isLoadingKopi) {
       gridContent = const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
@@ -209,7 +247,13 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
           ),
         ),
       );
-    } else if (kopiList.isEmpty) {
+    } else if (_filteredKopiList.isEmpty && _searchQuery.isNotEmpty) {
+      gridContent = SliverFillRemaining(
+        child: Center(
+          child: Text('Kopi dengan nama "$_searchQuery" tidak ditemukan.'),
+        ),
+      );
+    } else if (_masterKopiList.isEmpty) {
       gridContent = const SliverFillRemaining(
         child: Center(child: Text('Tidak ada rekomendasi kopi saat ini.')),
       );
@@ -224,7 +268,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             childAspectRatio: 0.65,
           ),
           delegate: SliverChildBuilderDelegate((context, index) {
-            final kopi = kopiList[index];
+            final kopi = _filteredKopiList[index];
             return CoffeeCard(
               kopi: kopi,
               onAddToCartPressed: (
@@ -242,15 +286,13 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                 );
               },
             );
-          }, childCount: kopiList.length),
+          }, childCount: _filteredKopiList.length),
         ),
       );
     }
 
     return Scaffold(
-      appBar: null, // AppBar sudah dihandle oleh MainScreen
-      // 👇 MODIFIKASI BAGIAN BODY: Hapus Stack dan Positioned untuk KopiQuHeader
-      // Konten utama sekarang langsung CustomScrollView tanpa padding atas tambahan
+      appBar: null,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -259,8 +301,12 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                 left: 16.0,
                 right: 16.0,
                 top: 16.0,
-              ), // Tambah padding atas sedikit jika perlu
-              child: SearchWidget(),
+              ),
+              child: SearchWidget(
+                controller: _searchController,
+                onChanged: _filterKopiList,
+                hintText: 'Cari kopi favoritmu...',
+              ),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),

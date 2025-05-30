@@ -1,7 +1,9 @@
+// screens/menupage.dart
 import 'package:flutter/material.dart';
 import 'package:kopiqu/models/kopi.dart';
+// import 'package:kopiqu/widgets/Layout/header_widget.dart'; // Tidak digunakan lagi jika AppBar global
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
-import 'package:kopiqu/widgets/Homepage/search_widget.dart';
+import 'package:kopiqu/widgets/Homepage/search_widget.dart'; // Pastikan path ini benar
 import 'package:kopiqu/widgets/Homepage/tag_list.dart';
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
@@ -16,33 +18,56 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
-  List<Kopi> _kopiList = [];
+  // State untuk daftar kopi
+  List<Kopi> _masterKopiList = []; // Daftar semua kopi dari database
+  List<Kopi> _filteredKopiList =
+      []; // Daftar kopi yang akan ditampilkan (setelah filter)
   bool _isLoading = true;
   String? _errorMessage;
 
+  // State untuk Search
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
+
+  // Variabel untuk Animasi Tambah ke Keranjang
   OverlayEntry? _overlayEntry;
   AnimationController? _animationController;
   Animation<Offset>? _slideAnimation;
   Animation<double>? _scaleAnimation;
-  String? _animatingKopiImageUrl;
+  // String? _animatingKopiImageUrl; // Opsional, jika ingin gambar produk terbang
 
   @override
   void initState() {
     super.initState();
     _fetchKopiData();
+    // Tidak perlu listener di _searchController jika SearchWidget memanggil onChanged
+    // _searchController.addListener(() {
+    //   _filterKopiList(_searchController.text);
+    // });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose(); // Dispose search controller
+    _animationController?.dispose();
+    _overlayEntry?.remove();
+    super.dispose();
   }
 
   Future<void> _fetchKopiData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
       final supabase = Supabase.instance.client;
       final response = await supabase.from('kopi').select();
       if (mounted) {
         setState(() {
-          _kopiList = Kopi.listFromJson(response as List<dynamic>);
+          _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
+          _filteredKopiList = List.from(
+            _masterKopiList,
+          ); // Inisialisasi filtered list
           _isLoading = false;
         });
       }
@@ -52,16 +77,34 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
           _isLoading = false;
           _errorMessage = 'Gagal memuat data kopi: ${e.toString()}';
         });
-        print('Error fetching kopi data: $e');
+        print('Error fetching kopi data in MenuPage: $e');
       }
     }
+  }
+
+  // Method untuk memfilter daftar kopi berdasarkan query
+  void _filterKopiList(String query) {
+    final List<Kopi> filteredList = [];
+    if (query.isEmpty) {
+      filteredList.addAll(_masterKopiList);
+    } else {
+      filteredList.addAll(
+        _masterKopiList.where(
+          (kopi) => kopi.nama_kopi.toLowerCase().contains(query.toLowerCase()),
+        ),
+      );
+    }
+    setState(() {
+      _searchQuery = query;
+      _filteredKopiList = filteredList;
+    });
   }
 
   void _mulaiAnimasiTambahKeKeranjang(
     GlobalKey tombolPlusKeyDariCard,
     Kopi kopiYangDitambahkan,
   ) {
-    // ... (kode _mulaiAnimasiTambahKeKeranjang Anda tetap sama) ...
+    // ... (kode _mulaiAnimasiTambahKeKeranjang Anda tetap sama persis seperti di Homepage.dart) ...
     final cartUiService = Provider.of<CartUIService>(context, listen: false);
     cartUiService.updateCartIconPosition();
 
@@ -164,13 +207,6 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
-    _animationController?.dispose();
-    _overlayEntry?.remove();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Widget bodyContent;
 
@@ -198,7 +234,13 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
           ),
         ),
       );
-    } else if (_kopiList.isEmpty) {
+    } else if (_filteredKopiList.isEmpty && _searchQuery.isNotEmpty) {
+      // Kondisi jika hasil filter kosong
+      bodyContent = Center(
+        child: Text('Kopi dengan nama "$_searchQuery" tidak ditemukan.'),
+      );
+    } else if (_masterKopiList.isEmpty) {
+      // Kondisi jika master list memang kosong
       bodyContent = const Center(
         child: Text('Tidak ada produk kopi yang tersedia saat ini.'),
       );
@@ -207,12 +249,24 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-              child: SearchWidget(),
+              // Beri padding atas jika search mepet dengan AppBar dari MainScreen
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: 0,
+              ),
+              // 👇 Integrasikan SearchWidget
+              child: SearchWidget(
+                controller: _searchController,
+                onChanged:
+                    _filterKopiList, // Panggil _filterKopiList saat teks berubah
+                hintText: 'Cari semua menu kopi...', // Sesuaikan hint text
+              ),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          const SliverToBoxAdapter(child: TagList()),
+          const SliverToBoxAdapter(child: TagList()), // Widget TagList Anda
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -221,39 +275,44 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 0.65, // Atau nilai yang sudah Anda sesuaikan
+                childAspectRatio:
+                    0.65, // Sesuaikan dengan desain CoffeeCard Anda
               ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final kopi = _kopiList[index];
-                return CoffeeCard(
-                  kopi: kopi,
-                  onAddToCartPressed: (
-                    GlobalKey plusButtonKey,
-                    Kopi kopiUntukKeranjang,
-                  ) {
-                    String ukuranPilihan = "Sedang";
-                    Provider.of<KeranjangController>(
-                      context,
-                      listen: false,
-                    ).tambah(kopiUntukKeranjang, ukuranPilihan);
-                    _mulaiAnimasiTambahKeKeranjang(
-                      plusButtonKey,
-                      kopiUntukKeranjang,
-                    );
-                  },
-                );
-              }, childCount: _kopiList.length),
+              // 👇 Gunakan _filteredKopiList untuk menampilkan data
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final kopi = _filteredKopiList[index];
+                  return CoffeeCard(
+                    kopi: kopi,
+                    onAddToCartPressed: (
+                      GlobalKey plusButtonKey,
+                      Kopi kopiUntukKeranjang,
+                    ) {
+                      String ukuranPilihan =
+                          "Sedang"; // Ganti dengan logika pemilihan ukuran
+                      Provider.of<KeranjangController>(
+                        context,
+                        listen: false,
+                      ).tambah(kopiUntukKeranjang, ukuranPilihan);
+                      _mulaiAnimasiTambahKeKeranjang(
+                        plusButtonKey,
+                        kopiUntukKeranjang,
+                      );
+                    },
+                  );
+                },
+                childCount: _filteredKopiList.length,
+              ), // Gunakan panjang _filteredKopiList
             ),
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 16),
-          ), // Padding bawah
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       );
     }
 
     return Scaffold(
-      body: bodyContent,
+      // AppBar sudah dihandle oleh MainScreen, jadi tidak perlu di sini.
+      body: bodyContent, // Tidak perlu lagi Stack untuk header lokal
     );
   }
 }
