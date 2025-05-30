@@ -100,14 +100,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         CustomTextField(
                           label: 'Password',
                           hintText: 'Masukkan Password',
-                          obscureText: true,
+                          obscureTextInitially: true, // Password disembunyikan di awal
+                          isPasswordTextField: true,  // Aktifkan ikon mata
                           controller: passwordController,
                         ),
                         const SizedBox(height: 15),
                         CustomTextField(
                           label: 'Konfirmasi Password',
                           hintText: 'Masukkan Konfirmasi Password',
-                          obscureText: true,
+                          obscureTextInitially: true, // Password disembunyikan di awal
+                          isPasswordTextField: true, 
                           controller: confirmPasswordController,
                         ),
                         const SizedBox(height: 30),

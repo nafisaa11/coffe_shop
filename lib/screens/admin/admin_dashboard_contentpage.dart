@@ -293,7 +293,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                     textColor: statistikCardTextColor,
                   ),
                   DashboardInfoCard(
-                    title: 'Total Pengguna Terdaftar',
+                    title: 'Total pembeli Aktif',
                     value: _totalUsers,
                     icon: Icons.people_alt,
                     backgroundColor: statistikCardColor,
