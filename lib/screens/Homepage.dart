@@ -8,7 +8,7 @@ import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
-import 'package:kopiqu/widgets/Homepage/search_widget.dart';
+// import 'package:kopiqu/widgets/Homepage/search_widget.dart'; // 🚫 HAPUS IMPORT INI
 import 'package:kopiqu/widgets/Homepage/tag_list.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -31,11 +31,15 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   final supabase = Supabase.instance.client;
 
   List<Kopi> _masterKopiList = [];
-  List<Kopi> _filteredKopiList = [];
+  List<Kopi> _displayedKopiList =
+      []; // Mengganti nama _filteredKopiList agar lebih umum
   bool _isLoadingKopi = true;
   String? _fetchKopiError;
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = "";
+
+  // 🚫 HAPUS STATE UNTUK SEARCH
+  // final TextEditingController _searchController = TextEditingController();
+  // String _searchQuery = "";
+
   String _activeTag = TagList.tagRekomendasi; // Default tag aktif
 
   OverlayEntry? _overlayEntry;
@@ -55,7 +59,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   @override
   void dispose() {
     bannerController.dispose();
-    _searchController.dispose();
+    // _searchController.dispose(); // 🚫 HAPUS DISPOSE SEARCH CONTROLLER
     _animationController?.dispose();
     _overlayEntry?.remove();
     super.dispose();
@@ -71,7 +75,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
       final response = await supabase.from('kopi').select().order('id');
       if (mounted) {
         _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
-        _applyFilters(); // Terapkan filter awal (tag default, search kosong)
+        _applyTagFilter(); // Terapkan filter tag awal
         setState(() {
           _isLoadingKopi = false;
         });
@@ -87,32 +91,20 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     }
   }
 
-  // Fungsi untuk menangani pemilihan tag
   void _onTagSelected(String tagName) {
     if (!mounted) return;
     setState(() {
       _activeTag = tagName;
-      _searchController.clear(); // Opsional: Reset search saat tag diganti
-      _searchQuery = ""; // Opsional: Reset search query
-      _applyFilters();
+      _applyTagFilter();
     });
   }
 
-  // Fungsi untuk menangani perubahan teks pencarian
-  void _handleSearchChanged(String query) {
-    if (!mounted) return;
-    // Tidak perlu setState di sini karena _applyFilters akan dipanggil
-    // dan _searchQuery akan diupdate di sana.
-    // Cukup panggil _applyFilters dengan query baru.
-    _searchQuery = query; // Update query dulu
-    _applyFilters(); // Lalu apply filter
-  }
+  // 🚫 HAPUS METHOD _handleSearchChanged ATAU _filterKopiListBySearch
 
-  // Fungsi terpusat untuk menerapkan filter tag dan search
-  void _applyFilters() {
+  // 👇 MODIFIKASI: Fungsi _applyFilters sekarang hanya _applyTagFilter
+  void _applyTagFilter() {
     List<Kopi> tempList = [];
 
-    // 1. Filter/Proses berdasarkan Tag Aktif dari _masterKopiList
     if (_activeTag == TagList.tagRekomendasi) {
       if (_masterKopiList.isNotEmpty) {
         final random = Random();
@@ -122,32 +114,22 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     } else if (_activeTag == TagList.tagPalingMurah) {
       if (_masterKopiList.isNotEmpty) {
         List<Kopi> sortedList = List.from(_masterKopiList)
-          ..sort((a, b) => a.harga.compareTo(b.harga)); // Urutkan dari termurah
+          ..sort((a, b) => a.harga.compareTo(b.harga));
         tempList = sortedList.take(6).toList();
       }
     } else {
-      // Jika ada tag lain atau tidak ada tag aktif (seharusnya tidak terjadi jika ada default)
-      tempList = List.from(_masterKopiList);
+      // Default jika ada tag lain atau _activeTag tidak cocok (seharusnya tidak terjadi jika init benar)
+      // Untuk Homepage, kita mungkin ingin default ke Rekomendasi jika tag tidak dikenal
+      if (_masterKopiList.isNotEmpty) {
+        final random = Random();
+        List<Kopi> shuffledList = List.from(_masterKopiList)..shuffle(random);
+        tempList = shuffledList.take(6).toList();
+      }
     }
 
-    // 2. Filter berdasarkan Search Query (dari hasil proses tag di atas)
-    if (_searchQuery.isNotEmpty) {
-      tempList =
-          tempList
-              .where(
-                (kopi) => kopi.nama_kopi.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ),
-              )
-              .toList();
-    }
-
-    // Panggil setState sekali di akhir untuk update UI dengan semua perubahan state
     if (mounted) {
       setState(() {
-        _filteredKopiList = tempList;
-        // _searchQuery sudah diupdate di _handleSearchChanged
-        // _activeTag sudah diupdate di _onTagSelected
+        _displayedKopiList = tempList;
       });
     }
   }
@@ -156,7 +138,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     GlobalKey tombolPlusKeyDariCard,
     Kopi kopiYangDitambahkan,
   ) {
-    // ... (KODE METHOD INI TETAP SAMA PERSIS, TIDAK DIUBAH) ...
+    // ... (KODE METHOD INI TETAP SAMA PERSIS) ...
     final cartUiService = Provider.of<CartUIService>(context, listen: false);
     cartUiService.updateCartIconPosition();
     final Offset? posisiAkhirKeranjang = cartUiService.cartIconPosition;
@@ -166,8 +148,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
       print(
         "[Homepage] Gagal memulai animasi: key atau posisi keranjang tidak valid.",
       );
-      String ukuranPilihan =
-          "Sedang"; // Default atau dari logika pilihan ukuran
+      String ukuranPilihan = "Sedang";
       Provider.of<KeranjangController>(
         context,
         listen: false,
@@ -262,55 +243,33 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
         child: Center(child: CircularProgressIndicator()),
       );
     } else if (_fetchKopiError != null) {
+      gridContent = SliverFillRemaining(/* ... UI Error ... */);
+    } else if (_masterKopiList.isEmpty) {
+      gridContent = const SliverFillRemaining(
+        child: Center(child: Text('Tidak ada rekomendasi kopi saat ini.')),
+      );
+    } else if (_displayedKopiList.isEmpty &&
+        _activeTag.isNotEmpty &&
+        _activeTag != TagList.tagRekomendasi) {
+      // Jika tag (selain default rekomendasi) dipilih dan hasilnya kosong
       gridContent = SliverFillRemaining(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _fetchKopiError!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red[700]),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: fetchKopi,
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
+            child: Text(
+              'Tidak ada kopi untuk kategori "$_activeTag".',
+              textAlign: TextAlign.center,
             ),
           ),
         ),
       );
-    } else if (_masterKopiList.isEmpty) {
-      // Cek master list dulu
+    } else if (_displayedKopiList.isEmpty &&
+        _activeTag == TagList.tagRekomendasi) {
+      // Jika tag rekomendasi aktif tapi hasilnya kosong (misal master list < 6 atau random menghasilkan kosong)
+      // Atau jika master list ada tapi setelah random take 6 hasilnya kosong (jarang terjadi jika masterKopiList.isNotEmpty)
       gridContent = const SliverFillRemaining(
-        child: Center(child: Text('Tidak ada rekomendasi kopi saat ini.')),
-      );
-    } else if (_filteredKopiList.isEmpty &&
-        (_searchQuery.isNotEmpty ||
-            _activeTag != TagList.tagRekomendasi && _activeTag.isNotEmpty)) {
-      // Jika filter (search atau tag selain default) menghasilkan list kosong
-      String message =
-          _searchQuery.isNotEmpty
-              ? 'Kopi dengan nama "$_searchQuery" tidak ditemukan.'
-              : 'Tidak ada kopi untuk kategori "$_activeTag".';
-      if (_activeTag == TagList.tagRekomendasi &&
-          _searchQuery.isEmpty &&
-          _masterKopiList.isNotEmpty &&
-          _filteredKopiList.isEmpty) {
-        // Ini kasus khusus jika rekomendasi (random) menghasilkan kosong padahal master list ada
-        // Seharusnya tidak terjadi jika take(6) menangani list < 6, tapi untuk jaga-jaga
-        message = 'Tidak ada rekomendasi yang cocok saat ini.';
-      }
-      gridContent = SliverFillRemaining(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(message, textAlign: TextAlign.center),
-          ),
+          child: Text('Tidak ada rekomendasi kopi yang bisa ditampilkan.'),
         ),
       );
     } else {
@@ -323,8 +282,9 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             mainAxisSpacing: 16,
             childAspectRatio: 0.65,
           ),
+          // 👇 Gunakan _displayedKopiList
           delegate: SliverChildBuilderDelegate((context, index) {
-            final kopi = _filteredKopiList[index];
+            final kopi = _displayedKopiList[index];
             return CoffeeCard(
               kopi: kopi,
               onAddToCartPressed: (
@@ -342,7 +302,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                 );
               },
             );
-          }, childCount: _filteredKopiList.length),
+          }, childCount: _displayedKopiList.length),
         ),
       );
     }
@@ -351,22 +311,22 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
       appBar: null,
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                top: 16.0,
-              ),
-              child: SearchWidget(
-                controller: _searchController,
-                onChanged:
-                    _handleSearchChanged, // Menggunakan _handleSearchChanged
-                hintText: 'Cari kopi favoritmu...',
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          // SliverToBoxAdapter( // 🚫 HAPUS BAGIAN SEARCHWIDGET DARI HOMEPAGE
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+          //     child: SearchWidget(
+          //       controller: _searchController,
+          //       onChanged: _handleSearchChanged,
+          //       hintText: 'Cari kopi favoritmu...',
+          //     ),
+          //   ),
+          // ),
+          // const SliverToBoxAdapter(child: SizedBox(height: 16)), // Ini juga bisa dihapus jika search hilang
+
+          // Beri padding atas untuk banner jika search dihilangkan dan konten jadi elemen pertama setelah AppBar (global)
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 16),
+          ), // Jarak dari atas (AppBar global)
           SliverToBoxAdapter(
             child: BannerSlider(
               bannerImages: bannerImages,
