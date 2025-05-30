@@ -1,3 +1,5 @@
+// widgets/Layout/headerProfile_widget.dart
+import 'dart:async'; // 👈 1. IMPORT dart:async untuk StreamSubscription
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,76 +12,131 @@ class ProfileHeader extends StatefulWidget {
 }
 
 class _ProfileHeaderState extends State<ProfileHeader> {
-  String displayName = 'Pengguna';
-  String email = 'example@email.com';
+  StreamSubscription<AuthState>?
+  _authSubscription; // 👈 2. StreamSubscription untuk auth events
 
   @override
   void initState() {
     super.initState();
-    final user = Supabase.instance.client.auth.currentUser;
-    setState(() {
-      displayName = user?.userMetadata?['display_name'] ?? 'Pengguna';
-      email = user?.email ?? 'example@email.com';
+    // 👇 3. Dengarkan perubahan pada AuthState
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((
+      data,
+    ) {
+      final AuthChangeEvent event = data.event;
+      // Jika ada event userUpdated (misalnya setelah metadata diubah)
+      if (event == AuthChangeEvent.userUpdated) {
+        if (mounted) {
+          // Selalu cek mounted dalam listener async
+          print(
+            '[ProfileHeader] AuthStateChange: userUpdated event diterima, me-refresh UI.',
+          );
+          setState(() {
+            // Memanggil setState akan memicu build ulang,
+            // dan build method akan mengambil currentUser terbaru.
+          });
+        }
+      }
+      // Anda juga bisa menangani event lain jika perlu, misalnya signedIn, signedOut
     });
+    // Tidak perlu memuat data spesifik di sini karena build method akan melakukannya.
+  }
+
+  @override
+  void dispose() {
+    _authSubscription
+        ?.cancel(); // 👈 4. Batalkan subscription saat widget di-dispose
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // 👇 5. Ambil data pengguna terbaru SETIAP KALI widget di-build ulang
+    final user = Supabase.instance.client.auth.currentUser;
+    final String displayName =
+        user?.userMetadata?['display_name'] ?? 'Pengguna';
+    final String email = user?.email ?? 'Tidak ada email';
+    final String? photoUrl = user?.userMetadata?['photo_url'] as String?;
+
+    ImageProvider profileImageProvider;
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      // Tambahkan cache buster sederhana jika URL sama tapi konten berubah (opsional jika URL sudah unik)
+      // Jika nama file foto Anda unik setiap upload (seperti yang kita buat di AuthService),
+      // cache buster ini mungkin tidak terlalu krusial, tapi tidak ada salahnya.
+      // profileImageProvider = NetworkImage('$photoUrl?v=${DateTime.now().millisecondsSinceEpoch}');
+      profileImageProvider = NetworkImage(photoUrl);
+    } else {
+      profileImageProvider = const AssetImage(
+        'assets/foto.jpg',
+      ); // Fallback ke aset default
+    }
+
+    print(
+      '[ProfileHeader] build() dipanggil. Photo URL: $photoUrl',
+    ); // Untuk debugging
+
     return Container(
       width: double.infinity,
       color: const Color(0xFFD07C3D),
-      padding: const EdgeInsets.only(top: 35, bottom: 30),
+      padding: const EdgeInsets.only(top: 40, bottom: 25, left: 16, right: 16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Logo kiri atas
-          Row(
-            children: [
-              const SizedBox(width: 16),
-              Image.asset('assets/kopiqu.png', width: 120),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // Foto profil
-          Container(
-            width: 100,
-            height: 130,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-              image: const DecorationImage(
-                image: AssetImage('assets/foto.jpg'),
-                fit: BoxFit.cover,
-              ),
+          // Logo KopiQu (Opsional, jika tidak ada di AppBar MainScreen)
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: Image.asset('assets/kopiqu.png', height: 30),
+          // ),
+          // const SizedBox(height: 15),
+          CircleAvatar(
+            radius: 55,
+            backgroundColor: Colors.white.withAlpha(
+              (0.5 * 255).round(),
+            ), // Menggunakan withAlpha
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey.shade300,
+              key: ValueKey(
+                photoUrl ??
+                    'assets/foto.jpg_${DateTime.now().millisecondsSinceEpoch}',
+              ), // ValueKey diperbarui
+              backgroundImage: profileImageProvider,
+              onBackgroundImageError: (exception, stackTrace) {
+                print(
+                  "Error loading profile image from network: $exception. Falling back to asset.",
+                );
+                // Tidak perlu setState di sini jika logika displayImageProvider sudah benar
+              },
+              child:
+                  (photoUrl == null || photoUrl.isEmpty)
+                      ? const Icon(
+                        Icons.person_outline,
+                        size: 60,
+                        color: Colors.white70,
+                      )
+                      : null,
             ),
           ),
-          const SizedBox(height: 10),
-          // Display name dari metadata + icon edit
+          const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 displayName,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                PhosphorIcons.pencilSimple(PhosphorIconsStyle.regular),
-                color: Colors.black,
-                size: 18,
+                textAlign: TextAlign.center,
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          // Email pengguna
+          const SizedBox(height: 6),
           Text(
             email,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.white70,
+              color: Colors.white.withAlpha((0.85 * 255).round()),
             ),
           ),
         ],
