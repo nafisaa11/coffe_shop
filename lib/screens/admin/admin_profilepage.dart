@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/services/auth_service.dart';
-import 'package:kopiqu/widgets/admin/admin_profileheader.dart';
-import 'package:kopiqu/widgets/admin/admin_infotile.dart';
-import 'package:kopiqu/widgets/admin/admin_historycard.dart'; // Impor LoginHistoryCard // Pastikan path ini benar
+import 'package:kopiqu/widgets/admin/admin_profileheader.dart'; // Sesuaikan nama file jika berbeda
+import 'package:kopiqu/widgets/admin/admin_infotile.dart'; // Sesuaikan nama file jika berbeda
+import 'package:kopiqu/widgets/admin/admin_historycard.dart'; // Sesuaikan nama file jika berbeda
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:intl/intl.dart'; // Untuk format tanggal di dummy history
+import 'package:intl/intl.dart';
 
 class AdminProfilePage extends StatefulWidget {
   const AdminProfilePage({super.key});
@@ -16,21 +16,22 @@ class AdminProfilePage extends StatefulWidget {
 class _AdminProfilePageState extends State<AdminProfilePage> {
   String displayName = 'Admin';
   String email = 'Tidak ada email';
-  String? avatarUrl;
+  String? avatarUrl; // Jika Anda menyimpan URL avatar di metadata
   String? lastLogin;
   int loginsToday = 0;
   List<Map<String, dynamic>> _dummyLoginHistory = [];
 
+  // Warna dari skema Anda
   final Color headerBackgroundColor = const Color(0xFFD3864A);
   final Color actionButtonColor = const Color(0xFF804E23);
   final Color secondaryTextColor = const Color(0xFFA28C79);
-  final Color logoutButtonColor = Colors.red[700]!; // Atau Colors.redAccent
+  final Color logoutButtonColor = Colors.red[700]!;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    _loadLoginStats();
+    _loadLoginStats(); // Ini masih menggunakan data dummy
   }
 
   void _loadUserData() {
@@ -39,20 +40,25 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
       setState(() {
         displayName = user.userMetadata?['display_name'] as String? ?? 'Admin';
         email = user.email ?? 'Tidak ada email';
+        // Contoh jika Anda menyimpan avatar_url di metadata:
         // avatarUrl = user.userMetadata?['avatar_url'] as String?;
       });
     }
   }
 
+  // TODO: Implementasikan pengambilan data login sebenarnya dari backend Anda
   void _loadLoginStats() {
     if (mounted) {
       final now = DateTime.now();
-      final DateFormat timeFormatter = DateFormat('HH:mm');
+      final DateFormat timeFormatter = DateFormat('HH:mm', 'id_ID');
+      final DateFormat dateFormatter = DateFormat('dd MMM yy', 'id_ID');
       setState(() {
+        // Contoh format yang lebih lengkap untuk lastLogin
         lastLogin =
-            "Hari ini, ${timeFormatter.format(now.subtract(const Duration(minutes: 30)))}";
-        loginsToday = 2;
+            "${dateFormatter.format(now.subtract(const Duration(minutes: 30)))} ${timeFormatter.format(now.subtract(const Duration(minutes: 30)))}";
+        loginsToday = 2; // Data dummy
         _dummyLoginHistory = [
+          // Data dummy
           {
             'timestamp': now.subtract(const Duration(minutes: 30)),
             'device': 'KopiQu Admin Web',
@@ -73,39 +79,42 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Tidak ada AppBar di sini karena AdminMainScreen sudah punya AppBar global
+      // AppBar sudah ada di AdminMainScreen, jadi di sini tidak perlu
       body: Column(
-        // Gunakan Column untuk memisahkan header dan konten scroll
+        // 1. Gunakan Column sebagai parent utama
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          // Bagian Header yang tidak ikut scroll
+          // 2. Bagian Header (ProfileHeaderCard) - TIDAK DI DALAM Expanded/ScrollView
           Padding(
             padding: const EdgeInsets.fromLTRB(
               16.0,
               16.0,
               16.0,
-              0,
-            ), // Padding untuk header
+              8.0,
+            ), // Beri padding agar tidak terlalu mepet
             child: ProfileHeaderCard(
               displayName: displayName,
               email: email,
-              avatarUrl: avatarUrl,
+              avatarUrl: avatarUrl, // Kirim avatarUrl
               backgroundColor: headerBackgroundColor,
               iconColor: Colors.white,
               textColor: Colors.white,
             ),
           ),
 
-          // Bagian Konten yang bisa di-scroll
+          // 3. Bagian Konten yang Bisa Di-scroll
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(
+              padding: const EdgeInsets.fromLTRB(
+                16.0,
+                8.0,
+                16.0,
                 16.0,
               ), // Padding untuk konten scroll
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 8), // Jarak dari header ke konten
+                  // Bagian Informasi Akun (yang di-uncomment)
                   // Text(
                   //   'Informasi Akun',
                   //   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -115,7 +124,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                   // ),
                   // const SizedBox(height: 8),
                   // Card(
-                  //   elevation: 2,
+                  //   elevation: 1,
                   //   shape: RoundedRectangleBorder(
                   //     borderRadius: BorderRadius.circular(10),
                   //   ),
@@ -155,35 +164,38 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                   //     ],
                   //   ),
                   // ),
+                  const SizedBox(height: 10),
 
-                  const SizedBox(height: 12),
+                  // Judul Aktivitas Login (yang tidak di-comment)
                   Text(
-                    'Aktivitas Login ',
+                    'Aktivitas Login', // Judul ini mungkin bisa masuk ke dalam LoginHistoryCard
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.center, // Anda set center di kode Anda, saya biarkan default
                   ),
                   const SizedBox(height: 8),
+
+                  // LoginHistoryCard yang Anda uncomment
                   LoginHistoryCard(
                     loginHistory: _dummyLoginHistory,
-                    textColor: const Color(
-                      0xFF4E342E,
-                    ), // Coklat tua untuk teks di history card
-                    cardBackgroundColor:
-                        Colors.white, // Latar belakang putih untuk history card
+                    textColor: const Color(0xFF4E342E),
+                    cardBackgroundColor: Colors.white,
                   ),
 
-                  // Anda bisa juga menampilkan Login Terakhir dan Total Login Hari Ini
-                  // di dalam Card terpisah atau di bawah LoginHistoryCard jika mau.
-                  // Contoh:
+                  // Card untuk Login Terakhir dan Total Login Hari Ini (yang Anda uncomment)
                   const SizedBox(height: 16),
                   Card(
                     elevation: 1,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
                       child: Column(
                         children: [
                           if (lastLogin != null)
@@ -204,6 +216,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 40),
                   Center(
                     child: ElevatedButton.icon(
@@ -219,9 +232,9 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: logoutButtonColor,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 100,
+                          horizontal: 120,
                           vertical: 15,
-                        ),
+                        ), // Kurangi padding horizontal agar tidak terlalu lebar
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -230,12 +243,11 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       onPressed: () async {
                         final currentContext = context;
                         await AuthService().logout(currentContext);
+                        // Navigasi sudah dihandle oleh AuthGate atau listener di AuthService
                       },
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ), // Padding bawah untuk scrollability
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

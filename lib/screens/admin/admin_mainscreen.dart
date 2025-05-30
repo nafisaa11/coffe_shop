@@ -37,6 +37,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         // Langsung gunakan appBarColor dari tema
         backgroundColor: const Color(0xFF804E23),
         automaticallyImplyLeading: false,
+        centerTitle: true,
       ),
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: AdminBottomNavbar(
