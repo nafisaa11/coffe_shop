@@ -155,7 +155,8 @@ class _LoginPageState extends State<LoginPage> {
                         CustomTextField(
                           label: 'Password',
                           hintText: 'Masukkan Password',
-                          obscureText: true,
+                          obscureTextInitially: true, // Password disembunyikan di awal
+                          isPasswordTextField: true,  // Aktifkan ikon mata
                           controller: passwordController,
                         ),
                         const SizedBox(height: 10),

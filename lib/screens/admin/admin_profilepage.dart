@@ -25,7 +25,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   final Color headerBackgroundColor = const Color(0xFFD3864A);
   final Color actionButtonColor = const Color(0xFF804E23);
   final Color secondaryTextColor = const Color(0xFFA28C79);
-  final Color logoutButtonColor = Colors.red[700]!;
+  final Color logoutButtonColor = Colors.redAccent.shade700;
 
   @override
   void initState() {
@@ -173,7 +173,9 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
-                    textAlign: TextAlign.center, // Anda set center di kode Anda, saya biarkan default
+                    textAlign:
+                        TextAlign
+                            .center, // Anda set center di kode Anda, saya biarkan default
                   ),
                   const SizedBox(height: 8),
 
@@ -236,7 +238,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                           vertical: 15,
                         ), // Kurangi padding horizontal agar tidak terlalu lebar
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 3,
                       ),
