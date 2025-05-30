@@ -14,6 +14,7 @@ import 'package:kopiqu/screens/menupage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:kopiqu/screens/admin/admindashboard.dart';
 import 'package:kopiqu/screens/resetpasswordpage.dart';
+import 'package:kopiqu/screens/admin/admin_mainscreen.dart'; // Pastikan ini benar
 
 // ❗️ PENTING: Import untuk lokalisasi intl
 import 'package:intl/date_symbol_data_local.dart';
@@ -129,7 +130,7 @@ class _MyAppState extends State<MyApp> {
         '/periksa':
             (context) =>
                 const PeriksaPesananScreen(), // Ini halaman Periksa Pesanan/Transaksi
-        '/admin': (context) => const AdminDashboardScreen(),
+        '/admin': (context) => const AdminMainScreen(),
         '/login': (context) => const LoginPage(),
       },
     );
@@ -145,15 +146,44 @@ class AuthGate extends StatelessWidget {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        if (snapshot.hasData && snapshot.data?.session != null) {
-          return const MainScreen();
+        final session = snapshot.data?.session;
+        if (session != null && session.user != null) {
+          // Sesi ada, cek role
+          final user = session.user!;
+          final userRole = user.userMetadata?['role'] as String?;
+          final userEmail = user.email ?? "";
+
+          print('AuthGate: Session active. Role: $userRole, Email: $userEmail'); // Debugging
+
+          if (userRole == 'admin' && userEmail.endsWith('@kopiqu.com')) {
+            // Langsung navigasi menggunakan Navigator.pushReplacementNamed
+            // agar tidak menambah stack jika sudah di halaman admin.
+            // Atau, jika ini adalah load awal, return AdminMainScreen().
+            // Menggunakan WidgetsBinding untuk navigasi setelah build jika dari stream.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (ModalRoute.of(context)?.settings.name != '/admin') { // Hindari push berulang jika sudah di /admin
+                Navigator.pushReplacementNamed(context, '/admin');
+              }
+            });
+            // Tampilkan loading sementara navigasi diproses
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            // Atau, jika rute /admin sudah benar, bisa juga:
+            // return const AdminMainScreen(); // Ini akan langsung membangun AdminMainScreen
+
+          } else if (userRole == 'pembeli') {
+            return const MainScreen(); // Halaman utama pembeli
+          } else {
+            print('AuthGate: Role tidak dikenali ($userRole) atau email admin salah. Arahkan ke AuthScreen/LoginPage.');
+            // Logout pengguna ini agar tidak terjebak
+            // Supabase.instance.client.auth.signOut(); // Ini akan memicu AuthStateChange lagi
+            return const LoginPage(); // atau AuthScreen()
+          }
         } else {
-          return const LoginPage();
+          print('AuthGate: No active session. Showing LoginPage/AuthScreen.');
+          return const LoginPage(); // atau AuthScreen()
         }
       },
     );
