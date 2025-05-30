@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kopiqu/screens/admin/admin_menu/admin_editMenu_screen.dart';
+import 'package:kopiqu/screens/admin/admin_menu/admin_tambahMenu_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:kopiqu/widgets/admin/dashboard_infocard.dart';
 import 'package:kopiqu/models/kopi.dart';
@@ -21,7 +23,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
   bool _isLoadingMenu = true;
   String? _menuError;
 
-  final Color selamatDatangColor = const Color(0xFFD3864A);
+  // final Color selamatDatangColor = const Color(0xFFD3864A);
   final Color statistikCardColor = const Color(0xFFE3B28C);
   final Color statistikCardTextColor = const Color(0xFF4E342E);
 
@@ -105,17 +107,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     }
   }
 
-  void _handleEditMenu(Kopi kopiItem) {
-    print('Edit menu: ${kopiItem.nama_kopi}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Fitur edit untuk ${kopiItem.nama_kopi} belum diimplementasikan.',
-        ),
-      ),
-    );
-  }
-
   Future<void> _handleDeleteMenu(Kopi kopiItem) async {
     final confirmDelete = await showDialog<bool>(
       context: context,
@@ -142,15 +133,19 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     if (confirmDelete == true) {
       print('Hapus menu: ${kopiItem.nama_kopi}');
       try {
-        // TODO: Implementasi penghapusan dari Supabase
+        await Supabase.instance.client
+            .from('kopi')
+            .delete()
+            .eq('id', kopiItem.id); // Menghapus berdasarkan ID
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Menu "${kopiItem.nama_kopi}" (belum) dihapus. Implementasi backend diperlukan.',
-            ),
-            backgroundColor: Colors.orangeAccent,
+            content: Text('Menu "${kopiItem.nama_kopi}" berhasil dihapus.'),
+            backgroundColor: Colors.green,
           ),
         );
+        // Refresh daftar menu setelah berhasil menghapus
+        _fetchKopiItems();
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -193,7 +188,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
         final kopiItem = _kopiItems[index];
         return AdminMenuItemCard(
           kopiItem: kopiItem,
-          onEdit: () => _handleEditMenu(kopiItem),
+          onEdit: () => EditMenuPage(kopi: kopiItem),
           onDelete: () => _handleDeleteMenu(kopiItem),
         );
       },
@@ -213,57 +208,57 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Welcome Container
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 20.0,
-                  horizontal: 16.0,
-                ),
-                decoration: BoxDecoration(
-                  color: selamatDatangColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.admin_panel_settings_rounded,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Selamat Datang,',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                          ),
-                          Text(
-                            _displayName,
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(
+              //     vertical: 20.0,
+              //     horizontal: 16.0,
+              //   ),
+              //   decoration: BoxDecoration(
+              //     color: selamatDatangColor,
+              //     borderRadius: BorderRadius.circular(12),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.grey.withOpacity(0.3),
+              //         spreadRadius: 2,
+              //         blurRadius: 5,
+              //         offset: const Offset(0, 3),
+              //       ),
+              //     ],
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       const Icon(
+              //         Icons.admin_panel_settings_rounded,
+              //         color: Colors.white,
+              //         size: 40,
+              //       ),
+              //       const SizedBox(width: 15),
+              //       Expanded(
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text(
+              //               'Selamat Datang,',
+              //               style: TextStyle(
+              //                 fontSize: 18,
+              //                 color: Colors.white.withOpacity(0.9),
+              //               ),
+              //             ),
+              //             Text(
+              //               _displayName,
+              //               style: const TextStyle(
+              //                 fontSize: 26,
+              //                 fontWeight: FontWeight.bold,
+              //                 color: Colors.white,
+              //               ),
+              //               overflow: TextOverflow.ellipsis,
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 24),
               // Statistik Aplikasi
               Text(
@@ -285,7 +280,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                 childAspectRatio: 1.5,
                 children: [
                   DashboardInfoCard(
-                    title: 'Total Menu Saat Ini',
+                    title: 'Total Produk',
                     value: _totalMenu,
                     icon: Icons.restaurant_menu,
                     backgroundColor: statistikCardColor,
@@ -293,7 +288,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                     textColor: statistikCardTextColor,
                   ),
                   DashboardInfoCard(
-                    title: 'Total pembeli Aktif',
+                    title: 'Total Pembeli Aktif',
                     value: _totalUsers,
                     icon: Icons.people_alt,
                     backgroundColor: statistikCardColor,
@@ -337,11 +332,10 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                       ),
                     ),
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Fitur Tambah Menu belum diimplementasikan.',
-                          ),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TambahMenuPage(),
                         ),
                       );
                     },
