@@ -1,10 +1,11 @@
 // screens/menupage.dart
 import 'package:flutter/material.dart';
+import 'dart:math'; // Untuk Random jika Anda menggunakannya di _applyFilters (saat ini tidak di MenuPage)
 import 'package:kopiqu/models/kopi.dart';
-// import 'package:kopiqu/widgets/Layout/header_widget.dart'; // Tidak digunakan lagi jika AppBar global
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
-import 'package:kopiqu/widgets/Homepage/search_widget.dart'; // Pastikan path ini benar
-import 'package:kopiqu/widgets/Homepage/tag_list.dart';
+import 'package:kopiqu/widgets/Homepage/search_widget.dart';
+import 'package:kopiqu/widgets/Layout/sliver_search_header_delegate.dart'; // 👈 IMPORT DELEGATE
+import 'package:kopiqu/widgets/Homepage/tag_list.dart'; // Anda menyebutkan TagList dihilangkan di MenuPage, jadi ini bisa dihapus jika tidak dipakai
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,6 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
   AnimationController? _animationController;
   Animation<Offset>? _slideAnimation;
   Animation<double>? _scaleAnimation;
-  // String? _animatingKopiImageUrl;
 
   @override
   void initState() {
@@ -47,17 +47,22 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
   }
 
   Future<void> _fetchKopiData() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
     try {
       final supabase = Supabase.instance.client;
-      final response = await supabase.from('kopi').select();
+      // Ambil semua kopi, mungkin diurutkan berdasarkan nama atau ID
+      final response = await supabase
+          .from('kopi')
+          .select()
+          .order('nama_kopi', ascending: true);
       if (mounted) {
+        _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
+        _filteredKopiList = List.from(_masterKopiList);
         setState(() {
-          _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
-          _filteredKopiList = List.from(_masterKopiList);
           _isLoading = false;
         });
       }
@@ -73,6 +78,7 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
   }
 
   void _filterKopiList(String query) {
+    if (!mounted) return;
     final List<Kopi> filteredList = [];
     if (query.isEmpty) {
       filteredList.addAll(_masterKopiList);
@@ -93,10 +99,8 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
     GlobalKey tombolPlusKeyDariCard,
     Kopi kopiYangDitambahkan,
   ) {
-    // ... (KODE METHOD INI SAMA PERSIS DENGAN YANG DI HOMEPAGE.DART, SUDAH BENAR) ...
     final cartUiService = Provider.of<CartUIService>(context, listen: false);
     cartUiService.updateCartIconPosition();
-
     final Offset? posisiAkhirKeranjang = cartUiService.cartIconPosition;
 
     if (tombolPlusKeyDariCard.currentContext == null ||
@@ -104,10 +108,11 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
       print(
         "[MenuPage] Gagal memulai animasi: key atau posisi keranjang tidak valid.",
       );
+      String ukuranPilihan = "Sedang";
       Provider.of<KeranjangController>(
         context,
         listen: false,
-      ).tambah(kopiYangDitambahkan, "Sedang");
+      ).tambah(kopiYangDitambahkan, ukuranPilihan);
       return;
     }
 
@@ -128,7 +133,6 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-
     _slideAnimation = Tween<Offset>(
       begin: posisiAwalAnimasi,
       end: posisiAkhirKeranjang,
@@ -138,7 +142,6 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         curve: Curves.easeInOutCubic,
       ),
     );
-
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.2).animate(
       CurvedAnimation(parent: _animationController!, curve: Curves.easeOut),
     );
@@ -180,9 +183,7 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         );
       },
     );
-
     Overlay.of(context).insert(_overlayEntry!);
-
     _animationController!.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _overlayEntry?.remove();
@@ -191,33 +192,31 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         _animationController = null;
       }
     });
-
     _animationController!.forward();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget bodySlivers; // Mengganti bodyContent menjadi bodySlivers
-
+    // Tentukan widget untuk bagian sliver grid berdasarkan state
+    Widget kopiGridSliver;
     if (_isLoading) {
-      bodySlivers = const SliverFillRemaining(
-        // Gunakan SliverFillRemaining untuk konten di dalam CustomScrollView
+      kopiGridSliver = const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       );
     } else if (_errorMessage != null) {
-      bodySlivers = SliverFillRemaining(
+      kopiGridSliver = SliverFillRemaining(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red.shade700),
+                  style: TextStyle(color: Colors.red.shade700, fontSize: 16),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Coba Lagi'),
@@ -228,34 +227,38 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
           ),
         ),
       );
+    } else if (_masterKopiList.isEmpty) {
+      kopiGridSliver = const SliverFillRemaining(
+        child: Center(
+          child: Text(
+            'Tidak ada produk kopi yang tersedia saat ini.',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
     } else if (_filteredKopiList.isEmpty && _searchQuery.isNotEmpty) {
-      bodySlivers = SliverFillRemaining(
+      kopiGridSliver = SliverFillRemaining(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Text(
               'Kopi dengan nama "$_searchQuery" tidak ditemukan.',
               textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ),
       );
-    } else if (_masterKopiList.isEmpty) {
-      bodySlivers = const SliverFillRemaining(
-        child: Center(
-          child: Text('Tidak ada produk kopi yang tersedia saat ini.'),
-        ),
-      );
     } else {
-      // Jika ada data, bodySlivers akan berupa SliverPadding dengan SliverGrid
-      bodySlivers = SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+      kopiGridSliver = SliverPadding(
+        padding: const EdgeInsets.all(16.0), // Padding untuk keseluruhan grid
         sliver: SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.65,
+            childAspectRatio:
+                0.65, // Sesuaikan childAspectRatio dengan desain CoffeeCard
           ),
           delegate: SliverChildBuilderDelegate((context, index) {
             final kopi = _filteredKopiList[index];
@@ -265,7 +268,8 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
                 GlobalKey plusButtonKey,
                 Kopi kopiUntukKeranjang,
               ) {
-                String ukuranPilihan = "Sedang";
+                String ukuranPilihan =
+                    "Sedang"; // Tambahkan logika pemilihan ukuran
                 Provider.of<KeranjangController>(
                   context,
                   listen: false,
@@ -282,30 +286,33 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
     }
 
     return Scaffold(
+      // AppBar akan dihandle oleh MainScreen
       body: CustomScrollView(
-        // Semua konten sekarang di dalam CustomScrollView
         slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: 0,
-              ),
-              child: SearchWidget(
+          SliverPersistentHeader(
+            pinned: true, // Membuat header "menempel" di atas saat scroll
+            delegate: SliverSearchHeaderDelegate(
+              searchWidget: SearchWidget(
                 controller: _searchController,
                 onChanged: _filterKopiList,
                 hintText: 'Cari semua menu kopi...',
               ),
+              // Warna latar belakang untuk area search bar.
+              // Gunakan Theme.of(context).scaffoldBackgroundColor agar menyatu,
+              // atau Theme.of(context).appBarTheme.backgroundColor jika ingin sama dengan AppBar
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          bodySlivers, // Masukkan sliver konten di sini (bisa SliverGrid atau SliverFillRemaining)
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 16),
-          ), // Padding bawah
+          // Jika Anda ingin TagList di MenuPage, uncomment baris berikut
+          // const SliverToBoxAdapter(child: SizedBox(height: 10)), // Spasi sebelum TagList
+          // SliverToBoxAdapter(
+          //   child: TagList(
+          //     activeTag: _activeTag, // Anda perlu state _activeTag jika menggunakan TagList di sini
+          //     onTagSelected: _onTagSelected, // Anda perlu method _onTagSelected jika menggunakan TagList
+          //   ),
+          // ),
+          // const SliverToBoxAdapter(child: SizedBox(height: 16)), // Spasi setelah TagList
+          kopiGridSliver, // Masukkan sliver yang berisi grid kopi atau pesan state
         ],
       ),
     );
