@@ -76,8 +76,7 @@ class Transaksi {
 
   String get tanggalFormatted {
     return DateFormat(
-      'dd MMMM finalList, HH:mm',
-      'id_ID',
+      'dd MMMM yyyy, HH:mm', 'id_ID',
     ).format(tanggalTransaksi);
   }
 }

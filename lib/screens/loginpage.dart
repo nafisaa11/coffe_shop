@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/services/auth_service.dart';
-// Impor widget kustom Anda di sini, contoh:
-import 'package:kopiqu/widgets/customtextfield.dart'; // PASTIKAN PATH INI BENAR
+import 'package:kopiqu/widgets/customtextfield.dart';
+import 'package:lottie/lottie.dart';
+// import 'package:kopiqu/widgets/loadinganimasi.dart';
+import 'package:kopiqu/widgets/forgotpassworddialog.dart';
+// PASTIKAN PATH INI BENAR
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,46 +30,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showForgotPasswordDialog() {
-    showDialog(
+    showForgotPasswordDialog(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Lupa Password'),
-          content: CustomTextField(
-            label: 'Email',
-            hintText: 'Masukkan email terdaftar',
-            controller: resetEmailController,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF8D6E63),
-              ), // Warna tombol coklat
-              onPressed: () async {
-                if (resetEmailController.text.isNotEmpty) {
-                  Navigator.of(dialogContext).pop();
-                  setState(() => _isLoading = true);
-                  await AuthService().sendPasswordResetEmail(
-                    resetEmailController.text,
-                    context,
-                  );
-                  if (mounted) {
-                    setState(() => _isLoading = false);
-                  }
-                  resetEmailController.clear();
-                }
-              },
-              child: const Text(
-                'Kirim Link Reset',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        );
+      resetEmailController: resetEmailController,
+      onLoadingStart: () {
+        if (mounted) setState(() => _isLoading = true);
+      },
+      onLoadingEnd: () {
+        if (mounted) setState(() => _isLoading = false);
       },
     );
   }
@@ -74,24 +45,15 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Color(0xFF8D6E63), // Dihapus untuk diganti dengan gradasi
       body: Container(
-        // Container untuk gradasi latar belakang
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF8D6E63), // Coklat di atas
-              Colors.white, // Putih di bawah
-            ],
-            stops: [
-              0.0,
-              0.7,
-            ], // Titik henti gradasi, 0.7 berarti putih mulai dominan dari 70% ke bawah
-            // Anda bisa sesuaikan nilai ini (misal 0.5, 0.8, atau hapus 'stops' untuk default)
+            colors: [Color(0xFF8D6E63), Colors.white],
+            stops: [0.0, 0.7],
           ),
         ),
         child: SafeArea(
@@ -102,22 +64,18 @@ class _LoginPageState extends State<LoginPage> {
                 vertical: 20.0,
               ),
               child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.start, // Konten mulai dari atas
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo Kopiqu di atas, tetap putih agar kontras dengan coklat
                   Image.asset(
                     'assets/kopiqu.png',
-                    width: 120, // Sedikit disesuaikan ukurannya
-                    height: 50, // Sedikit disesuaikan ukurannya
+                    width: 120,
+                    height: 50,
                     color: Colors.white,
                   ),
                   const SizedBox(height: 20),
-                  // Ikon login, tanpa warna tambahan agar sesuai aslinya
                   Image.asset('assets/iconlogin.png', height: 170),
                   const SizedBox(height: 25),
-                  // Container putih untuk form login
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -127,22 +85,20 @@ class _LoginPageState extends State<LoginPage> {
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
+                        const Text(
                           'Masuk',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
-                            color:
-                                Colors
-                                    .black, // Teks Login di dalam box tetap hitam
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 25),
@@ -155,19 +111,20 @@ class _LoginPageState extends State<LoginPage> {
                         CustomTextField(
                           label: 'Password',
                           hintText: 'Masukkan Password',
-                          obscureTextInitially: true, // Password disembunyikan di awal
-                          isPasswordTextField: true,  // Aktifkan ikon mata
+                          obscureTextInitially: true,
+                          isPasswordTextField: true,
                           controller: passwordController,
                         ),
                         const SizedBox(height: 10),
                         Align(
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
-                            onTap: _showForgotPasswordDialog,
-                            child: Text(
+                            onTap:
+                                _isLoading ? null : _showForgotPasswordDialog,
+                            child: const Text(
                               'Lupa Password?',
                               style: TextStyle(
-                                color: Color.fromARGB(255, 30, 37, 255), // Warna coklat untuk link
+                                color: Color(0xFF795548),
                                 decoration: TextDecoration.underline,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -176,10 +133,28 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 30),
                         _isLoading
-                            ? const Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF8D6E63),
+                            ? Center(
+                              child: SizedBox(
+                                width: 120, // Sesuaikan ukuran animasi Lottie
+                                height: 120,
+                                // 1. UBAH KE Lottie.asset
+                                child: Lottie.asset(
+                                  'assets/lottie/animation-loading.json', // Path ke file JSON Anda
+                                  onLoaded: (composition) {
+                                    print(
+                                      "Animasi Lottie (aset) berhasil dimuat.",
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    print(
+                                      "Error memuat Lottie dari aset: $error",
+                                    );
+                                    return const CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF8D6E63),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             )
@@ -207,20 +182,22 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(color: Colors.black87),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RegisterPage(),
-                                  ),
-                                );
-                              },
-                              child: Text(
+                              onTap:
+                                  _isLoading
+                                      ? null
+                                      : () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => RegisterPage(),
+                                          ),
+                                        );
+                                      },
+                              child: const Text(
                                 'Registrasi',
                                 style: TextStyle(
-                                  color: Color(
-                                    0xFF795548,
-                                  ), // Warna coklat untuk link
+                                  color: Color(0xFF795548),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

@@ -2,22 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/widgets/customtextfield.dart'; // Pastikan path ini benar
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/services/auth_service.dart';
+import 'package:lottie/lottie.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  // Ganti nama kelas jika perlu
   final String email;
 
   const ResetPasswordPage({
     super.key,
     required this.email,
-  }); // Ganti nama konstruktor jika perlu
+  });
 
   @override
-  State<ResetPasswordPage> createState() => _ResetPasswordPageState(); // Ganti nama state jika perlu
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  // Ganti nama state jika perlu
   final newPasswordController = TextEditingController();
   final confirmNewPasswordController = TextEditingController();
   late TextEditingController emailController;
@@ -40,93 +39,168 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 35),
-              Image.asset('assets/kopiqu.png', width: 150),
-              const SizedBox(height: 32),
-              Center(child: Image.asset('assets/iconlogin.png', height: 170)),
-              const SizedBox(height: 32),
-              const Center(
-                child: Text(
-                  'Atur Password Baru',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
+      // Hapus backgroundColor di sini untuk menggunakan Container dengan gradasi
+      body: Container( // 2. Bungkus dengan Container untuk gradasi
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF8D6E63), // Warna coklat di atas
+              Colors.white,      // Warna putih di bawah
+            ],
+            stops: [0.0, 0.7], // Sesuaikan titik henti gradasi jika perlu
+          ),
+        ),
+        child: SafeArea(
+          child: Center( // 3. Tambahkan Center agar konten di tengah
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20.0, // Sesuaikan padding vertikal jika perlu
               ),
-              const SizedBox(height: 24),
-              CustomTextField(
-                label: 'Email',
-                hintText:
-                    'Email Anda', // Hint text mungkin tidak terlihat jika field terisi
-                controller: emailController,
-                readOnly: true, // Atur readOnly
-                // Atur style khusus jika diperlukan, jika tidak, default abu-abu akan diterapkan
-                // customLabelStyle: TextStyle(color: Colors.grey[700]),
-                // inputTextStyle: TextStyle(color: Colors.grey[800], fontStyle: FontStyle.italic),
-              ),
-              const SizedBox(height: 15),
-              CustomTextField(
-                label: 'Password Baru',
-                hintText: 'Masukkan Password Baru',
-                obscureTextInitially: true, // Password disembunyikan di awal
-                isPasswordTextField: true,
-                controller: newPasswordController,
-              ),
-              const SizedBox(height: 15),
-              CustomTextField(
-                label: 'Konfirmasi Password Baru',
-                hintText: 'Masukkan Konfirmasi Password Baru',
-                obscureTextInitially: true, // Password disembunyikan di awal
-                isPasswordTextField: true,
-                controller: confirmNewPasswordController,
-              ),
-              const SizedBox(height: 46),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : CustomButton(
-                    // Menggunakan CustomButton yang sudah dimodifikasi
-                    text: 'Ubah Password',
-                    // iconData: Icons.lock_reset, // Opsional: tambahkan ikon jika mau
-                    onPressed: () async {
-                      setState(() => _isLoading = true);
-                      await AuthService().updateUserPassword(
-                        context,
-                        newPasswordController.text,
-                        confirmNewPasswordController.text,
-                      );
-                      if (mounted) {
-                        setState(() => _isLoading = false);
-                      }
-                    },
-                  ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start, // Konten mulai dari atas
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('Sudah ingat password? '),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    },
-                    child: const Text(
-                      'Masuk',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // Logo Kopiqu di atas, putih agar kontras
+                  Image.asset(
+                    'assets/kopiqu.png',
+                    width: 120, // Sesuaikan ukuran agar konsisten
+                    height: 50,  // Sesuaikan ukuran agar konsisten
+                    color: Colors.white,
+                  ),
+                  const SizedBox(height: 20), // Jarak konsisten
+                  // Ikon (opsional, bisa disesuaikan atau dihilangkan jika tidak cocok)
+                  Image.asset('assets/iconlogin.png', height: 170), // Pertimbangkan ikon yang lebih relevan
+                  const SizedBox(height: 25), // Jarak konsisten
+
+                  // Container putih untuk form
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Atur Password Baru',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 25, // Ukuran font konsisten
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        CustomTextField(
+                          label: 'Email',
+                          hintText: 'Email Anda',
+                          controller: emailController,
+                          readOnly: true,
+                          // Style untuk readOnly field bisa disesuaikan di CustomTextField
+                        ),
+                        const SizedBox(height: 15),
+                        CustomTextField(
+                          label: 'Password Baru',
+                          hintText: 'Masukkan Password Baru',
+                          obscureTextInitially: true,
+                          isPasswordTextField: true,
+                          controller: newPasswordController,
+                        ),
+                        const SizedBox(height: 15),
+                        CustomTextField(
+                          label: 'Konfirmasi Password Baru',
+                          hintText: 'Masukkan Konfirmasi Password Baru',
+                          obscureTextInitially: true,
+                          isPasswordTextField: true,
+                          controller: confirmNewPasswordController,
+                        ),
+                        const SizedBox(height: 30), // Jarak sebelum tombol
+                        _isLoading
+                            ? Center(
+                                child: SizedBox(
+                                  width: 120, // Sesuaikan ukuran Lottie
+                                  height: 120,
+                                  // 4. Tambahkan Lottie Widget di sini
+                                  child: Lottie.asset(
+                                    'assets/lottie/animation-loading.json', // Pastikan path ini benar
+                                    onLoaded: (composition) {
+                                      print(
+                                        "Animasi Lottie (aset) berhasil dimuat untuk ResetPasswordPage.",
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      print(
+                                        "Error memuat Lottie dari aset untuk ResetPasswordPage: $error",
+                                      );
+                                      return const CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Color(0xFF8D6E63), // Warna konsisten
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              )
+                            : CustomButton(
+                                text: 'Ubah Password',
+                                iconData: Icons.lock_reset, // Ikon opsional
+                                onPressed: () async {
+                                  setState(() => _isLoading = true);
+                                  await AuthService().updateUserPassword(
+                                    context,
+                                    newPasswordController.text,
+                                    confirmNewPasswordController.text,
+                                  );
+                                  if (mounted) {
+                                    setState(() => _isLoading = false);
+                                  }
+                                },
+                              ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Sudah ingat password? ',
+                              style: TextStyle(color: Colors.black87), // Warna teks konsisten
+                            ),
+                            GestureDetector(
+                              onTap: _isLoading ? null : () { // 5. Nonaktifkan tap saat loading
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const LoginPage()), // Gunakan const
+                                );
+                              },
+                              child: const Text(
+                                'Masuk',
+                                style: TextStyle(
+                                  color: Color(0xFF795548), // Warna link konsisten
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),

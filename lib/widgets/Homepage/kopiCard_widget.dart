@@ -1,7 +1,9 @@
+// widgets/Homepage/kopiCard_widget.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/screens/detailProdukScreen.dart';
+import 'package:shimmer/shimmer.dart'; // 👈 1. PASTIKAN IMPORT SHIMMER ADA
 
 class CoffeeCard extends StatefulWidget {
   final Kopi kopi;
@@ -10,7 +12,7 @@ class CoffeeCard extends StatefulWidget {
   const CoffeeCard({
     super.key,
     required this.kopi,
-    required this.onAddToCartPressed, // Tambahkan parameter ini di constructor
+    required this.onAddToCartPressed,
   });
 
   @override
@@ -26,7 +28,6 @@ class _CoffeeCardState extends State<CoffeeCard> {
     decimalDigits: 0,
   );
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -39,8 +40,10 @@ class _CoffeeCardState extends State<CoffeeCard> {
         );
       },
       child: LayoutBuilder(
+        // LayoutBuilder tetap dipertahankan
         builder: (context, constraints) {
           return Container(
+            // Container utama card Anda
             decoration: BoxDecoration(
               color: const Color(0xFFF7E9DE),
               borderRadius: BorderRadius.circular(16),
@@ -60,20 +63,22 @@ class _CoffeeCardState extends State<CoffeeCard> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                   child: Container(
-                    height:
-                        constraints.maxWidth *
-                        0.7, // Tinggi gambar relatif terhadap lebar card
+                    height: constraints.maxWidth * 0.7,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: const Color(0xFFD3864A),
                         width: 2,
                       ),
+                      // 👇 Warna background untuk placeholder shimmer
+                      color: Colors.grey.shade300,
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(
+                        10,
+                      ), // Sesuai border container gambar
                       child: Image.network(
-                        widget.kopi.gambar, // Gunakan URL dari widget.kopi
+                        widget.kopi.gambar,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
@@ -83,21 +88,29 @@ class _CoffeeCardState extends State<CoffeeCard> {
                             color: Colors.grey.shade400,
                           );
                         },
+                        // 👇 2. MODIFIKASI loadingBuilder untuk SHIMMER
                         loadingBuilder: (
                           BuildContext context,
                           Widget child,
                           ImageChunkEvent? loadingProgress,
                         ) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value:
-                                  loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                              strokeWidth: 2.0,
-                              color: Colors.brown,
+                          if (loadingProgress == null) {
+                            return child; // Gambar sudah termuat, tampilkan gambar
+                          }
+                          // Saat loading, tampilkan efek shimmer
+                          return Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!, // Warna dasar shimmer
+                            highlightColor:
+                                Colors.grey[100]!, // Warna highlight shimmer
+                            child: Container(
+                              // Bentuk placeholder ini harus sama dengan area gambar Anda
+                              width: double.infinity,
+                              height:
+                                  double
+                                      .infinity, // Mengisi penuh area ClipRRect
+                              color:
+                                  Colors
+                                      .white, // Warna solid di bawah efek shimmer
                             ),
                           );
                         },
@@ -105,22 +118,19 @@ class _CoffeeCardState extends State<CoffeeCard> {
                     ),
                   ),
                 ),
-                // Expanded agar teks dan harga mengisi sisa ruang sebelum tombol plus
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment:
-                          MainAxisAlignment
-                              .center, // Pusatkan teks jika ada sisa ruang
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           widget.kopi.nama_kopi,
-                          maxLines: 2, // Izinkan 2 baris untuk nama kopi
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 15, // Sedikit lebih kecil agar muat
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
@@ -131,7 +141,7 @@ class _CoffeeCardState extends State<CoffeeCard> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 14, // Sedikit lebih kecil
+                            fontSize: 14,
                             color: Colors.brown,
                             fontWeight: FontWeight.w500,
                           ),
@@ -140,20 +150,18 @@ class _CoffeeCardState extends State<CoffeeCard> {
                     ),
                   ),
                 ),
-                // Tombol Add dan Harga
                 Padding(
                   padding: const EdgeInsets.only(
                     left: 12,
                     right: 8,
                     bottom: 8,
                     top: 4,
-                  ), // Sesuaikan padding
+                  ),
                   child: Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.end, // Tombol plus di kanan
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
-                        key: _plusButtonKey, // Pasang GlobalKey di sini
+                        key: _plusButtonKey,
                         onTap: () {
                           print(
                             '[CoffeeCard] Tombol plus untuk "${widget.kopi.nama_kopi}" ditekan.',
@@ -166,7 +174,7 @@ class _CoffeeCardState extends State<CoffeeCard> {
                         customBorder: const CircleBorder(),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD3864A), // Warna tombol
+                            color: const Color(0xFFD3864A),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -176,13 +184,11 @@ class _CoffeeCardState extends State<CoffeeCard> {
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(
-                            8,
-                          ), // Padding ikon di dalam lingkaran
+                          padding: const EdgeInsets.all(8),
                           child: const Icon(
                             Icons.add,
                             color: Colors.white,
-                            size: 22, // Ukuran ikon
+                            size: 22,
                           ),
                         ),
                       ),
