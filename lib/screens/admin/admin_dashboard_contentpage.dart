@@ -342,9 +342,15 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.redAccent[400]!, // Warna merah aksen yang lebih pekat
-                Colors
-                    .redAccent[200]!, // Warna merah aksen standar (lebih terang)
+                const Color.fromARGB(
+                  255,
+                  216,
+                  130,
+                  65,
+                ), // Warna merah aksen yang lebih pekat
+                const Color(
+                  0xFF804E23,
+                ), // Warna merah aksen standar (lebih terang)
               ],
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
@@ -356,9 +362,9 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
             ),
           ),
         ),
-        backgroundColor:
-            Colors
-                .redAccent, // Tetap berikan warna dasar jika flexibleSpace tidak digunakan atau sebagai fallback
+        backgroundColor: const Color(
+          0xFF804E23,
+        ), // Tetap berikan warna dasar jika flexibleSpace tidak digunakan atau sebagai fallback
         elevation:
             4.0, // Elevasi bisa sedikit dinaikkan untuk memperjelas bayangan dengan gradient
         centerTitle: true,
@@ -366,23 +372,10 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
           'Welcome, $_displayName!',
           style:
               textTheme.headlineSmall?.copyWith(
-                color: Colors.black,
+                color: Colors.white,
                 fontWeight: FontWeight.normal,
                 fontSize: 20,
                 letterSpacing: 0.5,
-                // 2. Menambahkan bayangan teks yang halus (opsional)
-                // shadows: [
-                //   const Shadow(
-                //     offset: Offset(0.5, 0.5), // Posisi bayangan
-                //     blurRadius: 1.0, // Tingkat blur bayangan
-                //     color: Color.fromARGB(
-                //       100,
-                //       0,
-                //       0,
-                //       0,
-                //     ), // Warna bayangan (hitam dengan opacity)
-                //   ),
-                // ],
               ) ??
               const TextStyle(
                 color: Colors.black,

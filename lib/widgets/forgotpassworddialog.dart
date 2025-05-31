@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/services/auth_service.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:lottie/lottie.dart'; // 👈 1. PASTIKAN IMPORT INI ADA DAN TIDAK DI-COMMENT
+import 'package:lottie/lottie.dart';
 
-// Definisikan warna tema jika belum ada di file terpisah yang bisa diakses di sini
 const Color kDialogPrimaryColor = Color(0xFFB06C30); // kCafeMediumBrown
 const Color kDialogSecondaryColor = Color(0xFF4D2F15); // kCafeDarkBrown
 const Color kDialogBackgroundColor = Color(0xFFF7E9DE); // kCafeVeryLightBeige
-// const Color kDialogTextColor = Color(0xFF1D1616); // kCafeTextBlack (tidak terpakai langsung di sini)
 const Color kDialogMutedTextColor = Color(0xFF4E342E);
 
 void showForgotPasswordDialog({
-  required BuildContext context,
+  required BuildContext
+  context, // Ini adalah context dari halaman/widget pemanggil
   required TextEditingController resetEmailController,
   required VoidCallback onLoadingStart,
   required VoidCallback onLoadingEnd,
@@ -22,20 +21,22 @@ void showForgotPasswordDialog({
     context: context,
     barrierDismissible: false,
     builder: (dialogContext) {
+      // dialogContext adalah context khusus untuk AlertDialog
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: kDialogBackgroundColor,
         titlePadding: const EdgeInsets.only(top: 24, bottom: 0),
         title: Column(
-          // Judul tetap di sini, animasi akan di bawahnya di bagian content
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon(
+            // Icon( // Ikon kunci di-comment sesuai kode Anda
             //   PhosphorIcons.key(PhosphorIconsStyle.duotone),
             //   size: 48,
             //   color: kDialogPrimaryColor,
             // ),
-            const SizedBox(height: 12),
+            const SizedBox(
+              height: 12,
+            ), // Jika ikon di atas tidak ada, SizedBox ini mungkin tidak perlu atau bisa disesuaikan
             Text(
               'Lupa Password?',
               textAlign: TextAlign.center,
@@ -47,27 +48,18 @@ void showForgotPasswordDialog({
             ),
           ],
         ),
-        contentPadding: const EdgeInsets.fromLTRB(
-          24,
-          16,
-          24,
-          24,
-        ), // Sesuaikan padding atas content
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              // --- LOKASI PENAMBAHAN ANIMASI LOTTIE ---
               Lottie.asset(
-                'assets/lottie/animation-resetpassword.json', // Path ke file Lottie Anda
-                height: 200, // Sesuaikan tinggi animasi
-                width: 400, // Sesuaikan lebar animasi
+                'assets/lottie/animation-resetpassword.json',
+                height: 150, // Sesuai kode Anda
+                width: 400, // Sesuai kode Anda
                 fit: BoxFit.contain,
               ),
-              const SizedBox(
-                height: 4,
-              ), // Spasi antara animasi dan teks deskripsi
-              // --- AKHIR PENAMBAHAN ANIMASI LOTTIE ---
+              const SizedBox(height: 4), // Sesuai kode Anda
               Text(
                 'Jangan khawatir! Masukkan email Anda di bawah ini dan kami akan mengirimkan link untuk mereset password Anda.',
                 textAlign: TextAlign.center,
@@ -76,7 +68,7 @@ void showForgotPasswordDialog({
               const SizedBox(height: 20),
               CustomTextField(
                 label: 'Email Terdaftar',
-                hintText: 'contoh@email.com',
+                hintText: 'contoh@gmail.com',
                 controller: resetEmailController,
                 prefixIcon: PhosphorIcons.envelopeSimple(
                   PhosphorIconsStyle.regular,
@@ -128,38 +120,53 @@ void showForgotPasswordDialog({
                     elevation: 2,
                   ),
                   onPressed: () async {
-                    if (resetEmailController.text.isNotEmpty) {
-                      bool isValidEmail = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-                      ).hasMatch(resetEmailController.text);
+                    final String emailInput = resetEmailController.text.trim();
 
-                      if (!isValidEmail) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Format email tidak valid.'),
-                            backgroundColor: Colors.redAccent,
-                          ),
-                        );
-                        return;
-                      }
-
+                    if (emailInput.isEmpty) {
+                      // 1. Tutup dialog terlebih dahulu
                       Navigator.of(dialogContext).pop();
-                      onLoadingStart();
-                      try {
-                        await AuthService().sendPasswordResetEmail(
-                          resetEmailController.text.trim(),
-                          context,
-                        );
-                      } finally {
-                        onLoadingEnd();
-                      }
-                    } else {
+                      // 2. Tampilkan SnackBar menggunakan context halaman
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Email tidak boleh kosong.'),
-                          backgroundColor: Colors.orangeAccent,
+                          backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
+                      return; // Hentikan proses
+                    }
+
+                    bool isValidEmail = RegExp(
+                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                    ).hasMatch(emailInput);
+
+                    if (!isValidEmail) {
+                      // 1. Tutup dialog terlebih dahulu
+                      Navigator.of(dialogContext).pop();
+                      // 2. Tampilkan SnackBar menggunakan context halaman
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Format email tidak valid.'),
+                          backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return; // Hentikan proses
+                    }
+
+                    // Jika email valid dan tidak kosong
+                    Navigator.of(
+                      dialogContext,
+                    ).pop(); // Tutup dialog sebelum proses loading
+                    onLoadingStart();
+                    try {
+                      await AuthService().sendPasswordResetEmail(
+                        emailInput, // Gunakan emailInput yang sudah di-trim
+                        context, // Context dari halaman pemanggil
+                      );
+                    } finally {
+                      // Pastikan onLoadingEnd selalu dipanggil, bahkan jika ada error
+                      onLoadingEnd();
                     }
                   },
                   label: const Text(
