@@ -60,7 +60,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
           'Riwayat Pesanan',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: Colors.brown.shade600,
+        backgroundColor: Color(0xFFD07C3D),
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -73,7 +73,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: Colors.brown),
+                  CircularProgressIndicator(color: Color(0xFFD07C3D)),
                   SizedBox(height: 16),
                   Text(
                     'Memuat riwayat pesanan...',
@@ -159,7 +159,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
                       child: Icon(
                         Icons.coffee_outlined,
                         size: 64,
-                        color: Colors.brown.shade300,
+                        color: const Color.fromARGB(255, 247, 206, 191),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -193,7 +193,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
             onRefresh: () async {
               _loadRiwayat();
             },
-            color: Colors.brown.shade600,
+            color: Color(0xFFD07C3D),
             child: Column(
               children: [
                 // Header info
@@ -214,7 +214,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
                     children: [
                       Icon(
                         Icons.history,
-                        color: Colors.brown.shade600,
+                        color: Color(0xFFD07C3D),
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -378,7 +378,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
-                                            color: Colors.brown.shade700,
+                                            color: Color(0xFFD07C3D),
                                           ),
                                         ),
                                       ],
