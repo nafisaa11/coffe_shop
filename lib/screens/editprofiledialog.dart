@@ -167,11 +167,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               ),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.person_outline,
-                    size: 32,
-                    color: Colors.white,
-                  ),
+                  Icon(Icons.person_outline, size: 32, color: Colors.white),
                   const SizedBox(height: 8),
                   Text(
                     'Edit Profil',
@@ -184,10 +180,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   const SizedBox(height: 4),
                   Text(
                     'Perbarui informasi akun Anda',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.white),
                   ),
                 ],
               ),
@@ -215,7 +208,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                           ),
                           child: ProfilePhotoPicker(
                             initialImageUrl: _currentPhotoUrl,
-                            initialAssetPath: 'assets/foto.jpg',
+                            initialAssetPath: 'assets/fotoprofile.jpg',
                             onImageSelected: _handleImageSelected,
                           ),
                         ),

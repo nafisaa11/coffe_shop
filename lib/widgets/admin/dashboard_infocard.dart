@@ -31,7 +31,11 @@ class DashboardInfoCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: backgroundColor,
       child: Container(
-        padding: const EdgeInsets.all(12.0), // Reduced padding
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16, // Reduced horizontal padding
+          vertical: 12,
+        ), // Reduced vertical padding),
+        // Reduced padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,7 +47,7 @@ class DashboardInfoCard extends StatelessWidget {
                   child: Text(
                     value,
                     style: TextStyle(
-                      fontSize: 28, // Reduced font size for better fit
+                      fontSize: 22, // Reduced font size for better fit
                       fontWeight: FontWeight.bold,
                       color: currentTextColor,
                       height: 1.2, // Tighter line height
