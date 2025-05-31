@@ -297,7 +297,7 @@ class AuthService {
       if (context.mounted)
         FlushbarHelper.show(
           context,
-          message: 'Gagal memperbarui password: ${e.message}',
+          message: 'Gagal memperbarui password! Password harus berbeda dari sebelumnya',
           backgroundColor: Colors.red,
           icon: Icons.error,
         );
