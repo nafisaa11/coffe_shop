@@ -33,7 +33,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_pageTitles[_selectedIndex]),
+        title: Text(_pageTitles[_selectedIndex], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         // Langsung gunakan appBarColor dari tema
         backgroundColor: const Color(0xFF804E23),
         automaticallyImplyLeading: false,

@@ -1,10 +1,18 @@
+// lib/screens/admin/admin_dashboard_content_page.dart
 import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/admin/admin_menu/admin_editMenu_screen.dart';
 import 'package:kopiqu/screens/admin/admin_menu/admin_tambahMenu_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:kopiqu/widgets/admin/dashboard_infocard.dart';
 import 'package:kopiqu/models/kopi.dart';
-import 'package:kopiqu/widgets/admin/admin_menucard.dart'; // Pastikan ini AdminMenuItemCard atau nama yang benar
+import 'package:kopiqu/widgets/admin/admin_menucard.dart'; // Pastikan path ini benar
+
+// Palet Warna (jika belum diimport dari file terpisah)
+const Color kCafeDarkBrown = Color(0xFF4D2F15);
+const Color kCafeMediumBrown = Color(0xFFB06C30);
+const Color kCafeLightBrown = Color(0xFFE3B28C);
+const Color kCafeVeryLightBeige = Color(0xFFF7E9DE);
+const Color kCafeTextBlack = Color(0xFF1D1616);
 
 class AdminDashboardContentPage extends StatefulWidget {
   const AdminDashboardContentPage({super.key});
@@ -16,16 +24,17 @@ class AdminDashboardContentPage extends StatefulWidget {
 
 class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
   String _displayName = 'Admin';
-  String _totalMenu = 'memuat...';
-  String _totalUsers = 'memuat...';
+  String _totalMenu = 'memuat';
+  String _totalUsers = 'memuat';
 
   List<Kopi> _kopiItems = [];
   bool _isLoadingMenu = true;
   String? _menuError;
 
-  // final Color selamatDatangColor = const Color(0xFFD3864A);
-  final Color statistikCardColor = const Color(0xFFE3B28C);
-  final Color statistikCardTextColor = const Color(0xFF4E342E);
+  // Warna untuk statistik card menggunakan palet baru
+  final Color _statistikCardColor = kCafeLightBrown;
+  final Color _statistikCardTextColor =
+      kCafeDarkBrown; // Teks lebih gelap untuk kontras
 
   @override
   void initState() {
@@ -45,6 +54,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
   }
 
   Future<void> _fetchDashboardStats() async {
+    // ... (logika fetch stats Anda tidak berubah signifikan, kecuali mungkin pesan error) ...
     if (!mounted) return;
     try {
       final dynamic response = await Supabase.instance.client.rpc(
@@ -67,7 +77,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
       print('Error fetching total user count via RPC: $error');
       if (mounted) {
         setState(() {
-          _totalUsers = 'Gagal';
+          _totalUsers = 'N/A'; // Tampilan error lebih baik
         });
       }
     }
@@ -82,7 +92,11 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     try {
       final response = await Supabase.instance.client
           .from('kopi')
-          .select('id, gambar, nama_kopi, komposisi, deskripsi, harga');
+          .select('id, gambar, nama_kopi, komposisi, deskripsi, harga, created_at')
+          .order(
+            'created_at',
+            ascending: false,
+          ); // Contoh: Urutkan berdasarkan terbaru
 
       if (mounted) {
         final List<dynamic> data = response as List<dynamic>;
@@ -100,7 +114,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
         setState(() {
           _menuError = 'Gagal memuat data menu: ${error.toString()}';
           _isLoadingMenu = false;
-          _totalMenu = 'Gagal';
+          _totalMenu = 'N/A'; // Tampilan error lebih baik
         });
         print('Error fetching kopi items: $error');
       }
@@ -112,17 +126,35 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Konfirmasi Hapus'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent),
+              SizedBox(width: 10),
+              Text('Konfirmasi Hapus'),
+            ],
+          ),
           content: Text(
-            'Apakah Anda yakin ingin menghapus menu "${kopiItem.nama_kopi}"?',
+            'Apakah Anda yakin ingin menghapus menu "${kopiItem.nama_kopi}"? Tindakan ini tidak dapat diurungkan.',
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Batal'),
+              child: const Text(
+                'Batal',
+                style: TextStyle(color: kCafeMediumBrown),
+              ),
               onPressed: () => Navigator.of(dialogContext).pop(false),
             ),
             TextButton(
-              child: Text('Hapus', style: TextStyle(color: Colors.red[700])),
+              child: Text(
+                'Hapus',
+                style: TextStyle(
+                  color: Colors.red[700],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
             ),
           ],
@@ -131,229 +163,323 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     );
 
     if (confirmDelete == true) {
-      print('Hapus menu: ${kopiItem.nama_kopi}');
+      // setState(() => _isLoadingMenu = true); // Optional: show loading indicator during delete
       try {
         await Supabase.instance.client
             .from('kopi')
             .delete()
-            .eq('id', kopiItem.id); // Menghapus berdasarkan ID
+            .eq('id', kopiItem.id);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Menu "${kopiItem.nama_kopi}" berhasil dihapus.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Refresh daftar menu setelah berhasil menghapus
-        _fetchKopiItems();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Menu "${kopiItem.nama_kopi}" berhasil dihapus.'),
+              backgroundColor: kCafeDarkBrown, // Warna tema
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          _fetchKopiItems(); // Refresh list
+        }
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal menghapus menu: $error'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menghapus menu: $error'),
+              backgroundColor: Colors.redAccent,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } finally {
+        // if (mounted) setState(() => _isLoadingMenu = false);
       }
     }
   }
 
-  Widget _buildMenuListBody() {
-    // Ganti nama agar lebih jelas ini adalah "body" dari list
-    if (_isLoadingMenu) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_menuError != null) {
-      return Center(
-        child: Text(_menuError!, style: const TextStyle(color: Colors.red)),
-      );
-    }
-    if (_kopiItems.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('Belum ada menu yang ditambahkan.'),
+  void _navigateToTambahMenu() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TambahMenuPage()),
+    );
+    if (result == true && mounted) {
+      // Jika TambahMenuPage pop dengan true
+      _fetchKopiItems();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Menu baru ditambahkan. Daftar diperbarui.'),
+          backgroundColor: kCafeDarkBrown,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
-    // Jika tidak ada error, loading, atau item kosong, tampilkan daftar menu
-    return ListView.builder(
-      padding: const EdgeInsets.only(
-        top: 0,
-        bottom: 16.0,
-        left: 16.0,
-        right: 16.0,
-      ), // Padding untuk list
-      itemCount: _kopiItems.length,
-      itemBuilder: (context, index) {
-        final kopiItem = _kopiItems[index];
-        return AdminMenuItemCard(
-          kopiItem: kopiItem,
-          onEdit: () => EditMenuPage(kopi: kopiItem),
-          onDelete: () => _handleDeleteMenu(kopiItem),
-        );
-      },
+  }
+
+  Widget _buildMenuListBody() {
+    if (_isLoadingMenu && _kopiItems.isEmpty) {
+      // Hanya tampilkan loading utama jika list kosong
+      return const Center(
+        child: CircularProgressIndicator(color: kCafeMediumBrown),
+      );
+    }
+    if (_menuError != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: Colors.redAccent[700], size: 50),
+              const SizedBox(height: 10),
+              Text(
+                _menuError!,
+                style: const TextStyle(color: Colors.redAccent),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Coba Lagi'),
+                onPressed: _fetchKopiItems,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kCafeMediumBrown,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (_kopiItems.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.no_food_outlined, size: 60, color: Colors.grey[400]),
+              const SizedBox(height: 10),
+              const Text('Belum ada menu yang ditambahkan.'),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Tambah Menu Pertama'),
+                onPressed: _navigateToTambahMenu,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kCafeMediumBrown,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _fetchKopiItems,
+      color: kCafeMediumBrown, // Warna indikator refresh
+      child: ListView.builder(
+        padding: const EdgeInsets.only(
+          top: 8,
+          bottom: 80.0, // Padding bawah untuk FAB jika ada
+          left: 16.0,
+          right: 16.0,
+        ),
+        itemCount: _kopiItems.length,
+        itemBuilder: (context, index) {
+          final kopiItem = _kopiItems[index];
+          return AdminMenuItemCard(
+            // Ini sudah menggunakan card yang baru
+            kopiItem: kopiItem,
+            onEdit: () async {
+              final bool? result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditMenuPage(kopi: kopiItem),
+                ),
+              );
+              if (result == true && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Menu "${kopiItem.nama_kopi}" telah diperbarui.',
+                    ),
+                    backgroundColor: kCafeDarkBrown,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                _fetchKopiItems();
+              }
+            },
+            onDelete: () => _handleDeleteMenu(kopiItem),
+          );
+        },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      // 1. Parent utama adalah Column
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Bagian Atas (Welcome, Statistik) - TIDAK IKUT SCROLL
-        Padding(
-          padding: const EdgeInsets.all(16.0), // Padding untuk grup atas
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Container
-              // Container(
-              //   padding: const EdgeInsets.symmetric(
-              //     vertical: 20.0,
-              //     horizontal: 16.0,
-              //   ),
-              //   decoration: BoxDecoration(
-              //     color: selamatDatangColor,
-              //     borderRadius: BorderRadius.circular(12),
-              //     boxShadow: [
-              //       BoxShadow(
-              //         color: Colors.grey.withOpacity(0.3),
-              //         spreadRadius: 2,
-              //         blurRadius: 5,
-              //         offset: const Offset(0, 3),
-              //       ),
-              //     ],
-              //   ),
-              //   child: Row(
-              //     children: [
-              //       const Icon(
-              //         Icons.admin_panel_settings_rounded,
-              //         color: Colors.white,
-              //         size: 40,
-              //       ),
-              //       const SizedBox(width: 15),
-              //       Expanded(
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Text(
-              //               'Selamat Datang,',
-              //               style: TextStyle(
-              //                 fontSize: 18,
-              //                 color: Colors.white.withOpacity(0.9),
-              //               ),
-              //             ),
-              //             Text(
-              //               _displayName,
-              //               style: const TextStyle(
-              //                 fontSize: 26,
-              //                 fontWeight: FontWeight.bold,
-              //                 color: Colors.white,
-              //               ),
-              //               overflow: TextOverflow.ellipsis,
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              const SizedBox(height: 24),
-              // Statistik Aplikasi
-              Text(
-                'Statistik Aplikasi',
-                style:
-                    Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ) ??
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              GridView.count(
-                shrinkWrap: true, // Penting karena di dalam Column
-                physics:
-                    const NeverScrollableScrollPhysics(), // Penting karena di dalam Column
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.5,
-                children: [
-                  DashboardInfoCard(
-                    title: 'Total Produk',
-                    value: _totalMenu,
-                    icon: Icons.restaurant_menu,
-                    backgroundColor: statistikCardColor,
-                    iconColor: statistikCardTextColor.withOpacity(0.7),
-                    textColor: statistikCardTextColor,
-                  ),
-                  DashboardInfoCard(
-                    title: 'Total Pembeli Aktif',
-                    value: _totalUsers,
-                    icon: Icons.people_alt,
-                    backgroundColor: statistikCardColor,
-                    iconColor: statistikCardTextColor.withOpacity(0.7),
-                    textColor: statistikCardTextColor,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Row untuk "Daftar Menu" dan Tombol "Tambah Menu" - TIDAK IKUT SCROLL
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Daftar Menu',
-                    style:
-                        Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ) ??
-                        const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add, size: 18, color: Colors.white),
-                    label: const Text('Tambah Menu'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TambahMenuPage(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2), // Jarak sebelum list menu
-            ],
+    // Dapatkan text theme untuk konsistensi
+    TextTheme textTheme = Theme.of(
+      context,
+    ).textTheme.apply(bodyColor: kCafeTextBlack, displayColor: kCafeTextBlack);
+
+    return Scaffold(
+      // Tambahkan Scaffold jika ini adalah konten utama sebuah screen
+      backgroundColor: kCafeVeryLightBeige, // Latar belakang utama halaman
+      appBar: AppBar(
+        title: Text(
+          'Welcome, $_displayName!',
+          style: textTheme.headlineSmall?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
         ),
+        backgroundColor: kCafeDarkBrown, // AppBar dengan warna tema
+        foregroundColor: Colors.white,
+        elevation: 2.0,
+        centerTitle: true,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Updated section for statistics grid in AdminDashboardContentPage
+          // Replace the existing GridView.count with this responsive version:
 
-        // Bagian List Menu yang Bisa Di-scroll
-        Expanded(
-          // 2. Expanded agar ListView mengambil sisa ruang
-          child:
-              _buildMenuListBody(), // Gunakan fungsi yang mengembalikan ListView
-        ),
-      ],
+          // In the build method, replace the statistics section:
+          Container(
+            padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Statistik Aplikasi',
+                  style:
+                      textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: kCafeDarkBrown,
+                      ) ??
+                      const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: kCafeDarkBrown,
+                      ),
+                ),
+                const SizedBox(height: 16),
+
+                // Responsive grid using LayoutBuilder
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Calculate card width based on available space
+                    // double cardWidth =
+                    //     (constraints.maxWidth - 16) /
+                    //     2; // 16 for spacing between cards
+                    // double cardHeight =
+                    //     cardWidth * 0.6; // Maintain aspect ratio
+
+                    // // Ensure minimum dimensions
+                    // cardHeight = cardHeight.clamp(40.0, 120.0);
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 100,
+                            child: DashboardInfoCard(
+                              title: 'Total Produk',
+                              value: _totalMenu,
+                              icon: Icons.coffee_outlined,
+                              backgroundColor: _statistikCardColor,
+                              iconColor: _statistikCardTextColor.withOpacity(
+                                0.8,
+                              ),
+                              textColor: _statistikCardTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: SizedBox(
+                            height: 100,
+                            child: DashboardInfoCard(
+                              title: 'Total Pengguna',
+                              value: _totalUsers,
+                              icon: Icons.group_outlined,
+                              backgroundColor: _statistikCardColor,
+                              iconColor: _statistikCardTextColor.withOpacity(
+                                0.8,
+                              ),
+                              textColor: _statistikCardTextColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Header row with responsive button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Kelola Daftar Menu',
+                        style:
+                            textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: kCafeDarkBrown,
+                            ) ??
+                            const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: kCafeDarkBrown,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Add spacing
+                    Flexible(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 18,
+                        ),
+                        label: const Text('Tambah'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kCafeMediumBrown,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12, // Reduced padding
+                            vertical: 8,
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 13, // Slightly smaller font
+                            fontWeight: FontWeight.w600,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2.0,
+                        ),
+                        onPressed: _navigateToTambahMenu,
+                      ),
+                    ),
+                  ],
+                ),
+                Divider(
+                  color: kCafeLightBrown.withOpacity(0.5),
+                  height: 20,
+                  thickness: 1,
+                ),
+              ],
+            ),
+          ),
+          Expanded(child: _buildMenuListBody()),
+        ],
+      ),
     );
   }
 }

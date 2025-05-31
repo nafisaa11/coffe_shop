@@ -5,6 +5,7 @@ class Kopi {
   final String komposisi;
   final String deskripsi;
   final int harga;
+  final DateTime? createdAt;
 
   Kopi({
     required this.id,
@@ -13,6 +14,7 @@ class Kopi {
     required this.komposisi,
     required this.deskripsi,
     required this.harga,
+    this.createdAt,
   });
 
   factory Kopi.fromMap(Map<String, dynamic> map) {
@@ -23,6 +25,9 @@ class Kopi {
       komposisi: map['komposisi'] ?? 'Tidak ada komposisi',
       deskripsi: map['deskripsi'] ?? 'Tidak ada deskripsi',
       harga: map['harga'] ?? 0,
+      createdAt: map['created_at'] == null
+              ? null
+              : DateTime.tryParse(map['created_at'] as String),
     );
   }
 

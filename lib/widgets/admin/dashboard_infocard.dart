@@ -5,23 +5,21 @@ class DashboardInfoCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color iconColor;
-  final Color backgroundColor; // Tambahkan parameter ini
-  final Color? textColor;       // Tambahkan parameter ini (opsional)
+  final Color backgroundColor;
+  final Color? textColor;
 
   const DashboardInfoCard({
     super.key,
     required this.title,
     required this.value,
     required this.icon,
-    required this.backgroundColor, // Jadikan required atau beri default
-    this.iconColor = Colors.white,  // Default iconColor
-    this.textColor,                 // Bisa null, kita akan tangani defaultnya
+    required this.backgroundColor,
+    this.iconColor = Colors.white,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Tentukan warna teks default berdasarkan kecerahan backgroundColor
-    // Jika tidak ada textColor spesifik yang diberikan.
     final Color defaultTextColor =
         ThemeData.estimateBrightnessForColor(backgroundColor) == Brightness.dark
             ? Colors.white
@@ -31,40 +29,46 @@ class DashboardInfoCard extends StatelessWidget {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: backgroundColor, // Gunakan backgroundColor yang diteruskan
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      color: backgroundColor,
+      child: Container(
+        padding: const EdgeInsets.all(12.0), // Reduced padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Agar value bisa lebih ke bawah jika perlu
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start, // Agar ikon sejajar dengan baris pertama teks
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Text(
-                    title,
-                    style: TextStyle( // Hapus const agar bisa dinamis
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: currentTextColor, // Gunakan textColor yang sudah ditentukan
+                    value,
+                    style: TextStyle(
+                      fontSize: 28, // Reduced font size for better fit
+                      fontWeight: FontWeight.bold,
+                      color: currentTextColor,
+                      height: 1.2, // Tighter line height
                     ),
                     overflow: TextOverflow.ellipsis,
-                    maxLines: 2, // Batasi jumlah baris judul jika terlalu panjang
+                    maxLines: 2,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Icon(icon, color: iconColor, size: 28),
+                const SizedBox(width: 4), // Reduced spacing
+                Icon(icon, color: iconColor, size: 24), // Reduced icon size
               ],
             ),
-            const Spacer(), // Tambahkan Spacer untuk mendorong value ke bawah jika ruang vertikal cukup
-            Text(
-              value,
-              style: TextStyle( // Hapus const
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: currentTextColor, // Gunakan textColor yang sudah ditentukan
+            const SizedBox(height: 8), // Fixed spacing instead of Spacer
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14, // Slightly reduced
+                    fontWeight: FontWeight.w500,
+                    color: currentTextColor,
+                  ),
+                ),
               ),
             ),
           ],
