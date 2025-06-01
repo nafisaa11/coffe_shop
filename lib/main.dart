@@ -5,8 +5,7 @@ import 'package:kopiqu/screens/keranjangScreen.dart'; // Pastikan ini benar Peri
 import 'package:kopiqu/screens/loginpage.dart';
 import 'package:kopiqu/screens/mainscreen.dart';
 import 'package:kopiqu/screens/transaksiScreen.dart'; // Ini adalah PeriksaPesananScreen, sudah di-import di routes
-import 'package:kopiqu/services/cart_ui_service.dart'; // Nama file dari kode struk Anda
-import 'package:kopiqu/services/getKopi_servce.dart'; // Tidak digunakan di sini, hapus jika tidak perlu
+import 'package:kopiqu/services/cart_ui_service.dart'; // Nama file dari kode struk Anda // Tidak digunakan di sini, hapus jika tidak perlu
 import 'package:provider/provider.dart';
 import 'package:kopiqu/screens/profile_page.dart';
 import 'package:kopiqu/screens/menupage.dart';

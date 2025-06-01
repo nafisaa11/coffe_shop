@@ -23,10 +23,6 @@ class AuthService {
     return true;
   }
 
-  // ... (method register, login, logout, sendPasswordResetEmail, updateUserPassword tetap sama seperti yang Anda berikan) ...
-  // Pastikan method-method ini sudah berfungsi sesuai harapan Anda.
-  // Saya tidak akan mengubahnya kecuali ada yang terkait langsung dengan update profil.
-
   Future<void> register(
     String email,
     String password,
@@ -203,12 +199,50 @@ class AuthService {
       );
       return;
     }
+
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      FlushbarHelper.show(
+        context,
+        message: 'Gunakan email address @gmail.com!',
+        backgroundColor: Colors.orange, // Menggunakan orange untuk warning
+        icon: Icons.warning_amber_rounded,
+      );
+      return;
+    }
+
     try {
+      // --- PENAMBAHAN LOGIKA PENGECEKAN EMAIL ---
+      // Panggil fungsi RPC yang telah Anda buat di Supabase
+      // Pastikan nama fungsi ('check_if_email_exists') dan parameter ('p_email') sesuai
+      final bool emailExists =
+          await supabase.rpc(
+                'check_if_email_exists',
+                params: {
+                  'p_email': email.toLowerCase(),
+                }, // Kirim email dalam lowercase
+              )
+              as bool; // Asumsikan RPC mengembalikan boolean
+
+      if (!emailExists) {
+        if (context.mounted) {
+          FlushbarHelper.show(
+            context,
+            message: 'Akun email Anda belum terdaftar.',
+            backgroundColor: Colors.red, // Atau Colors.orange untuk warning
+            icon:
+                Icons
+                    .no_accounts_outlined, // Atau Icons.error_outline / Icons.warning_amber_rounded
+          );
+        }
+        return; // Hentikan jika email tidak terdaftar
+      }
+
+      // Jika email terdaftar, lanjutkan mengirim link reset
       await supabase.auth.resetPasswordForEmail(
         email,
         redirectTo: 'io.supabase.kopiqu://login-callback/',
       );
-      if (context.mounted)
+      if (context.mounted) {
         FlushbarHelper.show(
           context,
           message:
@@ -216,22 +250,37 @@ class AuthService {
           backgroundColor: Colors.green,
           icon: Icons.check_circle,
         );
+      }
+    } on PostgrestException catch (e) {
+      // Tangani error jika RPC gagal
+      if (context.mounted) {
+        FlushbarHelper.show(
+          context,
+          message:
+              'Gagal memeriksa email: ${e.message}. Pastikan fungsi RPC "check_if_email_exists" sudah benar.',
+          backgroundColor: Colors.red,
+          icon: Icons.error,
+        );
+      }
+      print('RPC Error: ${e.message}');
     } on AuthException catch (e) {
-      if (context.mounted)
+      if (context.mounted) {
         FlushbarHelper.show(
           context,
           message: 'Gagal mengirim link reset: ${e.message}',
           backgroundColor: Colors.red,
           icon: Icons.error,
         );
+      }
     } catch (e) {
-      if (context.mounted)
+      if (context.mounted) {
         FlushbarHelper.show(
           context,
           message: 'Terjadi kesalahan: $e',
           backgroundColor: Colors.red,
           icon: Icons.error,
         );
+      }
     }
   }
 
@@ -297,7 +346,8 @@ class AuthService {
       if (context.mounted)
         FlushbarHelper.show(
           context,
-          message: 'Gagal memperbarui password! Password harus berbeda dari sebelumnya',
+          message:
+              'Gagal memperbarui password! Password harus berbeda dari sebelumnya',
           backgroundColor: Colors.red,
           icon: Icons.error,
         );

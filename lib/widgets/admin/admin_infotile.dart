@@ -1,47 +1,116 @@
+// lib/widgets/admin/admin_infotile.dart
 import 'package:flutter/material.dart';
+import 'package:kopiqu/widgets/admin/admin_profilecolor.dart';
 
-class ProfileInfoTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
-  final Color iconColor;
-  final Color titleColor;
-  final Color subtitleColor;
+// Widget untuk menampilkan baris statistik cepat (Login Terakhir & Login Hari Ini)
+class AdminQuickStatsSection extends StatelessWidget {
+  final String? lastLogin;
+  final int loginsToday;
 
-  const ProfileInfoTile({
+  const AdminQuickStatsSection({
     super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-    this.iconColor = const Color(0xFF804E23), // Coklat Tua
-    this.titleColor = Colors.black87,
-    this.subtitleColor = const Color(0xFFA28C79), // Coklat Muda/Abu-abu
+    this.lastLogin,
+    required this.loginsToday,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: iconColor, size: 28),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: titleColor,
-          fontSize: 16,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          // Kartu statistik pertama
+          child: _StatCard(
+            // Menggunakan widget helper _StatCard
+            icon: Icons.history_toggle_off_rounded,
+            title: 'Login Terakhir',
+            value: lastLogin ?? '-', // Tampilkan '-' jika lastLogin null
+            color: AdminProfileColors.primaryColor,
+          ),
         ),
+        const SizedBox(width: 16), // Spasi antar kartu
+        Expanded(
+          // Kartu statistik kedua
+          child: _StatCard(
+            icon: Icons.today_rounded,
+            title: 'Login Hari Ini',
+            value: '$loginsToday kali',
+            color: AdminProfileColors.secondaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Widget private untuk menampilkan satu kartu statistik
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final Color color; // Warna utama untuk icon dan aksennya
+
+  const _StatCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      constraints: const BoxConstraints(
+        minHeight: 140,
+        maxHeight: 175, // Tinggi minimum untuk kartu
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: subtitleColor, fontSize: 14),
+      decoration: BoxDecoration(
+        color: AdminProfileColors.cardColor, // Warna latar kartu
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          // Efek bayangan halus
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(
-        vertical: 8.0,
-        horizontal: 0,
-      ), // Sesuaikan padding
-      // trailing: onTap != null ? Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]) : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon dengan background berwarna
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1), // Warna aksen dengan opacity
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 12),
+          // Judul statistik
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AdminProfileColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // Nilai statistik
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              color: AdminProfileColors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+// lib/widgets/customtextfield.dart (atau path yang sesuai)
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -11,8 +12,9 @@ class CustomTextField extends StatefulWidget {
   final TextStyle? customLabelStyle;
   final TextStyle? inputTextStyle;
   final bool isPasswordTextField;
-  final String? Function(String?)?
-  validator; // Pastikan validator sudah ada di sini
+  final String? Function(String?)? validator;
+  final IconData? prefixIcon; // 👈 1. TAMBAHKAN variabel prefixIcon
+  final TextInputType? keyboardType; // 👈 2. TAMBAHKAN variabel keyboardType
 
   const CustomTextField({
     super.key,
@@ -24,7 +26,9 @@ class CustomTextField extends StatefulWidget {
     this.customLabelStyle,
     this.inputTextStyle,
     this.isPasswordTextField = false,
-    this.validator, // Dan di konstruktor
+    this.validator,
+    this.prefixIcon, // 👈 3. TAMBAHKAN di konstruktor
+    this.keyboardType, // 👈 4. TAMBAHKAN di konstruktor
   });
 
   @override
@@ -42,8 +46,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    // ... (Implementasi build CustomTextField Anda yang sudah ada dan benar) ...
-    // Pastikan menggunakan TextFormField jika ada validator
     final defaultReadOnlyLabelStyle = TextStyle(color: Colors.grey[600]);
     final defaultReadOnlyInputStyle = TextStyle(color: Colors.grey[700]);
     final Color iconColor = Colors.grey[600]!;
@@ -59,15 +61,30 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         const SizedBox(height: 6),
         TextFormField(
-          // Menggunakan TextFormField untuk mendukung validator
           controller: widget.controller,
           obscureText: _obscureTextCurrent,
           readOnly: widget.readOnly,
           style:
               widget.inputTextStyle ??
               (widget.readOnly ? defaultReadOnlyInputStyle : null),
+          keyboardType:
+              widget.keyboardType, // 👈 5. GUNAKAN keyboardType di sini
           decoration: InputDecoration(
             hintText: widget.hintText,
+            // _iconColor dari PhosphorIcons bisa di-pass sebagai widget jika Anda mau
+            // tapi jika hanya IconData, kita buat Icon widget di sini.
+            prefixIcon:
+                widget.prefixIcon !=
+                        null // 👈 6. GUNAKAN prefixIcon di sini
+                    ? Icon(
+                      widget.prefixIcon,
+                      color:
+                          widget.readOnly
+                              ? Colors.grey[500]
+                              : Colors.brown.shade400, // Sesuaikan warna ikon
+                      size: 20, // Sesuaikan ukuran ikon
+                    )
+                    : null,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
@@ -102,14 +119,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     )
                     : null,
           ),
-          validator: widget.validator, // Meneruskan validator
+          validator: widget.validator,
         ),
       ],
     );
   }
 }
 
-// === Definisi Class CustomButton DI FILE YANG SAMA ===
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;

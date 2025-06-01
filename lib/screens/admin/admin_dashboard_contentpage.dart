@@ -2,12 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/screens/admin/admin_menu/admin_editMenu_screen.dart';
 import 'package:kopiqu/screens/admin/admin_menu/admin_tambahMenu_screen.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:kopiqu/widgets/admin/admin_menucard.dart';
 import 'package:kopiqu/widgets/admin/dashboard_infocard.dart';
 import 'package:kopiqu/models/kopi.dart';
-import 'package:kopiqu/widgets/admin/admin_menucard.dart'; // Pastikan path ini benar
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-// Palet Warna (jika belum diimport dari file terpisah)
+// Palet Warna
 const Color kCafeDarkBrown = Color(0xFF4D2F15);
 const Color kCafeMediumBrown = Color(0xFFB06C30);
 const Color kCafeLightBrown = Color(0xFFE3B28C);
@@ -24,17 +25,15 @@ class AdminDashboardContentPage extends StatefulWidget {
 
 class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
   String _displayName = 'Admin';
-  String _totalMenu = 'memuat';
-  String _totalUsers = 'memuat';
+  String _totalMenu = 'memuat..';
+  String _totalUsers = 'memuat..';
 
   List<Kopi> _kopiItems = [];
   bool _isLoadingMenu = true;
   String? _menuError;
 
-  // Warna untuk statistik card menggunakan palet baru
   final Color _statistikCardColor = kCafeLightBrown;
-  final Color _statistikCardTextColor =
-      kCafeDarkBrown; // Teks lebih gelap untuk kontras
+  final Color _statistikCardTextColor = kCafeDarkBrown;
 
   @override
   void initState() {
@@ -54,7 +53,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
   }
 
   Future<void> _fetchDashboardStats() async {
-    // ... (logika fetch stats Anda tidak berubah signifikan, kecuali mungkin pesan error) ...
     if (!mounted) return;
     try {
       final dynamic response = await Supabase.instance.client.rpc(
@@ -77,7 +75,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
       print('Error fetching total user count via RPC: $error');
       if (mounted) {
         setState(() {
-          _totalUsers = 'N/A'; // Tampilan error lebih baik
+          _totalUsers = 'N/A';
         });
       }
     }
@@ -92,11 +90,10 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     try {
       final response = await Supabase.instance.client
           .from('kopi')
-          .select('id, gambar, nama_kopi, komposisi, deskripsi, harga, created_at')
-          .order(
-            'created_at',
-            ascending: false,
-          ); // Contoh: Urutkan berdasarkan terbaru
+          .select(
+            'id, gambar, nama_kopi, komposisi, deskripsi, harga, created_at',
+          )
+          .order('created_at', ascending: false);
 
       if (mounted) {
         final List<dynamic> data = response as List<dynamic>;
@@ -114,7 +111,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
         setState(() {
           _menuError = 'Gagal memuat data menu: ${error.toString()}';
           _isLoadingMenu = false;
-          _totalMenu = 'N/A'; // Tampilan error lebih baik
+          _totalMenu = 'N/A';
         });
         print('Error fetching kopi items: $error');
       }
@@ -129,11 +126,14 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent),
-              SizedBox(width: 10),
-              Text('Konfirmasi Hapus'),
+              Icon(
+                PhosphorIcons.warning(PhosphorIconsStyle.fill),
+                color: Colors.orangeAccent,
+              ),
+              const SizedBox(width: 10),
+              const Text('Konfirmasi Hapus'),
             ],
           ),
           content: Text(
@@ -163,7 +163,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     );
 
     if (confirmDelete == true) {
-      // setState(() => _isLoadingMenu = true); // Optional: show loading indicator during delete
       try {
         await Supabase.instance.client
             .from('kopi')
@@ -174,11 +173,11 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Menu "${kopiItem.nama_kopi}" berhasil dihapus.'),
-              backgroundColor: kCafeDarkBrown, // Warna tema
+              backgroundColor: kCafeDarkBrown,
               behavior: SnackBarBehavior.floating,
             ),
           );
-          _fetchKopiItems(); // Refresh list
+          _fetchKopiItems();
         }
       } catch (error) {
         if (mounted) {
@@ -190,8 +189,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
             ),
           );
         }
-      } finally {
-        // if (mounted) setState(() => _isLoadingMenu = false);
       }
     }
   }
@@ -202,7 +199,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
       MaterialPageRoute(builder: (context) => const TambahMenuPage()),
     );
     if (result == true && mounted) {
-      // Jika TambahMenuPage pop dengan true
       _fetchKopiItems();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -216,7 +212,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
 
   Widget _buildMenuListBody() {
     if (_isLoadingMenu && _kopiItems.isEmpty) {
-      // Hanya tampilkan loading utama jika list kosong
       return const Center(
         child: CircularProgressIndicator(color: kCafeMediumBrown),
       );
@@ -228,7 +223,11 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, color: Colors.redAccent[700], size: 50),
+              Icon(
+                PhosphorIcons.xCircle(PhosphorIconsStyle.regular),
+                color: Colors.redAccent[700],
+                size: 50,
+              ),
               const SizedBox(height: 10),
               Text(
                 _menuError!,
@@ -237,7 +236,12 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                icon: const Icon(Icons.refresh, size: 18),
+                icon: Icon(
+                  PhosphorIcons.arrowCounterClockwise(
+                    PhosphorIconsStyle.regular,
+                  ),
+                  size: 18,
+                ),
                 label: const Text('Coba Lagi'),
                 onPressed: _fetchKopiItems,
                 style: ElevatedButton.styleFrom(
@@ -257,12 +261,19 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.no_food_outlined, size: 60, color: Colors.grey[400]),
+              Icon(
+                PhosphorIcons.upload(PhosphorIconsStyle.regular),
+                size: 60,
+                color: Colors.grey[400],
+              ),
               const SizedBox(height: 10),
               const Text('Belum ada menu yang ditambahkan.'),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                icon: const Icon(Icons.add, size: 18),
+                icon: Icon(
+                  PhosphorIcons.plus(PhosphorIconsStyle.regular),
+                  size: 18,
+                ),
                 label: const Text('Tambah Menu Pertama'),
                 onPressed: _navigateToTambahMenu,
                 style: ElevatedButton.styleFrom(
@@ -277,11 +288,11 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
     }
     return RefreshIndicator(
       onRefresh: _fetchKopiItems,
-      color: kCafeMediumBrown, // Warna indikator refresh
+      color: kCafeMediumBrown,
       child: ListView.builder(
         padding: const EdgeInsets.only(
           top: 8,
-          bottom: 80.0, // Padding bawah untuk FAB jika ada
+          bottom: 80.0,
           left: 16.0,
           right: 16.0,
         ),
@@ -289,7 +300,6 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
         itemBuilder: (context, index) {
           final kopiItem = _kopiItems[index];
           return AdminMenuItemCard(
-            // Ini sudah menggunakan card yang baru
             kopiItem: kopiItem,
             onEdit: () async {
               final bool? result = await Navigator.push<bool>(
@@ -320,34 +330,80 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Dapatkan text theme untuk konsistensi
     TextTheme textTheme = Theme.of(
       context,
     ).textTheme.apply(bodyColor: kCafeTextBlack, displayColor: kCafeTextBlack);
 
     return Scaffold(
-      // Tambahkan Scaffold jika ini adalah konten utama sebuah screen
-      backgroundColor: kCafeVeryLightBeige, // Latar belakang utama halaman
+      backgroundColor: kCafeVeryLightBeige,
       appBar: AppBar(
-        title: Text(
-          'Welcome, $_displayName!',
-          style: textTheme.headlineSmall?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+        // --- MODIFIKASI DESAIN APPBAR DIMULAI DI SINI ---
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color.fromARGB(
+                  255,
+                  216,
+                  130,
+                  65,
+                ), // Warna merah aksen yang lebih pekat
+                const Color(
+                  0xFF804E23,
+                ), // Warna merah aksen standar (lebih terang)
+              ],
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              // Anda juga bisa mencoba begin: Alignment.topLeft, end: Alignment.bottomRight,
+            ),
+            // Border radius untuk flexibleSpace harus cocok dengan shape AppBar jika ingin seamless
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(10), // Sama dengan shape di AppBar
+            ),
           ),
         ),
-        backgroundColor: kCafeDarkBrown, // AppBar dengan warna tema
-        foregroundColor: Colors.white,
-        elevation: 2.0,
+        backgroundColor: const Color(
+          0xFF804E23,
+        ), // Tetap berikan warna dasar jika flexibleSpace tidak digunakan atau sebagai fallback
+        elevation:
+            4.0, // Elevasi bisa sedikit dinaikkan untuk memperjelas bayangan dengan gradient
         centerTitle: true,
+        title: Text(
+          'Welcome, $_displayName!',
+          style:
+              textTheme.headlineSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.normal,
+                fontSize: 20,
+                letterSpacing: 0.5,
+              ) ??
+              const TextStyle(
+                color: Colors.black,
+                fontSize: 10,
+                fontWeight: FontWeight.normal,
+                letterSpacing: 0.5,
+                shadows: [
+                  Shadow(
+                    offset: Offset(0.5, 0.5),
+                    blurRadius: 1.0,
+                    color: Color.fromARGB(100, 0, 0, 0),
+                  ),
+                ],
+              ),
+        ),
+        foregroundColor:
+            Colors
+                .white, // Memastikan ikon default (spt back button) berwarna putih
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20), // Sudut membulat di bawah
+          ),
+        ),
+        // --- MODIFIKASI DESAIN APPBAR BERAKHIR DI SINI ---
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Updated section for statistics grid in AdminDashboardContentPage
-          // Replace the existing GridView.count with this responsive version:
-
-          // In the build method, replace the statistics section:
           Container(
             padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
             child: Column(
@@ -367,20 +423,8 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                       ),
                 ),
                 const SizedBox(height: 16),
-
-                // Responsive grid using LayoutBuilder
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    // Calculate card width based on available space
-                    // double cardWidth =
-                    //     (constraints.maxWidth - 16) /
-                    //     2; // 16 for spacing between cards
-                    // double cardHeight =
-                    //     cardWidth * 0.6; // Maintain aspect ratio
-
-                    // // Ensure minimum dimensions
-                    // cardHeight = cardHeight.clamp(40.0, 120.0);
-
                     return Row(
                       children: [
                         Expanded(
@@ -389,7 +433,9 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                             child: DashboardInfoCard(
                               title: 'Total Produk',
                               value: _totalMenu,
-                              icon: Icons.coffee_outlined,
+                              icon: PhosphorIcons.coffee(
+                                PhosphorIconsStyle.regular,
+                              ),
                               backgroundColor: _statistikCardColor,
                               iconColor: _statistikCardTextColor.withOpacity(
                                 0.8,
@@ -405,7 +451,9 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                             child: DashboardInfoCard(
                               title: 'Total Pengguna',
                               value: _totalUsers,
-                              icon: Icons.group_outlined,
+                              icon: PhosphorIcons.users(
+                                PhosphorIconsStyle.regular,
+                              ),
                               backgroundColor: _statistikCardColor,
                               iconColor: _statistikCardTextColor.withOpacity(
                                 0.8,
@@ -418,10 +466,7 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                     );
                   },
                 ),
-
                 const SizedBox(height: 24),
-
-                // Header row with responsive button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -440,23 +485,23 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
                             ),
                       ),
                     ),
-                    const SizedBox(width: 8), // Add spacing
+                    const SizedBox(width: 8),
                     Flexible(
                       child: ElevatedButton.icon(
-                        icon: const Icon(
-                          Icons.add_circle_outline_rounded,
-                          size: 18,
+                        icon: Icon(
+                          PhosphorIcons.plusCircle(PhosphorIconsStyle.fill),
+                          size: 20,
                         ),
                         label: const Text('Tambah'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: kCafeMediumBrown,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12, // Reduced padding
+                            horizontal: 12,
                             vertical: 8,
                           ),
                           textStyle: const TextStyle(
-                            fontSize: 13, // Slightly smaller font
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                           shape: RoundedRectangleBorder(

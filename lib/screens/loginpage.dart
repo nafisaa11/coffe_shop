@@ -3,7 +3,6 @@ import 'package:kopiqu/screens/registerpage.dart';
 import 'package:kopiqu/services/auth_service.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
 import 'package:lottie/lottie.dart';
-// import 'package:kopiqu/widgets/loadinganimasi.dart';
 import 'package:kopiqu/widgets/forgotpassworddialog.dart';
 // PASTIKAN PATH INI BENAR
 

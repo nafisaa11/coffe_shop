@@ -1,7 +1,6 @@
 // widgets/Layout/headerProfile_widget.dart
 import 'dart:async'; // 👈 1. IMPORT dart:async untuk StreamSubscription
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileHeader extends StatefulWidget {
@@ -59,14 +58,10 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
     ImageProvider profileImageProvider;
     if (photoUrl != null && photoUrl.isNotEmpty) {
-      // Tambahkan cache buster sederhana jika URL sama tapi konten berubah (opsional jika URL sudah unik)
-      // Jika nama file foto Anda unik setiap upload (seperti yang kita buat di AuthService),
-      // cache buster ini mungkin tidak terlalu krusial, tapi tidak ada salahnya.
-      // profileImageProvider = NetworkImage('$photoUrl?v=${DateTime.now().millisecondsSinceEpoch}');
       profileImageProvider = NetworkImage(photoUrl);
     } else {
       profileImageProvider = const AssetImage(
-        'assets/foto.jpg',
+        'assets/fotoprofile.jpg',
       ); // Fallback ke aset default
     }
 
@@ -77,7 +72,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     return Container(
       width: double.infinity,
       color: const Color(0xFFD07C3D),
-      padding: const EdgeInsets.only(top: 40, bottom: 25, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 70, bottom: 25, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -111,7 +106,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       ? const Icon(
                         Icons.person_outline,
                         size: 60,
-                        color: Colors.white70,
+                        color: Color.fromARGB(179, 79, 79, 79),
                       )
                       : null,
             ),
