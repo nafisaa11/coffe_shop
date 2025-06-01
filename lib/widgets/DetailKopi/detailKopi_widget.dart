@@ -174,7 +174,7 @@ class _DetailWidgetState extends State<DetailWidget> {
                 style: TextStyle(
                   fontStyle: FontStyle.italic,
                   color: Colors.grey[600],
-                  fontSize: 14,
+                  fontSize: 12,
                 ),
               ),
             ),

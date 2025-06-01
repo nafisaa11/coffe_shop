@@ -1,3 +1,5 @@
+// main.dart
+import 'dart:async'; // 👈 1. IMPORT dart:async untuk StreamSubscription
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:kopiqu/screens/login_registrasi/loginpage.dart';
@@ -13,31 +15,24 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:kopiqu/screens/login_registrasi/resetpasswordpage.dart';
 import 'package:kopiqu/screens/admin/admin_mainscreen.dart'; // Pastikan ini benar
 
-// ❗️ PENTING: Import untuk lokalisasi intl
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
-  // Wajib: inisialisasi Flutter sebelum async
   WidgetsFlutterBinding.ensureInitialized();
-
-  // ❗️ PENTING: Inisialisasi data lokalisasi untuk 'id_ID'
   await initializeDateFormatting('id_ID', null);
-
-  // Inisialisasi Supabase
   await Supabase.initialize(
     url: 'https://xuivlesfrjbjtaaavtma.supabase.co',
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1aXZsZXNmcmpianRhYWF2dG1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyODc3OTgsImV4cCI6MjA2Mjg2Mzc5OH0.g33UOprpbbVXqpXtP3tY2nedOeCZklO003S4aZrUQsE',
   );
-
-  // Jalankan aplikasi dengan MultiProvider
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => KeranjangController()),
-      ChangeNotifierProvider(create: (_) => CartUIService()),
+      providers: [
+        ChangeNotifierProvider(create: (_) => KeranjangController()),
+        ChangeNotifierProvider(create: (_) => CartUIService()),
       ],
-      child: MyApp(),
+      child: const MyApp(), // MyApp sekarang const
     ),
   );
 }
@@ -51,6 +46,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<AuthState>?
+  _authSubscription; // 👈 3. Definisikan StreamSubscription
 
   @override
   void initState() {
@@ -58,16 +55,95 @@ class _MyAppState extends State<MyApp> {
     _setupAuthListener();
   }
 
+  @override
+  void dispose() {
+    _authSubscription
+        ?.cancel(); // 👈 4. Batalkan listener saat MyApp di-dispose
+    super.dispose();
+  }
+
   void _setupAuthListener() {
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    _authSubscription
+        ?.cancel(); // Batalkan listener lama jika ada sebelum membuat yang baru
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((
+      data,
+    ) {
       final AuthChangeEvent event = data.event;
       final Session? session = data.session;
 
-      print("Auth Event di MyApp: $event");
+      print(
+        "[MyApp - AuthListener] Event: $event, Session User ID: ${session?.user?.id}",
+      );
 
+      // Gunakan navigatorKey.currentContext untuk mendapatkan context yang valid
+      // yang bisa mengakses Provider yang didefinisikan di atas MaterialApp.
+      final BuildContext? currentNavigatorContext = navigatorKey.currentContext;
+
+      if (currentNavigatorContext == null) {
+        print(
+          "[MyApp - AuthListener] Navigator context is null. Skipping KeranjangController interaction.",
+        );
+        // Handle event navigasi lain jika perlu tanpa context Provider
+        if (event == AuthChangeEvent.passwordRecovery && session != null) {
+          final userEmail = session.user?.email;
+          print(
+            "[MyApp - AuthListener] Password Recovery for email (no context): $userEmail",
+          );
+          if (userEmail != null) {
+            navigatorKey.currentState?.pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => ResetPasswordPage(email: userEmail),
+              ),
+              (route) => false,
+            );
+          }
+        }
+        return; // Keluar jika context tidak ada
+      }
+
+      // 👇 5. LOGIKA UNTUK KERANJANG CONTROLLER
+      try {
+        if (event == AuthChangeEvent.signedIn && session != null) {
+          print(
+            '[MyApp - AuthListener] User SIGNED IN (${session.user.id}). Fetching cart items.',
+          );
+          Provider.of<KeranjangController>(
+            currentNavigatorContext,
+            listen: false,
+          ).fetchKeranjangItems();
+        } else if (event == AuthChangeEvent.signedOut) {
+          print(
+            '[MyApp - AuthListener] User SIGNED OUT. Clearing local cart state.',
+          );
+          Provider.of<KeranjangController>(
+            currentNavigatorContext,
+            listen: false,
+          ).clearLocalCartAndResetState();
+          // Navigasi ke login page jika belum dihandle oleh AuthGate
+          // Biasanya AuthGate sudah menangani ini, tapi bisa ditambahkan di sini jika perlu
+          // navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false);
+        } else if (event == AuthChangeEvent.userUpdated) {
+          print(
+            '[MyApp - AuthListener] User data UPDATED. ProfileHeader will refresh itself. Cart may not need immediate refresh unless user ID changed.',
+          );
+          // ProfileHeader sudah punya listener sendiri.
+          // Untuk keranjang, biasanya tidak perlu fetch ulang hanya karena metadata user berubah,
+          // kecuali jika ada logika spesifik yang bergantung pada itu.
+        }
+      } catch (e) {
+        print(
+          "[MyApp - AuthListener] Error interacting with KeranjangController: $e",
+        );
+        // Ini bisa terjadi jika Provider belum sepenuhnya siap atau context tidak valid
+        // pada momen tertentu.
+      }
+
+      // Logika navigasi untuk password recovery (sudah ada)
       if (event == AuthChangeEvent.passwordRecovery && session != null) {
         final userEmail = session.user?.email;
-        print("Password Recovery event diterima untuk email: $userEmail");
+        print(
+          "[MyApp - AuthListener] Password Recovery event for email: $userEmail",
+        );
         if (userEmail != null) {
           navigatorKey.currentState?.pushAndRemoveUntil(
             MaterialPageRoute(
@@ -77,63 +153,61 @@ class _MyAppState extends State<MyApp> {
           );
         } else {
           print(
-            "Email pengguna tidak ditemukan di session setelah password recovery.",
+            "[MyApp - AuthListener] Email not found in session after password recovery.",
           );
         }
-      } else if (event == AuthChangeEvent.signedIn) {
-        print("User signed in: ${session?.user?.email}");
-      } else if (event == AuthChangeEvent.signedOut) {
-        print("User signed out");
-        // Contoh navigasi ke login setelah sign out, jika diperlukan:
-        // navigatorKey.currentState?.pushAndRemoveUntil(
-        //   MaterialPageRoute(builder: (_) => const LoginPage()),
-        //   (route) => false,
-        // );
       }
+      // Anda bisa menambahkan logika navigasi lain di sini jika diperlukan,
+      // tapi AuthGate Anda sudah menangani navigasi utama berdasarkan status sesi.
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey,
+      navigatorKey:
+          navigatorKey, // Penting agar kita bisa mendapatkan context dari navigatorKey
       title: 'KopiQu',
-      // ❗️ PENTING: Konfigurasi Lokalisasi
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('id', 'ID'), // Untuk Bahasa Indonesia
-        // Locale('en', 'US'), // Jika Anda mendukung bahasa lain
-      ],
-      locale: const Locale('id', 'ID'), // Atur locale default aplikasi Anda
-
+      supportedLocales: const [Locale('id', 'ID')],
+      locale: const Locale('id', 'ID'),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 0, 0, 0),
+          seedColor: const Color.fromARGB(
+            255,
+            0,
+            0,
+            0,
+          ), // Anda menggunakan hitam sebagai seedColor
         ),
-        // primarySwatch: Colors.white, // Anda bisa aktifkan ini jika mau tema dasar coklat
+        // primarySwatch: Colors.brown, // Anda bisa uncomment ini jika ingin tema coklat
       ),
-      home: AuthGate(),
+      home:
+          const AuthGate(), // AuthGate akan menangani tampilan awal (LoginPage atau MainScreen)
       routes: {
-        '/menu': (context) => MenuPage(),
+        '/menu':
+            (context) =>
+                const MenuPage(), // Pastikan semua page widget bisa const jika tidak ada parameter
         '/home': (context) => const Homepage(),
         '/profile': (context) => const ProfilePage(),
-        '/keranjang':
-            (context) =>
-                KeranjangScreen(), // Ini halaman daftar item di keranjang
+        '/keranjang': (context) => KeranjangScreen(),
         '/periksa':
             (context) =>
-                const PeriksaPesananScreen(), // Ini halaman Periksa Pesanan/Transaksi
+                const PeriksaPesananScreen(), // Nama file Anda: transaksiScreen.dart
         '/admin': (context) => const AdminMainScreen(),
         '/login': (context) => const LoginPage(),
+        // Rute untuk MainScreen jika perlu diakses dengan nama, meskipun AuthGate sudah mengarahkannya
+        '/home_main': (context) => const MainScreen(),
       },
     );
   }
 }
 
+// AuthGate Anda (tampaknya sudah baik, saya hanya merapikan sedikit)
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -142,45 +216,43 @@ class AuthGate extends StatelessWidget {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          // Tampilkan loading hanya jika belum ada data sesi awal (misal saat restore session)
+          print('AuthGate: ConnectionState.waiting, no initial data yet.');
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
+        // Jika sudah ada data (meskipun mungkin session null), kita bisa proses
         final session = snapshot.data?.session;
+
         if (session != null && session.user != null) {
-          // Sesi ada, cek role
           final user = session.user!;
           final userRole = user.userMetadata?['role'] as String?;
           final userEmail = user.email ?? "";
 
-          print('AuthGate: Session active. Role: $userRole, Email: $userEmail'); // Debugging
+          print('AuthGate: Session active. Role: $userRole, Email: $userEmail');
 
           if (userRole == 'admin' && userEmail.endsWith('@kopiqu.com')) {
-            // Langsung navigasi menggunakan Navigator.pushReplacementNamed
-            // agar tidak menambah stack jika sudah di halaman admin.
-            // Atau, jika ini adalah load awal, return AdminMainScreen().
-            // Menggunakan WidgetsBinding untuk navigasi setelah build jika dari stream.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (ModalRoute.of(context)?.settings.name != '/admin') { // Hindari push berulang jika sudah di /admin
-                Navigator.pushReplacementNamed(context, '/admin');
-              }
-            });
-            // Tampilkan loading sementara navigasi diproses
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-            // Atau, jika rute /admin sudah benar, bisa juga:
-            // return const AdminMainScreen(); // Ini akan langsung membangun AdminMainScreen
-
+            // Penting: Hindari navigasi berulang jika sudah di halaman yang benar.
+            // Karena AuthGate adalah home, ia akan rebuild saat state berubah.
+            // Langsung return widget lebih aman daripada pushReplacementNamed dari sini.
+            return const AdminMainScreen();
           } else if (userRole == 'pembeli') {
-            return const MainScreen(); // Halaman utama pembeli
+            return const MainScreen();
           } else {
-            print('AuthGate: Role tidak dikenali ($userRole) atau email admin salah. Arahkan ke AuthScreen/LoginPage.');
-            // Logout pengguna ini agar tidak terjebak
-            // Supabase.instance.client.auth.signOut(); // Ini akan memicu AuthStateChange lagi
-            return const LoginPage(); // atau AuthScreen()
+            print(
+              'AuthGate: Role tidak dikenali ($userRole) atau email admin salah. Arahkan ke LoginPage.',
+            );
+            // Pertimbangkan untuk signOut jika role tidak valid agar tidak terjebak
+            // Future.microtask(() => Supabase.instance.client.auth.signOut()); // Akan memicu rebuild AuthGate
+            return const LoginPage();
           }
         } else {
-          print('AuthGate: No active session. Showing LoginPage/AuthScreen.');
-          return const LoginPage(); // atau AuthScreen()
+          print('AuthGate: No active session. Showing LoginPage.');
+          return const LoginPage();
         }
       },
     );
