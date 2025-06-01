@@ -8,9 +8,9 @@ import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
-// import 'package:kopiqu/widgets/Homepage/search_widget.dart'; // 🚫 HAPUS IMPORT INI
 import 'package:kopiqu/widgets/Homepage/tag_list.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:lottie/lottie.dart'; // 👈 1. IMPORT LOTTIE
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -20,27 +20,16 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
-  final bannerImages = [
-    'assets/baner1.jpg',
-    'assets/baner2.jpg',
-    'assets/baner3.jpg',
-    'assets/baner4.jpg',
-    'assets/baner5.jpg',
-  ];
+  // ... (semua variabel state dan method Anda yang sudah ada tetap sama) ...
+  final bannerImages = ['assets/baner1.jpg', /* ... */ 'assets/baner5.jpg'];
   final BannerController bannerController = BannerController();
   final supabase = Supabase.instance.client;
 
   List<Kopi> _masterKopiList = [];
-  List<Kopi> _displayedKopiList =
-      []; // Mengganti nama _filteredKopiList agar lebih umum
+  List<Kopi> _displayedKopiList = [];
   bool _isLoadingKopi = true;
   String? _fetchKopiError;
-
-  // 🚫 HAPUS STATE UNTUK SEARCH
-  // final TextEditingController _searchController = TextEditingController();
-  // String _searchQuery = "";
-
-  String _activeTag = TagList.tagRekomendasi; // Default tag aktif
+  String _activeTag = TagList.tagRekomendasi;
 
   OverlayEntry? _overlayEntry;
   AnimationController? _animationController;
@@ -59,13 +48,13 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   @override
   void dispose() {
     bannerController.dispose();
-    // _searchController.dispose(); // 🚫 HAPUS DISPOSE SEARCH CONTROLLER
     _animationController?.dispose();
     _overlayEntry?.remove();
     super.dispose();
   }
 
   Future<void> fetchKopi() async {
+    /* ... kode fetchKopi Anda tetap sama ... */
     if (!mounted) return;
     setState(() {
       _isLoadingKopi = true;
@@ -75,7 +64,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
       final response = await supabase.from('kopi').select().order('id');
       if (mounted) {
         _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
-        _applyTagFilter(); // Terapkan filter tag awal
+        _applyTagFilter();
         setState(() {
           _isLoadingKopi = false;
         });
@@ -92,6 +81,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   }
 
   void _onTagSelected(String tagName) {
+    /* ... kode _onTagSelected Anda tetap sama ... */
     if (!mounted) return;
     setState(() {
       _activeTag = tagName;
@@ -99,12 +89,9 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     });
   }
 
-  // 🚫 HAPUS METHOD _handleSearchChanged ATAU _filterKopiListBySearch
-
-  // 👇 MODIFIKASI: Fungsi _applyFilters sekarang hanya _applyTagFilter
   void _applyTagFilter() {
+    /* ... kode _applyTagFilter Anda tetap sama ... */
     List<Kopi> tempList = [];
-
     if (_activeTag == TagList.tagRekomendasi) {
       if (_masterKopiList.isNotEmpty) {
         final random = Random();
@@ -118,15 +105,12 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
         tempList = sortedList.take(6).toList();
       }
     } else {
-      // Default jika ada tag lain atau _activeTag tidak cocok (seharusnya tidak terjadi jika init benar)
-      // Untuk Homepage, kita mungkin ingin default ke Rekomendasi jika tag tidak dikenal
       if (_masterKopiList.isNotEmpty) {
         final random = Random();
         List<Kopi> shuffledList = List.from(_masterKopiList)..shuffle(random);
         tempList = shuffledList.take(6).toList();
       }
     }
-
     if (mounted) {
       setState(() {
         _displayedKopiList = tempList;
@@ -138,7 +122,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     GlobalKey tombolPlusKeyDariCard,
     Kopi kopiYangDitambahkan,
   ) {
-    // ... (KODE METHOD INI TETAP SAMA PERSIS) ...
+    /* ... kode animasi Anda tetap sama ... */
     final cartUiService = Provider.of<CartUIService>(context, listen: false);
     cartUiService.updateCartIconPosition();
     final Offset? posisiAkhirKeranjang = cartUiService.cartIconPosition;
@@ -239,11 +223,53 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Widget gridContent;
     if (_isLoadingKopi) {
-      gridContent = const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator()),
+      // 👇 2. GANTI CircularProgressIndicator DENGAN LOTTIE ANIMATION
+      gridContent = SliverFillRemaining(
+        // Tetap gunakan SliverFillRemaining
+        child: Center(
+          child: SizedBox(
+            // Beri ukuran pada Lottie
+            width: 500, // Sesuaikan ukuran Lottie Anda
+            height: 500,
+            child: Lottie.asset(
+              'assets/lottie/Animation-hoomepage2.json', // PASTIKAN PATH INI BENAR
+              onLoaded: (composition) {
+                print("Animasi Lottie di Homepage (aset) berhasil dimuat.");
+              },
+              errorBuilder: (context, error, stackTrace) {
+                print("Error memuat Lottie di Homepage dari aset: $error");
+                // Fallback jika Lottie gagal, tampilkan CircularProgressIndicator standar
+                return const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8D6E63)),
+                );
+              },
+            ),
+          ),
+        ),
       );
     } else if (_fetchKopiError != null) {
-      gridContent = SliverFillRemaining(/* ... UI Error ... */);
+      gridContent = SliverFillRemaining(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _fetchKopiError!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.red[700]),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: fetchKopi,
+                  child: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     } else if (_masterKopiList.isEmpty) {
       gridContent = const SliverFillRemaining(
         child: Center(child: Text('Tidak ada rekomendasi kopi saat ini.')),
@@ -251,22 +277,17 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     } else if (_displayedKopiList.isEmpty &&
         _activeTag.isNotEmpty &&
         _activeTag != TagList.tagRekomendasi) {
-      // Jika tag (selain default rekomendasi) dipilih dan hasilnya kosong
+      String message = 'Tidak ada kopi untuk kategori "$_activeTag".';
       gridContent = SliverFillRemaining(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Tidak ada kopi untuk kategori "$_activeTag".',
-              textAlign: TextAlign.center,
-            ),
+            child: Text(message, textAlign: TextAlign.center),
           ),
         ),
       );
     } else if (_displayedKopiList.isEmpty &&
         _activeTag == TagList.tagRekomendasi) {
-      // Jika tag rekomendasi aktif tapi hasilnya kosong (misal master list < 6 atau random menghasilkan kosong)
-      // Atau jika master list ada tapi setelah random take 6 hasilnya kosong (jarang terjadi jika masterKopiList.isNotEmpty)
       gridContent = const SliverFillRemaining(
         child: Center(
           child: Text('Tidak ada rekomendasi kopi yang bisa ditampilkan.'),
@@ -282,7 +303,6 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             mainAxisSpacing: 16,
             childAspectRatio: 0.65,
           ),
-          // 👇 Gunakan _displayedKopiList
           delegate: SliverChildBuilderDelegate((context, index) {
             final kopi = _displayedKopiList[index];
             return CoffeeCard(
@@ -311,22 +331,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
       appBar: null,
       body: CustomScrollView(
         slivers: [
-          // SliverToBoxAdapter( // 🚫 HAPUS BAGIAN SEARCHWIDGET DARI HOMEPAGE
-          //   child: Padding(
-          //     padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-          //     child: SearchWidget(
-          //       controller: _searchController,
-          //       onChanged: _handleSearchChanged,
-          //       hintText: 'Cari kopi favoritmu...',
-          //     ),
-          //   ),
-          // ),
-          // const SliverToBoxAdapter(child: SizedBox(height: 16)), // Ini juga bisa dihapus jika search hilang
-
-          // Beri padding atas untuk banner jika search dihilangkan dan konten jadi elemen pertama setelah AppBar (global)
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 16),
-          ), // Jarak dari atas (AppBar global)
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverToBoxAdapter(
             child: BannerSlider(
               bannerImages: bannerImages,
@@ -341,7 +346,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          gridContent,
+          gridContent, // Ini akan menampilkan Lottie saat loading, atau grid, atau pesan error/kosong
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
