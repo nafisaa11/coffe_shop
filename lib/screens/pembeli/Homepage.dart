@@ -287,16 +287,15 @@ Future<void> fetchKopi() async {
   Widget _buildProductsGrid() {
     // Method ini sudah ada di kode Anda
     if (_isLoadingKopi) {
-      // 👇 2. GANTI CircularProgressIndicator DENGAN LOTTIE ANIMATION
       return SliverFillRemaining(
         child: Center(
           child: SizedBox(
             // Beri ukuran pada Lottie
             width:
-                500, // Sesuaikan ukuran Lottie Anda sama seperti di LoginPage
-            height: 500,
+                300, // Sesuaikan ukuran Lottie Anda sama seperti di LoginPage
+            height: 300,
             child: Lottie.asset(
-              'assets/lottie/Animation-hoomepage2.json', // PASTIKAN PATH INI BENAR
+              'assets/lottie/Animation-homepage2.json', // PASTIKAN PATH INI BENAR
               onLoaded: (composition) {
                 print("Animasi Lottie di Homepage (aset) berhasil dimuat.");
               },
@@ -367,7 +366,6 @@ Future<void> fetchKopi() async {
     }
 
     if (_masterKopiList.isEmpty) {
-      // ... (UI "Belum Ada Menu Kopi" Anda sudah baik) ...
       return SliverFillRemaining(
         child: Center(
           child: Column(
