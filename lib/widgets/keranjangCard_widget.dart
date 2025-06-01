@@ -108,7 +108,7 @@ class KeranjangCardWidget extends StatelessWidget {
                                 kopi.nama_kopi,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -157,7 +157,7 @@ class KeranjangCardWidget extends StatelessWidget {
                               formatRupiah(kopi.harga * jumlah), // Menampilkan total harga per item (harga * jumlah)
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 17, // Sedikit lebih besar
+                                fontSize: 14, // Sedikit lebih besar
                                 color: Colors.brown,
                               ),
                             ),
