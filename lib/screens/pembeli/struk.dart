@@ -432,7 +432,8 @@ class StrukPage extends StatelessWidget {
 
                                     // Thank you message
                                     Container(
-                                      padding: const EdgeInsets.all(20),
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(vertical: 20),
                                       decoration: BoxDecoration(
                                         gradient: const LinearGradient(
                                           begin: Alignment.topLeft,
@@ -442,11 +443,11 @@ class StrukPage extends StatelessWidget {
                                             Color(0xFFF7DEDE),
                                           ],
                                         ),
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(12),
                                         boxShadow: [
                                           BoxShadow(
                                             color: Colors.pink.withOpacity(0.3),
-                                            blurRadius: 15,
+                                            blurRadius: 8,
                                             offset: Offset(0, 6),
                                           ),
                                         ],

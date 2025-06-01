@@ -225,7 +225,7 @@ class _KeranjangScreenState extends State<KeranjangScreen> {
                                 horizontal: 32,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               elevation: 2,
                             ),
@@ -233,7 +233,7 @@ class _KeranjangScreenState extends State<KeranjangScreen> {
                               'Pesan Sekarang',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 14,
                               ),
                             ),
                           ),

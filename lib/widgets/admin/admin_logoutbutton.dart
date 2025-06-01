@@ -24,14 +24,13 @@ class LogoutButton extends StatelessWidget {
         ],
       ),
       child: ElevatedButton.icon(
-        // Mengganti ikon Material dengan Phosphor Icon untuk konsistensi
         icon: Icon(
           PhosphorIcons.signOut(PhosphorIconsStyle.bold),
           color: AdminProfileColors.dangerColor,
           size: 22,
         ),
         label: const Text(
-          'Keluar', // Label tombol tetap 'Keluar' sesuai kode Anda
+          'Keluar',
           style: TextStyle(
             color: AdminProfileColors.dangerColor,
             fontSize: 16,
@@ -39,26 +38,25 @@ class LogoutButton extends StatelessWidget {
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 255, 186, 186),
+          // Warna background ElevatedButton utama, biarkan atau sesuaikan jika perlu
+          backgroundColor: const Color.fromARGB(255, 255, 251, 251),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: AdminProfileColors.dangerColor, // Warna border
-              width: 1.5,
-            ),
+            side: BorderSide(color: AdminProfileColors.dangerColor, width: 1.5),
           ),
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
         onPressed: () async {
-          // Jadikan onPressed async
-          // Logika dialog dari _handleLogout dipindahkan ke sini
           final bool? confirmLogout = await showDialog<bool>(
-            context: context, // Gunakan BuildContext dari LogoutButton
+            context: context,
             barrierDismissible: false,
             builder: (BuildContext dialogContext) {
-              // Ini context baru untuk dialog
               return AlertDialog(
+                // TAMBAHKAN WARNA BACKGROUND ALERT DI SINI
+                backgroundColor: const Color(
+                  0xFFFFFAF0,
+                ), // atau const Color.fromARGB(255, 255, 250, 240)
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -76,7 +74,7 @@ class LogoutButton extends StatelessWidget {
                   children: <Widget>[
                     Lottie.asset(
                       'assets/lottie/animation-logout.json',
-                      height: 130, // Sedikit disesuaikan
+                      height: 130,
                       width: 130,
                       fit: BoxFit.contain,
                     ),
@@ -101,9 +99,7 @@ class LogoutButton extends StatelessWidget {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AdminProfileColors.textSecondary,
-                            side: BorderSide(
-                              color: Colors.grey.shade300,
-                            ), // Border lebih halus
+                            side: BorderSide(color: Colors.grey.shade300),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -129,13 +125,14 @@ class LogoutButton extends StatelessWidget {
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
-                          // Mengkapitalisasi 'Keluar' agar konsisten dengan 'Batal'
                           child: const Text(
                             'Keluar',
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                           onPressed: () {
-                            Navigator.of(dialogContext).pop(true);
+                            Navigator.of(dialogContext).pop(
+                              true,
+                            ); // Mengembalikan true saat keluar dikonfirmasi
                           },
                         ),
                       ),
@@ -146,12 +143,8 @@ class LogoutButton extends StatelessWidget {
             },
           );
 
-          // Jika pengguna mengkonfirmasi logout
           if (confirmLogout == true && context.mounted) {
-            // Panggil AuthService.logout menggunakan context dari LogoutButton
-            // Pastikan AuthService().logout() bisa menangani navigasi dari context ini
             await AuthService().logout(context);
-            // Jika ada callback onLogoutCompleted:
             // onLogoutCompleted?.call();
           }
         },

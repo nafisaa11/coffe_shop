@@ -237,18 +237,48 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         ),
       );
     } else if (_filteredKopiList.isEmpty && _searchQuery.isNotEmpty) {
-      kopiGridSliver = SliverFillRemaining(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
+  kopiGridSliver = SliverFillRemaining(
+    child: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon pencarian tidak ditemukan
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            
+            // Judul
+            const Text(
+              'Kopi Tidak Ditemukan',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF3E2723), // KopiQuColors.textPrimary
+              ),
+            ),
+            const SizedBox(height: 8),
+            
+            // Pesan
+            Text(
               'Kopi dengan nama "$_searchQuery" tidak ditemukan.',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF8D6E63), // KopiQuColors.textMuted
+              ),
             ),
-          ),
+            const SizedBox(height: 16),
+          
+          ],
         ),
-      );
+      ),
+    ),
+  );
     } else {
       kopiGridSliver = SliverPadding(
         padding: const EdgeInsets.all(16.0), // Padding untuk keseluruhan grid

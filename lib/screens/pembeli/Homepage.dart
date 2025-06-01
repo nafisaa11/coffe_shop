@@ -75,31 +75,37 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> fetchKopi() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoadingKopi = true;
-      _fetchKopiError = null;
-    });
-    try {
-      final response = await supabase.from('kopi').select().order('id');
-      if (mounted) {
-        _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
-        _applyTagFilter();
-        setState(() {
-          _isLoadingKopi = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingKopi = false;
-          _fetchKopiError = "Gagal memuat data kopi: ${e.toString()}";
-        });
-        print("Error fetching kopi on homepage: $e");
-      }
+  // BONUS: Method untuk memastikan data createdAt ter-fetch dengan benar
+Future<void> fetchKopi() async {
+  if (!mounted) return;
+  setState(() {
+    _isLoadingKopi = true;
+    _fetchKopiError = null;
+  });
+  try {
+    // Pastikan untuk mengambil kolom created_at dari database
+    final response = await supabase
+        .from('kopi')
+        .select('id, gambar, nama_kopi, komposisi, deskripsi, harga, created_at')
+        .order('id');
+    
+    if (mounted) {
+      _masterKopiList = Kopi.listFromJson(response as List<dynamic>);
+      _applyTagFilter();
+      setState(() {
+        _isLoadingKopi = false;
+      });
+    }
+  } catch (e) {
+    if (mounted) {
+      setState(() {
+        _isLoadingKopi = false;
+        _fetchKopiError = "Gagal memuat data kopi: ${e.toString()}";
+      });
+      print("Error fetching kopi on homepage: $e");
     }
   }
+}
 
   void _onTagSelected(String tagName) {
     if (!mounted) return;
@@ -109,27 +115,55 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
     });
   }
 
+  // Method _applyTagFilter() yang diperbarui untuk Homepage.dart
   void _applyTagFilter() {
     List<Kopi> tempList = [];
+
     if (_activeTag == TagList.tagRekomendasi) {
+      // Tag Rekomendasi - menampilkan produk random (seperti sebelumnya)
       if (_masterKopiList.isNotEmpty) {
         final random = Random();
         List<Kopi> shuffledList = List.from(_masterKopiList)..shuffle(random);
         tempList = shuffledList.take(6).toList();
       }
     } else if (_activeTag == TagList.tagPalingMurah) {
+      // Tag Paling Murah - menampilkan berdasarkan harga terendah
       if (_masterKopiList.isNotEmpty) {
         List<Kopi> sortedList = List.from(_masterKopiList)
           ..sort((a, b) => a.harga.compareTo(b.harga));
         tempList = sortedList.take(6).toList();
       }
+    } else if (_activeTag == TagList.tagProdukTerbaru) {
+      // Tag Produk Terbaru - menampilkan 6 produk paling baru berdasarkan createdAt
+      if (_masterKopiList.isNotEmpty) {
+        // Filter produk yang memiliki createdAt (tidak null)
+        List<Kopi> productsWithDate =
+            _masterKopiList.where((kopi) => kopi.createdAt != null).toList();
+
+        if (productsWithDate.isNotEmpty) {
+          // Sort berdasarkan createdAt terbaru dulu (descending)
+          List<Kopi> sortedByDate = List.from(productsWithDate)
+            ..sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+          // Ambil maksimal 6 produk terbaru
+          tempList = sortedByDate.take(6).toList();
+        } else {
+          // Jika tidak ada produk dengan createdAt, fallback ke sort berdasarkan ID terbesar
+          // (asumsi ID yang lebih besar = produk yang lebih baru)
+          List<Kopi> sortedById = List.from(_masterKopiList)
+            ..sort((a, b) => b.id.compareTo(a.id));
+          tempList = sortedById.take(6).toList();
+        }
+      }
     } else {
+      // Default case untuk tag lainnya
       if (_masterKopiList.isNotEmpty) {
         final random = Random();
         List<Kopi> shuffledList = List.from(_masterKopiList)..shuffle(random);
         tempList = shuffledList.take(6).toList();
       }
     }
+
     if (mounted) {
       setState(() {
         _displayedKopiList = tempList;
@@ -526,10 +560,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TagList(
-                    activeTag: _activeTag,
-                    onTagSelected: _onTagSelected,
-                  ),
+                  TagList(activeTag: _activeTag, onTagSelected: _onTagSelected),
                 ],
               ),
             ),

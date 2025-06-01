@@ -14,6 +14,7 @@ class TagList extends StatelessWidget {
   // Definisikan tag dan warnanya di sini agar mudah dikelola
   static const String tagRekomendasi = 'Rekomendasi';
   static const String tagPalingMurah = 'Paling Murah';
+  static const String tagProdukTerbaru = 'Produk Terbaru'; // Tag baru
 
   // Warna untuk tag aktif dan tidak aktif
   static const Color activeBackgroundColor = Color(
@@ -53,13 +54,39 @@ class TagList extends StatelessWidget {
                   ]
                   : [],
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isActive ? activeTextColor : const Color.fromARGB(255, 155, 112, 75),
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal, // Lebih tebal
-            fontSize: 12.0,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Tambahkan icon untuk setiap tag agar lebih menarik
+            if (text == tagRekomendasi) 
+              Icon(
+                Icons.star,
+                size: 14,
+                color: isActive ? activeTextColor : inactiveTextColor,
+              )
+            else if (text == tagPalingMurah)
+              Icon(
+                Icons.local_offer,
+                size: 14,
+                color: isActive ? activeTextColor : inactiveTextColor,
+              )
+            else if (text == tagProdukTerbaru)
+              Icon(
+                Icons.new_releases,
+                size: 14,
+                color: isActive ? activeTextColor : inactiveTextColor,
+              ),
+            if (text == tagRekomendasi || text == tagPalingMurah || text == tagProdukTerbaru)
+              const SizedBox(width: 4),
+            Text(
+              text,
+              style: TextStyle(
+                color: isActive ? activeTextColor : const Color.fromARGB(255, 155, 112, 75),
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal, // Lebih tebal
+                fontSize: 12.0,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -69,15 +96,18 @@ class TagList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Wrap(
-        // Menggunakan Wrap jika tag bisa lebih dari satu baris
-        spacing: 10.0, // Jarak horizontal antar tag
-        runSpacing: 8.0, // Jarak vertikal antar baris tag
-        children: [
-          _buildTag(context, tagRekomendasi),
-          _buildTag(context, tagPalingMurah),
-          // Anda bisa menambahkan tag lain di sini jika perlu
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal, // Membuat tag bisa di-scroll horizontal
+        child: Row(
+          children: [
+            _buildTag(context, tagRekomendasi),
+            const SizedBox(width: 10), // Jarak antar tag
+            _buildTag(context, tagPalingMurah),
+            const SizedBox(width: 10),
+            _buildTag(context, tagProdukTerbaru), // Tag baru ditambahkan
+            const SizedBox(width: 16), // Padding akhir
+          ],
+        ),
       ),
     );
   }

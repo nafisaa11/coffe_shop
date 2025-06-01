@@ -28,7 +28,7 @@ class SearchWidget extends StatelessWidget {
               color: Colors.white, // Beri warna latar belakang
               // border: Border.all(color: Colors.grey.shade300), // Border lebih halus
               borderRadius: BorderRadius.circular(
-                25.0,
+                12.0,
               ), // BorderRadius yang lebih smooth
               boxShadow: [
                 // Tambahkan sedikit shadow untuk efek kedalaman

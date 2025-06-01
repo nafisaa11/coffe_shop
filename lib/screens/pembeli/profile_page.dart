@@ -112,8 +112,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 text: 'Riwayat Pembelian',
                                 subtitle: 'Lihat semua transaksi Anda',
                                 gradientColors: [
-                                  Colors.blue.withOpacity(0.1),
-                                  Colors.blue.withOpacity(0.05),
+                                  const Color(0xFFD07C3D).withOpacity(0.1),
+                                  const Color(0xFFD07C3D).withOpacity(0.05),
                                 ],
                                 onTap: () {
                                   Navigator.push(
