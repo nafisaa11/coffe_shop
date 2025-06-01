@@ -20,7 +20,7 @@ class StrukPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               label,
               style: TextStyle(
@@ -55,7 +55,7 @@ class StrukPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       decoration: BoxDecoration(
         color: Color(0xFF6D4C41),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: const [
@@ -123,10 +123,7 @@ class StrukPage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2.0),
       padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(4),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -264,7 +261,7 @@ class StrukPage extends StatelessWidget {
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.15),
@@ -281,8 +278,8 @@ class StrukPage extends StatelessWidget {
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12),
                                   ),
                                 ),
                                 child: Column(
@@ -323,7 +320,7 @@ class StrukPage extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Column(
                                         children: [
@@ -375,7 +372,7 @@ class StrukPage extends StatelessWidget {
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
                                         color: Color(0xFFFFFAF0),
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Column(
                                         children: [
@@ -435,47 +432,75 @@ class StrukPage extends StatelessWidget {
 
                                     // Thank you message
                                     Container(
-                                      padding: const EdgeInsets.all(16),
+                                      padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
-                                        color: Colors.green[50],
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.green[200]!,
-                                          width: 1,
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color(0xFFE38C8C),
+                                            Color(0xFFF7DEDE),
+                                          ],
                                         ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.pink.withOpacity(0.3),
+                                            blurRadius: 15,
+                                            offset: Offset(0, 6),
+                                          ),
+                                        ],
                                       ),
                                       child: Column(
                                         children: [
-                                          Icon(
-                                            Icons.favorite,
-                                            color: Colors.green[600],
-                                            size: 24,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            "Terima kasih telah memesan di KopiQu!",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.green[700],
+                                          Container(
+                                            padding: EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withOpacity(
+                                                0.9,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                            ),
+                                            child: Icon(
+                                              Icons.favorite,
+                                              color: Color(0xFFE38C8C),
+                                              size: 24,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            "Silakan lakukan pembayaran di kasir.",
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            "Terima Kasih!",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF8B4444),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            "Pesanan Anda telah berhasil diproses",
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: Colors.green[600],
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF8B4444),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          const Text(
+                                            "Silakan lakukan pembayaran di kasir!",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF8B4444),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-
                                     const SizedBox(height: 20),
-
                                   ],
                                 ),
                               ),
@@ -493,7 +518,7 @@ class StrukPage extends StatelessWidget {
                             gradient: LinearGradient(
                               colors: [Color(0xFF4D2F15), Color(0xFF6D4C41)],
                             ),
-                            borderRadius: BorderRadius.circular(28),
+                            borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
                                 color: Color(0xFF4D2F15).withOpacity(0.4),
@@ -526,7 +551,7 @@ class StrukPage extends StatelessWidget {
                               foregroundColor: Colors.white,
                               shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(28),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),

@@ -44,7 +44,11 @@ class _KeranjangScreenState extends State<KeranjangScreen> {
         elevation: 0,
         title: const Text(
           'Keranjang KopiQu',
-          style: TextStyle(color: Colors.brown),
+          style: TextStyle(
+            color: Colors.brown,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.brown),
@@ -55,10 +59,76 @@ class _KeranjangScreenState extends State<KeranjangScreen> {
         builder: (context, keranjangCtrl, _) {
           final keranjang = keranjangCtrl.keranjang;
 
+          if (keranjang.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 80,
+                    color: Colors.brown[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Keranjang Anda Kosong',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.brown[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Mulai belanja untuk menambah kopi ke keranjang',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.brown[400],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
           return Column(
             children: [
+              // Header info
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.brown[600], size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Harga akan berubah sesuai ukuran yang dipilih',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.brown[600],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               Expanded(
                 child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   itemCount: keranjang.length,
                   itemBuilder: (context, index) {
                     final KeranjangItem item = keranjang[index];
@@ -72,64 +142,105 @@ class _KeranjangScreenState extends State<KeranjangScreen> {
 
               // Total Harga yang dipilih
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
+                    top: Radius.circular(20),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, -2),
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, -4),
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: keranjangCtrl.semuaDipilih,
-                      onChanged:
-                          (val) => keranjangCtrl.pilihSemua(val ?? false),
-                    ),
-                    const Text('Semua'),
-                    const Spacer(),
-
-                    // Nutton melanjutkan ke checkout
-                    ElevatedButton(
-                      onPressed:
-                          keranjangCtrl.totalHarga > 0
-                              ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            const PeriksaPesananScreen(),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      // Checkbox pilih semua
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: keranjangCtrl.semuaDipilih,
+                            onChanged: (val) => keranjangCtrl.pilihSemua(val ?? false),
+                            activeColor: Colors.brown,
+                          ),
+                          Text(
+                            'Pilih Semua (${keranjang.where((item) => item.dipilih).length}/${keranjang.length})',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Total dan button pesan
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total Pembayaran',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
                                   ),
-                                );
-                              }
-                              : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  formatRupiah(keranjangCtrl.totalHarga),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.brown,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Button pesan
+                          ElevatedButton(
+                            onPressed: keranjangCtrl.totalHarga > 0
+                                ? () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const PeriksaPesananScreen(),
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.brown,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 32,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: Text(
+                              'Pesan Sekarang',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        'Pesan ${formatRupiah(keranjangCtrl.totalHarga)}',
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -22,6 +22,21 @@ class KeranjangCardWidget extends StatelessWidget {
     ).format(harga);
   }
 
+  // Fungsi untuk menghitung harga berdasarkan ukuran
+  int getHargaByUkuran(Kopi kopi, String ukuran) {
+    int hargaAsli = kopi.harga;
+    switch (ukuran.toLowerCase()) {
+      case 'kecil':
+        return hargaAsli;
+      case 'sedang':
+        return hargaAsli + 3000;
+      case 'besar':
+        return hargaAsli + 5000;
+      default:
+        return hargaAsli;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final keranjangCtrl = Provider.of<KeranjangController>(context, listen: false);
@@ -31,6 +46,10 @@ class KeranjangCardWidget extends StatelessWidget {
     final String currentUkuran = item.ukuran; // Gunakan nama variabel berbeda untuk menghindari kebingungan di closure
     final int jumlah = item.jumlah;
     final bool dipilih = item.dipilih;
+
+    // Hitung harga berdasarkan ukuran yang dipilih
+    final int hargaPerItem = getHargaByUkuran(kopi, currentUkuran);
+    final int totalHargaItem = hargaPerItem * jumlah;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -129,37 +148,75 @@ class KeranjangCardWidget extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        DropdownButton<String>(
-                          value: currentUkuran,
-                          isDense: true, // Membuat dropdown lebih ringkas
-                          underline: Container(height: 1, color: Colors.brown[100]),
-                          items: ['Besar', 'Sedang', 'Kecil'].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                style: const TextStyle(fontSize: 13, color: Colors.black87),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (String? newUkuran) {
-                            if (newUkuran != null && newUkuran != currentUkuran) {
-                              keranjangCtrl.ubahUkuran(kopi, currentUkuran, newUkuran);
-                            }
-                          },
+                        // Dropdown untuk mengubah ukuran dengan tampilan harga
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.brown[200]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButton<String>(
+                            value: currentUkuran,
+                            isDense: true,
+                            underline: const SizedBox(), // Hilangkan underline default
+                            icon: Icon(Icons.keyboard_arrow_down, color: Colors.brown[600]),
+                            items: ['Kecil', 'Sedang', 'Besar'].map((String ukuran) {
+                              int hargaUkuran = getHargaByUkuran(kopi, ukuran);
+                              return DropdownMenuItem<String>(
+                                value: ukuran,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      ukuran,
+                                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                                    ),
+                                    Text(
+                                      formatRupiah(hargaUkuran),
+                                      style: TextStyle(
+                                        fontSize: 12, 
+                                        color: Colors.brown[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? newUkuran) {
+                              if (newUkuran != null && newUkuran != currentUkuran) {
+                                keranjangCtrl.ubahUkuran(kopi, currentUkuran, newUkuran);
+                              }
+                            },
+                          ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              formatRupiah(kopi.harga * jumlah), // Menampilkan total harga per item (harga * jumlah)
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14, // Sedikit lebih besar
-                                color: Colors.brown,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Tampilkan harga per item
+                                Text(
+                                  '${formatRupiah(hargaPerItem)} x $jumlah',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                // Tampilkan total harga
+                                Text(
+                                  formatRupiah(totalHargaItem),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.brown,
+                                  ),
+                                ),
+                              ],
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
@@ -167,8 +224,8 @@ class KeranjangCardWidget extends StatelessWidget {
                                 InkWell(
                                   onTap: () => keranjangCtrl.ubahJumlah(kopi, currentUkuran, -1),
                                   child: Container(
-                                    width: 30, // Ukuran konsisten
-                                    height: 30,
+                                    width: 32,
+                                    height: 32,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -178,12 +235,12 @@ class KeranjangCardWidget extends StatelessWidget {
                                     child: Icon(Icons.remove, size: 18, color: Colors.brown[700]),
                                   ),
                                 ),
-                                Container( // Menggunakan Container untuk padding yang konsisten
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
                                     '$jumlah',
                                     style: const TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -191,8 +248,8 @@ class KeranjangCardWidget extends StatelessWidget {
                                 InkWell(
                                   onTap: () => keranjangCtrl.ubahJumlah(kopi, currentUkuran, 1),
                                   child: Container(
-                                    width: 30,
-                                    height: 30,
+                                    width: 32,
+                                    height: 32,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,

@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:kopiqu/controllers/Banner_Controller.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/Homepage/banner_slider.dart';
-import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
+import 'package:kopiqu/widgets/Homepage/gridHomepage_widget.dart';
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
@@ -317,8 +317,16 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
 
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-            // Products Grid
-            _buildProductsGrid(),
+            // Products Grid - Menggunakan widget terpisah
+            GridHomepageWidget(
+              isLoadingKopi: _isLoadingKopi,
+              fetchKopiError: _fetchKopiError,
+              masterKopiList: _masterKopiList,
+              displayedKopiList: _displayedKopiList,
+              activeTag: _activeTag,
+              onRefresh: fetchKopi,
+              onAddToCartPressed: _mulaiAnimasiTambahKeKeranjang,
+            ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
@@ -350,213 +358,6 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProductsGrid() {
-    if (_isLoadingKopi) {
-      return SliverFillRemaining(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(
-                color: KopiQuColors.primary,
-                backgroundColor: KopiQuColors.primaryLight,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Memuat menu kopi...',
-                style: TextStyle(
-                  color: KopiQuColors.textMuted,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_fetchKopiError != null) {
-      return SliverFillRemaining(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: KopiQuColors.error,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Oops! Terjadi Kesalahan',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: KopiQuColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _fetchKopiError!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: KopiQuColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: fetchKopi,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Coba Lagi'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: KopiQuColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (_masterKopiList.isEmpty) {
-      return SliverFillRemaining(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.local_cafe_outlined,
-                size: 64,
-                color: KopiQuColors.textMuted,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Belum Ada Menu Kopi',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: KopiQuColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Menu kopi sedang disiapkan untuk Anda',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: KopiQuColors.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_displayedKopiList.isEmpty) {
-      return SliverFillRemaining(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.search_off,
-                  size: 64,
-                  color: KopiQuColors.textMuted,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Tidak Ada Kopi untuk "$_activeTag"',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: KopiQuColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Coba pilih kategori lain atau kembali lagi nanti',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: KopiQuColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.68,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final kopi = _displayedKopiList[index];
-            return CoffeeCard(
-              kopi: kopi,
-              onAddToCartPressed: (GlobalKey plusButtonKey, Kopi kopiUntukKeranjang) {
-                String ukuranPilihan = "Sedang";
-                Provider.of<KeranjangController>(context, listen: false)
-                    .tambah(kopiUntukKeranjang, ukuranPilihan);
-                _mulaiAnimasiTambahKeKeranjang(plusButtonKey, kopiUntukKeranjang);
-                
-                // Show success snackbar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            '${kopiUntukKeranjang.nama_kopi} ditambahkan ke keranjang',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: KopiQuColors.success,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    margin: const EdgeInsets.all(16),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
-            );
-          },
-          childCount: _displayedKopiList.length,
-        ),
       ),
     );
   }

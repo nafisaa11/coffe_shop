@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/models/kopi.dart'; // Pastikan path model Kopi benar
-import 'package:kopiqu/widgets/DetailKopi/detailKopi_widget.dart'; // Path ke DetailWidget
-import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
+import 'package:kopiqu/models/kopi.dart';
+import 'package:kopiqu/widgets/DetailKopi/detailKopi_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DetailProdukScreen extends StatefulWidget {
   final int id;
@@ -13,7 +13,7 @@ class DetailProdukScreen extends StatefulWidget {
 }
 
 class _DetailProdukScreenState extends State<DetailProdukScreen> {
-  Kopi? _kopi; // Kopi bisa null sampai data berhasil diambil
+  Kopi? _kopi;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -24,7 +24,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
   }
 
   Future<void> _fetchKopiDetail() async {
-    // Set state awal sebelum fetching
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -33,12 +32,12 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
     try {
       final supabase = Supabase.instance.client;
       final response = await supabase
-          .from('kopi') // Nama tabel Anda
-          .select()   // Pilih semua kolom (atau tentukan kolom yang dibutuhkan)
-          .eq('id', widget.id) // Filter berdasarkan ID
-          .single(); // Mengharapkan satu baris data, error jika tidak ditemukan
+          .from('kopi')
+          .select()
+          .eq('id', widget.id)
+          .single();
 
-      if (mounted) { // Pastikan widget masih ada di tree
+      if (mounted) {
         setState(() {
           _kopi = Kopi.fromMap(response);
           _isLoading = false;
@@ -48,77 +47,186 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
       if (mounted) {
         String NError = "";
         if (e is PostgrestException && e.code == 'PGRST116') {
-             NError = 'Produk kopi tidak ditemukan.';
-          } else {
-             NError = 'Gagal memuat detail kopi: ${e.toString()}';
-          }
+          NError = 'Produk kopi tidak ditemukan.';
+        } else {
+          NError = 'Gagal memuat detail kopi: ${e.toString()}';
+        }
 
         setState(() {
           _isLoading = false;
-          _errorMessage = NError; // Simpan pesan error
+          _errorMessage = NError;
         });
-        print('Error fetching Kopi detail: $e'); // Untuk debugging
+        print('Error fetching Kopi detail: $e');
       }
     }
   }
 
-  // Fungsi tambahKeKeranjang tetap sama atau sesuaikan dengan logika KeranjangController Anda
   void tambahKeKeranjang(BuildContext context, String ukuran) {
-    if (_kopi == null) return; // Jangan lakukan apa-apa jika _kopi masih null
+    if (_kopi == null) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Ditambahkan: ${_kopi!.nama_kopi} ukuran $ukuran ke keranjang'),
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white, size: 20),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Ditambahkan: ${_kopi!.nama_kopi} ukuran $ukuran ke keranjang',
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green[600],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: EdgeInsets.all(16),
+        duration: Duration(seconds: 3),
       ),
     );
-    // Di sini Anda bisa memanggil Provider.of<KeranjangController>(context, listen: false).tambah(_kopi!, ukuran);
-    // jika DetailWidget tidak melakukannya secara internal.
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        // Tampilkan AppBar sederhana saat loading agar ada tombol kembali jika diperlukan
+        backgroundColor: Color(0xFFF8F6F0),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: CircleAvatar(
-            backgroundColor: Colors.white,
+          leading: Container(
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
             child: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.brown),
+              icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B4513), size: 20),
               onPressed: () => Navigator.pop(context),
             ),
           ),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Color(0xFF8B4513).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
+                  strokeWidth: 3,
+                ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Memuat detail kopi...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF8B4513),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
+        backgroundColor: Color(0xFFF8F6F0),
         appBar: AppBar(
-          title: const Text('Error'),
-          leading: CircleAvatar(
-            backgroundColor: Colors.white,
+          title: Text(
+            'Terjadi Kesalahan',
+            style: TextStyle(
+              color: Color(0xFF8B4513),
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          leading: Container(
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
             child: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.brown),
+              icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B4513), size: 20),
               onPressed: () => Navigator.pop(context),
             ),
           ),
         ),
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(_errorMessage!, textAlign: TextAlign.center),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _fetchKopiDetail, // Tombol untuk mencoba lagi
-                  child: const Text('Coba Lagi'),
-                )
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline,
+                    size: 50,
+                    color: Colors.red[400],
+                  ),
+                ),
+                SizedBox(height: 32),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[700],
+                    height: 1.5,
+                  ),
+                ),
+                SizedBox(height: 32),
+                ElevatedButton.icon(
+                  onPressed: _fetchKopiDetail,
+                  icon: Icon(Icons.refresh, size: 20),
+                  label: Text(
+                    'Coba Lagi',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF8B4513),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                    shadowColor: Color(0xFF8B4513).withOpacity(0.3),
+                  ),
+                ),
               ],
             ),
           ),
@@ -127,91 +235,251 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
     }
 
     if (_kopi == null) {
-      // Kasus ini seharusnya sudah ditangani oleh _errorMessage jika fetching gagal
-      // Namun, sebagai fallback jika _kopi tetap null tanpa error message.
       return Scaffold(
-        appBar: AppBar(title: const Text('Tidak Ditemukan')),
-        body: const Center(child: Text('Detail produk tidak tersedia.')),
+        backgroundColor: Color(0xFFF8F6F0),
+        appBar: AppBar(
+          title: Text(
+            'Tidak Ditemukan',
+            style: TextStyle(
+              color: Color(0xFF8B4513),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.coffee_outlined,
+                size: 80,
+                color: Colors.grey[400],
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Detail produk tidak tersedia.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
-    // Jika data berhasil dimuat (_kopi tidak null)
     return Scaffold(
+      backgroundColor: Color(0xFFF8F6F0),
       body: Column(
         children: [
           Stack(
             children: [
-              // Menggunakan Image.network jika gambar adalah URL
-              // Tambahkan errorBuilder dan loadingBuilder untuk UX yang lebih baik
-              _kopi!.gambar.startsWith('http')
-                ? Image.network(
-                    _kopi!.gambar,
-                    height: 280,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 280,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
+              Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  child: _kopi!.gambar.startsWith('http')
+                      ? Image.network(
+                          _kopi!.gambar,
+                          height: 320,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 320,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFFE8E0D0), Color(0xFFD4C4A8)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 40,
+                                      height: 40,
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                            : null,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
+                                        strokeWidth: 3,
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'Memuat gambar...',
+                                      style: TextStyle(
+                                        color: Color(0xFF8B4513),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                            return Container(
+                              height: 320,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFFE8E0D0), Color(0xFFD4C4A8)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.broken_image_outlined, color: Color(0xFF8B4513), size: 60),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'Gambar tidak dapat dimuat',
+                                    style: TextStyle(color: Color(0xFF8B4513), fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          _kopi!.gambar,
+                          height: 320,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                            return Container(
+                              height: 320,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFFE8E0D0), Color(0xFFD4C4A8)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.broken_image_outlined, color: Color(0xFF8B4513), size: 60),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'Gambar tidak dapat dimuat',
+                                    style: TextStyle(color: Color(0xFF8B4513), fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                    errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                      return Container(
-                        height: 280,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: Icon(Icons.broken_image, color: Colors.grey[400], size: 60),
-                      );
-                    },
-                  )
-                : Image.asset( // Fallback jika bukan URL atau untuk placeholder lokal
-                    _kopi!.gambar, // Pastikan path asset ini valid jika digunakan
-                    height: 280,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                     errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                      return Container(
-                        height: 280,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: Icon(Icons.broken_image, color: Colors.grey[400], size: 60),
-                      );
-                    },
+                ),
+              ),
+              // Gradient overlay untuk readability teks
+              Container(
+                height: 320,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
                   ),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.6),
+                    ],
+                    stops: [0.6, 1.0],
+                  ),
+                ),
+              ),
+              // Back button
               Positioned(
-                top: 40, // Sesuaikan posisi dengan status bar dan notch
-                left: 16,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.8),
+                top: MediaQuery.of(context).padding.top + 12,
+                left: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.brown),
+                    icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B4513), size: 20),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
               ),
+              // Coffee name
               Positioned(
-                bottom: 16,
-                left: 16,
-                right: 16, // Tambahkan right padding agar teks tidak terlalu mepet
-                child: Text(
-                  _kopi!.nama_kopi, // Gunakan nama_kopi sesuai model
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(color: Colors.black54, blurRadius: 6, offset: Offset(0,1)),
-                    ],
-                  ),
+                bottom: 24,
+                left: 24,
+                right: 24,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF8B4513).withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.coffee, color: Colors.white, size: 16),
+                          SizedBox(width: 6),
+                          Text(
+                            'Premium Coffee',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      _kopi!.nama_kopi,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.7),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -219,9 +487,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
           Expanded(
             child: DetailWidget(
               kopi: _kopi!,
-              // Pastikan `onTambah` di DetailWidget sesuai dengan apa yang Anda inginkan.
-              // Jika DetailWidget menggunakan Provider untuk tambah ke keranjang,
-              // callback ini mungkin hanya untuk notifikasi tambahan atau bisa disederhanakan.
               onTambah: (ukuran) => tambahKeKeranjang(context, ukuran),
             ),
           ),
