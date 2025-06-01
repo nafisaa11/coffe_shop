@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/screens/registerpage.dart';
+import 'package:kopiqu/screens/login_registrasi/registerpage.dart';
 import 'package:kopiqu/services/auth_service.dart';
 import 'package:kopiqu/widgets/customtextfield.dart';
 import 'package:lottie/lottie.dart';

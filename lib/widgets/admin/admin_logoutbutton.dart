@@ -12,9 +12,9 @@ class LogoutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: 50,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: AdminProfileColors.dangerColor.withOpacity(0.3),
@@ -25,32 +25,42 @@ class LogoutButton extends StatelessWidget {
       ),
       child: ElevatedButton.icon(
         // Mengganti ikon Material dengan Phosphor Icon untuk konsistensi
-        icon: Icon(PhosphorIcons.signOut(PhosphorIconsStyle.bold), color: Colors.white, size: 22),
+        icon: Icon(
+          PhosphorIcons.signOut(PhosphorIconsStyle.bold),
+          color: AdminProfileColors.dangerColor,
+          size: 22,
+        ),
         label: const Text(
           'Keluar', // Label tombol tetap 'Keluar' sesuai kode Anda
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
+            color: AdminProfileColors.dangerColor,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AdminProfileColors.dangerColor,
+          backgroundColor: const Color.fromARGB(255, 255, 186, 186),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: AdminProfileColors.dangerColor, // Warna border
+              width: 1.5,
+            ),
           ),
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
-        onPressed: () async { // Jadikan onPressed async
+        onPressed: () async {
+          // Jadikan onPressed async
           // Logika dialog dari _handleLogout dipindahkan ke sini
           final bool? confirmLogout = await showDialog<bool>(
             context: context, // Gunakan BuildContext dari LogoutButton
             barrierDismissible: false,
-            builder: (BuildContext dialogContext) { // Ini context baru untuk dialog
+            builder: (BuildContext dialogContext) {
+              // Ini context baru untuk dialog
               return AlertDialog(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 title: const Center(
                   child: Text(
@@ -74,7 +84,10 @@ class LogoutButton extends StatelessWidget {
                     const Text(
                       'Anda yakin ingin keluar dari akun?',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AdminProfileColors.textSecondary, fontSize: 15),
+                      style: TextStyle(
+                        color: AdminProfileColors.textSecondary,
+                        fontSize: 15,
+                      ),
                     ),
                   ],
                 ),
@@ -88,13 +101,18 @@ class LogoutButton extends StatelessWidget {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AdminProfileColors.textSecondary,
-                            side: BorderSide(color: Colors.grey.shade300), // Border lebih halus
+                            side: BorderSide(
+                              color: Colors.grey.shade300,
+                            ), // Border lebih halus
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
-                          child: const Text('Batal', style: TextStyle(fontWeight: FontWeight.w600)),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           onPressed: () {
                             Navigator.of(dialogContext).pop(false);
                           },
@@ -107,12 +125,15 @@ class LogoutButton extends StatelessWidget {
                             backgroundColor: AdminProfileColors.dangerColor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           // Mengkapitalisasi 'Keluar' agar konsisten dengan 'Batal'
-                          child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.w600)),
+                          child: const Text(
+                            'Keluar',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           onPressed: () {
                             Navigator.of(dialogContext).pop(true);
                           },

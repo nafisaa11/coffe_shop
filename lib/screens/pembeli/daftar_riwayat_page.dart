@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kopiqu/models/riwayat_transaksi.dart';
-import 'package:kopiqu/screens/struk.dart';
+import 'package:kopiqu/screens/pembeli/struk.dart';
 import 'package:kopiqu/services/riwayat_service.dart';
-import 'package:kopiqu/screens/riwayat_pembelian_page.dart';
 
 class DaftarRiwayatPage extends StatefulWidget {
   const DaftarRiwayatPage({super.key});

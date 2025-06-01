@@ -1,6 +1,7 @@
 // main.dart
 import 'dart:async'; // 👈 1. IMPORT dart:async untuk StreamSubscription
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:kopiqu/controllers/Keranjang_Controller.dart'; // 👈 2. IMPORT KeranjangController
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:provider/provider.dart'; // 👈 2. IMPORT Provider
@@ -14,6 +15,21 @@ import 'package:kopiqu/screens/menupage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:kopiqu/screens/resetpasswordpage.dart';
 import 'package:kopiqu/screens/admin/admin_mainscreen.dart';
+=======
+import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:kopiqu/screens/login_registrasi/loginpage.dart';
+import 'package:kopiqu/screens/pembeli/Homepage.dart';
+import 'package:kopiqu/screens/pembeli/keranjangScreen.dart'; // Pastikan ini benar PeriksaPesananScreen atau KeranjangScreen?
+import 'package:kopiqu/screens/pembeli/mainscreen.dart';
+import 'package:kopiqu/screens/pembeli/transaksiScreen.dart';
+import 'package:kopiqu/services/cart_ui_service.dart'; // Nama file dari kode struk Anda // Tidak digunakan di sini, hapus jika tidak perlu
+import 'package:provider/provider.dart';
+import 'package:kopiqu/screens/pembeli/profile_page.dart';
+import 'package:kopiqu/screens/pembeli/menupage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:kopiqu/screens/login_registrasi/resetpasswordpage.dart';
+import 'package:kopiqu/screens/admin/admin_mainscreen.dart'; // Pastikan ini benar
+>>>>>>> 76e4cc558132ff6de424cce8878ca45292cff957
 
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

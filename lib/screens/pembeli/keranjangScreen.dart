@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:kopiqu/models/keranjang.dart';
-import 'package:kopiqu/screens/transaksiScreen.dart';
+import 'package:kopiqu/screens/pembeli/transaksiScreen.dart';
 import 'package:kopiqu/widgets/keranjangCard_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
