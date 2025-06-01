@@ -102,13 +102,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 // Tidak perlu setState di sini jika logika displayImageProvider sudah benar
               },
               child:
-                  (photoUrl == null || photoUrl.isEmpty)
-                      ? const Icon(
-                        Icons.person_outline,
-                        size: 60,
-                        color: Color.fromARGB(179, 79, 79, 79),
-                      )
-                      : null,
+                  
+                       null,
             ),
           ),
           const SizedBox(height: 15),
