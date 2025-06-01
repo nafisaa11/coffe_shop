@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:kopiqu/models/riwayat_transaksi.dart';
 import 'package:kopiqu/screens/pembeli/struk.dart';
 import 'package:kopiqu/services/riwayat_service.dart';
+import 'package:lottie/lottie.dart';
 
 class DaftarRiwayatPage extends StatefulWidget {
   const DaftarRiwayatPage({super.key});
@@ -68,15 +69,24 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
         future: _futureRiwayatList,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: Color(0xFFD07C3D)),
-                  SizedBox(height: 16),
-                  Text(
+                  Lottie.asset(
+                    'assets/lottie/Animation-riwayatpesanan.json',
+                    width:
+                        300, // Sesuaikan ukuran animasi sesuai kebutuhan Anda
+                    height:
+                        150, // Sesuaikan ukuran animasi sesuai kebutuhan Anda
+                    fit:
+                        BoxFit
+                            .contain, // Anda bisa menggunakan BoxFit yang lain juga
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
                     'Memuat riwayat pesanan...',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: Colors.redAccent, fontSize: 14),
                   ),
                 ],
               ),
@@ -211,11 +221,7 @@ class _DaftarRiwayatPageState extends State<DaftarRiwayatPage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.history,
-                        color: Color(0xFFD07C3D),
-                        size: 20,
-                      ),
+                      Icon(Icons.history, color: Color(0xFFD07C3D), size: 20),
                       const SizedBox(width: 8),
                       Text(
                         '${riwayatList.length} pesanan ditemukan',

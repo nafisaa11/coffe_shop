@@ -284,34 +284,33 @@ Future<void> fetchKopi() async {
     _animationController!.forward();
   }
 
-  Widget _buildProductsGrid() {
-    // Method ini sudah ada di kode Anda
-    if (_isLoadingKopi) {
-      return SliverFillRemaining(
-        child: Center(
-          child: SizedBox(
-            // Beri ukuran pada Lottie
-            width:
-                300, // Sesuaikan ukuran Lottie Anda sama seperti di LoginPage
-            height: 300,
-            child: Lottie.asset(
-              'assets/lottie/Animation-homepage2.json', // PASTIKAN PATH INI BENAR
-              onLoaded: (composition) {
-                print("Animasi Lottie di Homepage (aset) berhasil dimuat.");
-              },
-              errorBuilder: (context, error, stackTrace) {
-                print("Error memuat Lottie di Homepage dari aset: $error");
-                // Fallback jika Lottie gagal
-                return CircularProgressIndicator(
-                  color: KopiQuColors.primary, // Menggunakan warna tema
-                  backgroundColor: KopiQuColors.primaryLight,
-                );
-              },
-            ),
-          ),
-        ),
-      );
-    }
+  Widget _buildProductsGrid() {    // if (_isLoadingKopi) {
+    //   return SliverFillRemaining(
+    //     child: Center(
+    //       child: SizedBox(
+    //         // Beri ukuran pada Lottie
+    //         width:
+    //             500, // Sesuaikan ukuran Lottie Anda sama seperti di LoginPage
+    //         height: 500,
+    //         child: Lottie.asset(
+    //           'assets/lottie/Animation-hoomepage2.json', // PASTIKAN PATH INI BENAR
+    //           onLoaded: (composition) {
+    //             print("Animasi Lottie di Homepage (aset) berhasil dimuat.");
+    //           },
+    //           errorBuilder: (context, error, stackTrace) {
+    //             print("Error memuat Lottie di Homepage dari aset: $error");
+    //             // Fallback jika Lottie gagal
+    //             return CircularProgressIndicator(
+    //               color: KopiQuColors.primary, // Menggunakan warna tema
+    //               backgroundColor: KopiQuColors.primaryLight,
+    //             );
+    //           },
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // }
+
 
     if (_fetchKopiError != null) {
       // ... (UI Error Anda sudah baik) ...

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:lottie/lottie.dart'; // Pastikan Anda sudah menambahkan dependensi lottie di pubspec.yaml
 
 // Import KopiQuColors dari Homepage atau buat file terpisah untuk colors
 class KopiQuColors {
@@ -48,18 +49,53 @@ class GridHomepageWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(
-                color: KopiQuColors.primary,
-                backgroundColor: KopiQuColors.primaryLight,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Memuat menu kopi...',
-                style: TextStyle(
-                  color: KopiQuColors.textMuted,
-                  fontSize: 16,
+              // --- AWAL PERUBAHAN: Mengganti CircularProgressIndicator dengan Lottie ---
+              SizedBox(
+                width: 200, // Sesuaikan ukuran animasi Lottie Anda
+                height: 200, // Sesuaikan ukuran animasi Lottie Anda
+                child: Lottie.asset(
+                  'assets/lottie/Animation-homepage2.json', // PASTIKAN PATH INI BENAR
+                  onLoaded: (composition) {
+                    print(
+                      "Animasi Lottie di GridHomepageWidget (aset) berhasil dimuat.",
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    print(
+                      "Error memuat Lottie di GridHomepageWidget dari aset: $error",
+                    );
+                    // Fallback jika Lottie gagal dimuat
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          color: KopiQuColors.primary,
+                          backgroundColor: KopiQuColors.primaryLight,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Memuat menu kopi...',
+                          style: TextStyle(
+                            color: KopiQuColors.textMuted,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
+              // Anda mungkin tidak memerlukan teks di bawah Lottie jika animasi sudah cukup informatif
+              // Jika tetap ingin ada teks:
+              // const SizedBox(height: 16),
+              // const Text(
+              //   'Memuat menu kopi...',
+              //   style: TextStyle(
+              //     color: KopiQuColors.textMuted,
+              //     fontSize: 16,
+              //   ),
+              // ),
+              // --- AKHIR PERUBAHAN ---
             ],
           ),
         ),
@@ -74,11 +110,7 @@ class GridHomepageWidget extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: KopiQuColors.error,
-                ),
+                Icon(Icons.error_outline, size: 64, color: KopiQuColors.error),
                 const SizedBox(height: 16),
                 const Text(
                   'Oops! Terjadi Kesalahan',
@@ -105,7 +137,10 @@ class GridHomepageWidget extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: KopiQuColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -141,10 +176,7 @@ class GridHomepageWidget extends StatelessWidget {
               const SizedBox(height: 8),
               const Text(
                 'Menu kopi sedang disiapkan untuk Anda',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: KopiQuColors.textMuted,
-                ),
+                style: TextStyle(fontSize: 14, color: KopiQuColors.textMuted),
               ),
             ],
           ),
@@ -160,11 +192,7 @@ class GridHomepageWidget extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.search_off,
-                  size: 64,
-                  color: KopiQuColors.textMuted,
-                ),
+                Icon(Icons.search_off, size: 64, color: KopiQuColors.textMuted),
                 const SizedBox(height: 16),
                 Text(
                   'Tidak Ada Kopi untuk "$activeTag"',
@@ -179,10 +207,7 @@ class GridHomepageWidget extends StatelessWidget {
                 const Text(
                   'Coba pilih kategori lain atau kembali lagi nanti',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: KopiQuColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 14, color: KopiQuColors.textMuted),
                 ),
               ],
             ),
@@ -200,51 +225,53 @@ class GridHomepageWidget extends StatelessWidget {
           mainAxisSpacing: 16,
           childAspectRatio: 0.68,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final kopi = displayedKopiList[index];
-            return CoffeeCard(
-              kopi: kopi,
-              onAddToCartPressed: (GlobalKey plusButtonKey, Kopi kopiUntukKeranjang) {
-                String ukuranPilihan = "Sedang";
-                Provider.of<KeranjangController>(context, listen: false)
-                    .tambah(kopiUntukKeranjang, ukuranPilihan);
-                
-                onAddToCartPressed(plusButtonKey, kopiUntukKeranjang);
-                
-                // Show success snackbar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: Colors.white,
-                          size: 20,
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final kopi = displayedKopiList[index];
+          return CoffeeCard(
+            kopi: kopi,
+            onAddToCartPressed: (
+              GlobalKey plusButtonKey,
+              Kopi kopiUntukKeranjang,
+            ) {
+              String ukuranPilihan = "Sedang";
+              Provider.of<KeranjangController>(
+                context,
+                listen: false,
+              ).tambah(kopiUntukKeranjang, ukuranPilihan);
+
+              onAddToCartPressed(plusButtonKey, kopiUntukKeranjang);
+
+              // Show success snackbar
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '${kopiUntukKeranjang.nama_kopi} ditambahkan ke keranjang',
+                          style: const TextStyle(color: Colors.white),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            '${kopiUntukKeranjang.nama_kopi} ditambahkan ke keranjang',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: KopiQuColors.success,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    margin: const EdgeInsets.all(16),
-                    duration: const Duration(seconds: 2),
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
-          },
-          childCount: displayedKopiList.length,
-        ),
+                  backgroundColor: KopiQuColors.success,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  margin: const EdgeInsets.all(16),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          );
+        }, childCount: displayedKopiList.length),
       ),
     );
   }
