@@ -1,9 +1,9 @@
 // services/auth_service.dart
 import 'dart:io'; // 👈 1. IMPORT 'dart:io' untuk File
 import 'package:flutter/material.dart';
+import 'package:kopiqu/screens/login_registrasi/loginpage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:kopiqu/screens/mainscreen.dart'; // Pastikan import ini benar
-import 'package:kopiqu/screens/loginpage.dart'; // Pastikan import ini benar
+import 'package:kopiqu/screens/pembeli/mainscreen.dart'; // Pastikan import ini benar
 import 'package:kopiqu/widgets/flushbarhelper.dart'; // Pastikan path ini benar
 
 class AuthService {

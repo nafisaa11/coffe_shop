@@ -2,10 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:kopiqu/models/transaksi.dart';
-import 'package:kopiqu/screens/struk.dart'; // Pastikan StrukPage diimport
+import 'package:kopiqu/screens/pembeli/struk.dart';
 import 'package:kopiqu/widgets/Transaksi/ringkasanPesanan_widget.dart'; // Pastikan widget ini ada
 import 'package:provider/provider.dart';
-import 'package:kopiqu/models/kopi.dart'; // Pastikan model Kopi diimport
 import 'package:kopiqu/models/keranjang.dart'; // Pastikan model Keranjang diimport
 import 'package:intl/intl.dart';
 import 'package:kopiqu/services/riwayat_service.dart'; // Service untuk menyimpan riwayat

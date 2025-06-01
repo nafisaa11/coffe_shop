@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kopiqu/screens/Homepage.dart';
-import 'package:kopiqu/screens/menupage.dart';
-import 'package:kopiqu/screens/profile_page.dart';
+import 'package:kopiqu/screens/pembeli/Homepage.dart';
+import 'package:kopiqu/screens/pembeli/menupage.dart';
+import 'package:kopiqu/screens/pembeli/profile_page.dart';
 import 'package:kopiqu/widgets/Layout/bottomNavbar_widget.dart';
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:provider/provider.dart';

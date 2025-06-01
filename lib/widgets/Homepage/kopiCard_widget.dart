@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kopiqu/models/kopi.dart';
-import 'package:kopiqu/screens/detailProdukScreen.dart';
+import 'package:kopiqu/screens/pembeli/detailProdukScreen.dart';
 import 'package:shimmer/shimmer.dart';
 
 // Warna tema yang konsisten untuk KopiQu
@@ -95,9 +95,10 @@ class _CoffeeCardState extends State<CoffeeCard> with SingleTickerProviderStateM
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
+              height: 300,
               decoration: BoxDecoration(
                 color: KopiQuColors.cardBackground,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: KopiQuColors.primaryLight.withOpacity(0.3),
                   width: 1,
@@ -132,95 +133,90 @@ class _CoffeeCardState extends State<CoffeeCard> with SingleTickerProviderStateM
   }
 
   Widget _buildImageSection() {
-    return Padding(
-      padding: const EdgeInsets.all(0),
-      child: Stack(
-        children: [
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: Container(
-              // decoration: BoxDecoration(
-              //   borderRadius: BorderRadius.circular(12),
-              //   border: Border.only(
-              //     color: KopiQuColors.primaryLight.withOpacity(0.5),
-              //     width: 1,
-              //   ),
-              //   color: KopiQuColors.background,
-              // ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-                child: Image.network(
-                  widget.kopi.gambar.isNotEmpty 
-                      ? widget.kopi.gambar 
-                      : 'https://via.placeholder.com/200x200/FAF0E6/8B4513?text=KopiQu',
+  return Padding(
+    padding: const EdgeInsets.all(0), // Padding ini bisa dihilangkan jika nilainya nol semua
+    child: Stack(
+      children: [
+        // Ganti AspectRatio dengan Container yang memiliki tinggi eksplisit
+        Container(
+          height: 125, // Tentukan tinggi gambar di sini
+          width: double.infinity, // Agar container mengisi lebar yang tersedia
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
+            child: Image.network(
+              widget.kopi.gambar.isNotEmpty
+                  ? widget.kopi.gambar
+                  : 'https://via.placeholder.com/300x50/FAF0E6/8B4513?text=KopiQu', // Placeholder disesuaikan
+              width: double.infinity,  // Gambar mengisi lebar container
+              height: double.infinity, // Gambar mengisi tinggi container (50px)
+              fit: BoxFit.cover,       // Gambar menutupi area, mungkin terpotong
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 125, // Pastikan error state juga 50px
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: KopiQuColors.background,
-                      child: Icon(
-                        Icons.local_cafe_outlined,
-                        size: 48,
-                        color: KopiQuColors.textMuted,
-                      ),
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Shimmer.fromColors(
-                      baseColor: KopiQuColors.background,
-                      highlightColor: Colors.white,
-                      child: Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        color: KopiQuColors.background,
-                      ),
-                    );
-                  },
+                  color: KopiQuColors.background,
+                  child: Icon(
+                    Icons.local_cafe_outlined,
+                    size: 36, // Sesuaikan ukuran ikon agar pas
+                    color: KopiQuColors.textMuted,
+                  ),
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Shimmer.fromColors(
+                  baseColor: KopiQuColors.background,
+                  highlightColor: Colors.white,
+                  child: Container(
+                    width: double.infinity,
+                    height: 125, // Pastikan shimmer juga 50px
+                    color: KopiQuColors.background,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+
+        // Label "Baru"
+        if (isNewProduct)
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: KopiQuColors.newLabel,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Text(
+                'BARU',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
                 ),
               ),
             ),
           ),
-          
-          // Label "Baru"
-          if (isNewProduct)
-            Positioned(
-              top: 0,
-              left: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: KopiQuColors.newLabel,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Text(
-                  'BARU',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
   Widget _buildProductInfo() {
     return Expanded(
@@ -229,6 +225,7 @@ class _CoffeeCardState extends State<CoffeeCard> with SingleTickerProviderStateM
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 5),
             // Nama Kopi
             Text(
               widget.kopi.nama_kopi,
@@ -241,7 +238,7 @@ class _CoffeeCardState extends State<CoffeeCard> with SingleTickerProviderStateM
                 height: 1.2,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 2),
             
             // Komposisi/Deskripsi
             Expanded(
@@ -249,7 +246,7 @@ class _CoffeeCardState extends State<CoffeeCard> with SingleTickerProviderStateM
                 widget.kopi.komposisi.isNotEmpty 
                     ? widget.kopi.komposisi 
                     : 'Kopi pilihan premium dengan cita rasa istimewa',
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 11,
@@ -320,7 +317,7 @@ class _CoffeeCardState extends State<CoffeeCard> with SingleTickerProviderStateM
                 child: const Icon(
                   Icons.add_shopping_cart_rounded,
                   color: Colors.white,
-                  size: 20,
+                  size: 18,
                 ),
               ),
             ),

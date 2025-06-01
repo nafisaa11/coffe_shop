@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
-import 'package:kopiqu/screens/Homepage.dart';
-import 'package:kopiqu/screens/keranjangScreen.dart'; // Pastikan ini benar PeriksaPesananScreen atau KeranjangScreen?
-import 'package:kopiqu/screens/loginpage.dart';
-import 'package:kopiqu/screens/mainscreen.dart';
-import 'package:kopiqu/screens/transaksiScreen.dart'; // Ini adalah PeriksaPesananScreen, sudah di-import di routes
+import 'package:kopiqu/screens/login_registrasi/loginpage.dart';
+import 'package:kopiqu/screens/pembeli/Homepage.dart';
+import 'package:kopiqu/screens/pembeli/keranjangScreen.dart'; // Pastikan ini benar PeriksaPesananScreen atau KeranjangScreen?
+import 'package:kopiqu/screens/pembeli/mainscreen.dart';
+import 'package:kopiqu/screens/pembeli/transaksiScreen.dart';
 import 'package:kopiqu/services/cart_ui_service.dart'; // Nama file dari kode struk Anda // Tidak digunakan di sini, hapus jika tidak perlu
 import 'package:provider/provider.dart';
-import 'package:kopiqu/screens/profile_page.dart';
-import 'package:kopiqu/screens/menupage.dart';
+import 'package:kopiqu/screens/pembeli/profile_page.dart';
+import 'package:kopiqu/screens/pembeli/menupage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:kopiqu/screens/resetpasswordpage.dart';
+import 'package:kopiqu/screens/login_registrasi/resetpasswordpage.dart';
 import 'package:kopiqu/screens/admin/admin_mainscreen.dart'; // Pastikan ini benar
 
 // ❗️ PENTING: Import untuk lokalisasi intl

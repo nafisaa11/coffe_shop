@@ -280,7 +280,6 @@ class StrukPage extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey[50],
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(16),
                                     topRight: Radius.circular(16),
@@ -292,16 +291,7 @@ class StrukPage extends StatelessWidget {
                                       "assets/kopiqu.png",
                                       height: 40,
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      "KopiQu Coffee Shop",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF4D2F15),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
+                                    const SizedBox(height: 12),
                                     Text(
                                       "Jl. Kertajaya Indah No.4, Surabaya",
                                       textAlign: TextAlign.center,

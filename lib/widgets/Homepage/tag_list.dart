@@ -23,7 +23,7 @@ class TagList extends StatelessWidget {
   static const Color inactiveBackgroundColor = Color(
     0xFFE3B28C,
   ); // Krem (seperti di contoh Anda)
-  static const Color inactiveTextColor = Colors.black;
+  static const Color inactiveTextColor = Color.fromARGB(255, 156, 109, 67);
   static const Color borderColor = Color(0xFF4D2F15);
 
   Widget _buildTag(BuildContext context, String text) {
@@ -38,9 +38,9 @@ class TagList extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive ? activeBackgroundColor : inactiveBackgroundColor,
           borderRadius: BorderRadius.circular(
-            20.0,
+            12.0,
           ), // Border radius lebih besar untuk tampilan "pill"
-          border: Border.all(color: borderColor, width: 1.5),
+          border: Border.all(color: borderColor, width: 1),
           boxShadow:
               isActive
                   ? [
@@ -56,9 +56,9 @@ class TagList extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: isActive ? activeTextColor : inactiveTextColor,
-            fontWeight: FontWeight.w600, // Lebih tebal
-            fontSize: 14.0,
+            color: isActive ? activeTextColor : const Color.fromARGB(255, 155, 112, 75),
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal, // Lebih tebal
+            fontSize: 12.0,
           ),
         ),
       ),
