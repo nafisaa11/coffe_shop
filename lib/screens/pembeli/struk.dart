@@ -323,7 +323,6 @@ class StrukPage extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey[100],
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Column(
@@ -375,7 +374,7 @@ class StrukPage extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey[100],
+                                        color: Color(0xFFFFFAF0),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Column(
@@ -401,7 +400,7 @@ class StrukPage extends StatelessWidget {
                                           Row(
                                             children: [
                                               Expanded(
-                                                flex: 2,
+                                                flex: 3,
                                                 child: Text(
                                                   "TOTAL PEMBAYARAN",
                                                   style: TextStyle(
