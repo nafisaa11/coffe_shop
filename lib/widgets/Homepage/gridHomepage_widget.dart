@@ -43,64 +43,44 @@ class GridHomepageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoadingKopi) {
+   if (isLoadingKopi) {
       return SliverFillRemaining(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // --- AWAL PERUBAHAN: Mengganti CircularProgressIndicator dengan Lottie ---
-              SizedBox(
-                width: 200, // Sesuaikan ukuran animasi Lottie Anda
-                height: 200, // Sesuaikan ukuran animasi Lottie Anda
-                child: Lottie.asset(
-                  'assets/lottie/Animation-homepage2.json', // PASTIKAN PATH INI BENAR
-                  onLoaded: (composition) {
-                    print(
-                      "Animasi Lottie di GridHomepageWidget (aset) berhasil dimuat.",
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    print(
-                      "Error memuat Lottie di GridHomepageWidget dari aset: $error",
-                    );
-                    // Fallback jika Lottie gagal dimuat
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          color: KopiQuColors.primary,
-                          backgroundColor: KopiQuColors.primaryLight,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Memuat menu kopi...',
-                          style: TextStyle(
-                            color: KopiQuColors.textMuted,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+        hasScrollBody: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom, // Tambahkan ini
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 400,
+                  height: 400,
+                  child: Lottie.asset(
+                    'assets/lottie/Animation-homepage2.json',
+                    onLoaded: (composition) {
+                      print("Lottie loaded.");
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          const SizedBox(height: 16),
+                          const Text('Memuat menu kopi...'),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-              // Anda mungkin tidak memerlukan teks di bawah Lottie jika animasi sudah cukup informatif
-              // Jika tetap ingin ada teks:
-              // const SizedBox(height: 16),
-              // const Text(
-              //   'Memuat menu kopi...',
-              //   style: TextStyle(
-              //     color: KopiQuColors.textMuted,
-              //     fontSize: 16,
-              //   ),
-              // ),
-              // --- AKHIR PERUBAHAN ---
-            ],
+              ],
+            ),
           ),
         ),
       );
     }
+
 
     if (fetchKopiError != null) {
       return SliverFillRemaining(

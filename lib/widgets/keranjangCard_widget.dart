@@ -43,8 +43,7 @@ class KeranjangCardWidget extends StatelessWidget {
 
     // Mengambil data dari objek item untuk kemudahan
     final Kopi kopi = item.kopi;
-    final String currentUkuran =
-        item.ukuran; // Gunakan nama variabel berbeda untuk menghindari kebingungan di closure
+    final String currentUkuran = item.ukuran;
     final int jumlah = item.jumlah;
     final bool dipilih = item.dipilih;
 
@@ -94,7 +93,7 @@ class KeranjangCardWidget extends StatelessWidget {
                                   width: 80,
                                   height: 80,
                                   color: Colors.grey[200],
-                                  child: Center(
+                                  child: const Center(
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                     ),
@@ -106,16 +105,15 @@ class KeranjangCardWidget extends StatelessWidget {
                                   width: 80,
                                   height: 80,
                                   color: Colors.grey[200],
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.broken_image,
-                                    color: Colors.grey[400],
+                                    color: Colors.grey,
                                   ),
                                 );
                               },
                             )
                             : Image.asset(
-                              // Fallback jika bukan URL
-                              kopi.gambar, // Pastikan path ini ada di assets jika digunakan
+                              kopi.gambar,
                               width: 80,
                               height: 80,
                               fit: BoxFit.cover,
@@ -124,9 +122,9 @@ class KeranjangCardWidget extends StatelessWidget {
                                   width: 80,
                                   height: 80,
                                   color: Colors.grey[200],
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.broken_image,
-                                    color: Colors.grey[400],
+                                    color: Colors.grey,
                                   ),
                                 );
                               },
@@ -157,7 +155,7 @@ class KeranjangCardWidget extends StatelessWidget {
                                       keranjangCtrl.hapus(kopi, currentUkuran),
                               child: const CircleAvatar(
                                 backgroundColor: Colors.redAccent,
-                                radius: 14, // Sedikit lebih kecil
+                                radius: 14,
                                 child: Icon(
                                   Icons.delete_outline,
                                   size: 16,
@@ -168,7 +166,6 @@ class KeranjangCardWidget extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // Dropdown untuk mengubah ukuran dengan tampilan harga
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -181,8 +178,7 @@ class KeranjangCardWidget extends StatelessWidget {
                           child: DropdownButton<String>(
                             value: currentUkuran,
                             isDense: true,
-                            underline:
-                                const SizedBox(), // Hilangkan underline default
+                            underline: const SizedBox(),
                             icon: Icon(
                               Icons.keyboard_arrow_down,
                               color: Colors.brown[600],
@@ -193,18 +189,12 @@ class KeranjangCardWidget extends StatelessWidget {
                                 ) {
                                   return DropdownMenuItem<String>(
                                     value: ukuran,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          ukuran,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ],
+                                    child: Text(
+                                      ukuran,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black87,
+                                      ),
                                     ),
                                   );
                                 }).toList(),
@@ -225,20 +215,18 @@ class KeranjangCardWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 2),
-                                // Tampilkan total harga
-                                Text(
-                                  formatRupiah(totalHargaItem),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.brown,
-                                  ),
+                            Flexible(
+                              // Tambahkan Flexible di sini
+                              child: Text(
+                                formatRupiah(totalHargaItem),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.brown,
                                 ),
-                              ],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
