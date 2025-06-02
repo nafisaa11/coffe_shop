@@ -42,28 +42,28 @@ class BottomContentProfile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.grey.shade50,
-                              Colors.grey.shade100,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(
-                              0xFFD07C3D,
-                            ).withOpacity(0.3),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFFD07C3D,
-                              ).withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                          // gradient: LinearGradient(
+                          //   colors: [
+                          //     Colors.grey.shade50,
+                          //     Colors.grey.shade100,
+                          //   ],
+                          // ),
+                          // borderRadius: BorderRadius.circular(12),
+                          // border: Border.all(
+                          //   color: const Color(
+                          //     0xFFD07C3D,
+                          //   ).withOpacity(0.3),
+                          //   width: 2,
+                          // ),
+                          // boxShadow: [
+                          //   BoxShadow(
+                          //     color: const Color(
+                          //       0xFFD07C3D,
+                          //     ).withOpacity(0.1),
+                          //     blurRadius: 10,
+                          //     offset: const Offset(0, 4),
+                          //   ),
+                          // ],
                         ),
                         child: ProfilePhotoPicker(
                           initialImageUrl: currentPhotoUrl,

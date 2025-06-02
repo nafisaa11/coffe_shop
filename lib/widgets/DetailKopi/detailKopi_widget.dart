@@ -229,17 +229,9 @@ class _DetailWidgetState extends State<DetailWidget> {
                     ),
                     SizedBox(height: 16),
                     Container(
-                      padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        // color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 15,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
                       ),
                       child: UkuranGelasWidget(
                         hargaAsli: widget.kopi.harga,
@@ -260,17 +252,9 @@ class _DetailWidgetState extends State<DetailWidget> {
                     ),
                     SizedBox(height: 16),
                     Container(
-                      padding: EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        // color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 15,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +272,7 @@ class _DetailWidgetState extends State<DetailWidget> {
                           Text(
                             kopi.deskripsi,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 16,
                               color: Colors.grey[700],
                               height: 1.6,
                               letterSpacing: 0.2,

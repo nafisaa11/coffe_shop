@@ -330,7 +330,7 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
               // Warna latar belakang untuk area search bar.
               // Gunakan Theme.of(context).scaffoldBackgroundColor agar menyatu,
               // atau Theme.of(context).appBarTheme.backgroundColor jika ingin sama dengan AppBar
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Color(0xFFFFFAF0),
             ),
           ),
           // Jika Anda ingin TagList di MenuPage, uncomment baris berikut

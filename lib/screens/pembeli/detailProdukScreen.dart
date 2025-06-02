@@ -220,9 +220,9 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                     backgroundColor: Color(0xFF8B4513),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    // shape: RoundedRectangleBorder(
+                    //   borderRadius: BorderRadius.circular(16),
+                    // ),
                     elevation: 4,
                     shadowColor: Color(0xFF8B4513).withOpacity(0.3),
                   ),
@@ -396,10 +396,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
               Container(
                 height: 320,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(32),
-                    bottomRight: Radius.circular(32),
-                  ),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
