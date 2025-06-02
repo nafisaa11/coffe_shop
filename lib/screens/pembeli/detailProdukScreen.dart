@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/DetailKopi/detailKopi_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:lottie/lottie.dart';
 
 class DetailProdukScreen extends StatefulWidget {
   final int id;
@@ -31,11 +32,8 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
 
     try {
       final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('kopi')
-          .select()
-          .eq('id', widget.id)
-          .single();
+      final response =
+          await supabase.from('kopi').select().eq('id', widget.id).single();
 
       if (mounted) {
         setState(() {
@@ -109,7 +107,11 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
               ],
             ),
             child: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B4513), size: 20),
+              icon: Icon(
+                Icons.arrow_back_ios_new,
+                color: Color(0xFF8B4513),
+                size: 20,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -118,25 +120,51 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Color(0xFF8B4513).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
-                  strokeWidth: 3,
-                ),
-              ),
-              SizedBox(height: 24),
-              Text(
-                'Memuat detail kopi...',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF8B4513),
-                  fontWeight: FontWeight.w500,
+              // --- AWAL PERUBAHAN: Mengganti CircularProgressIndicator dengan Lottie ---
+              SizedBox(
+                width: 100, // Sesuaikan ukuran animasi Lottie Anda
+                height: 100, // Sesuaikan ukuran animasi Lottie Anda
+                child: Lottie.asset(
+                  'assets/lottie/Animation-detailkopi.json', // PASTIKAN PATH INI BENAR
+                  onLoaded: (composition) {
+                    print(
+                      "Animasi Lottie di DetailProdukScreen (aset) berhasil dimuat.",
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    print(
+                      "Error memuat Lottie di DetailProdukScreen dari aset: $error",
+                    );
+                    // Fallback jika Lottie gagal dimuat (kembali ke CircularProgressIndicator)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF8B4513).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Color(0xFF8B4513),
+                            ),
+                            strokeWidth: 3,
+                          ),
+                        ),
+                        SizedBox(height: 24), // Jarak antara Lottie dan teks
+                        Text(
+                          'Memuat detail kopi...',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF8B4513), // Warna teks disesuaikan
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -174,7 +202,11 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
               ],
             ),
             child: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B4513), size: 20),
+              icon: Icon(
+                Icons.arrow_back_ios_new,
+                color: Color(0xFF8B4513),
+                size: 20,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -253,18 +285,11 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.coffee_outlined,
-                size: 80,
-                color: Colors.grey[400],
-              ),
+              Icon(Icons.coffee_outlined, size: 80, color: Colors.grey[400]),
               SizedBox(height: 24),
               Text(
                 'Detail produk tidak tersedia.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -289,42 +314,98 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                   ],
                 ),
                 child: ClipRRect(
-                  child: _kopi!.gambar.startsWith('http')
-                      ? Image.network(
-                          _kopi!.gambar,
-                          height: 320,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 320,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFE8E0D0), Color(0xFFD4C4A8)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                  child:
+                      _kopi!.gambar.startsWith('http')
+                          ? Image.network(
+                            _kopi!.gambar,
+                            height: 320,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (
+                              BuildContext context,
+                              Widget child,
+                              ImageChunkEvent? loadingProgress,
+                            ) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                height: 320,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFE8E0D0),
+                                      Color(0xFFD4C4A8),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                 ),
-                              ),
-                              child: Center(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 40,
+                                        height: 40,
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      loadingProgress
+                                                          .expectedTotalBytes!
+                                                  : null,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Color(0xFF8B4513),
+                                              ),
+                                          strokeWidth: 3,
+                                        ),
+                                      ),
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'Memuat gambar...',
+                                        style: TextStyle(
+                                          color: Color(0xFF8B4513),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (
+                              BuildContext context,
+                              Object exception,
+                              StackTrace? stackTrace,
+                            ) {
+                              return Container(
+                                height: 320,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFE8E0D0),
+                                      Color(0xFFD4C4A8),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
-                                      width: 40,
-                                      height: 40,
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                            : null,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
-                                        strokeWidth: 3,
-                                      ),
+                                    Icon(
+                                      Icons.broken_image_outlined,
+                                      color: Color(0xFF8B4513),
+                                      size: 60,
                                     ),
-                                    SizedBox(height: 16),
+                                    SizedBox(height: 12),
                                     Text(
-                                      'Memuat gambar...',
+                                      'Gambar tidak dapat dimuat',
                                       style: TextStyle(
                                         color: Color(0xFF8B4513),
                                         fontSize: 14,
@@ -332,64 +413,53 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                            return Container(
-                              height: 320,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFE8E0D0), Color(0xFFD4C4A8)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.broken_image_outlined, color: Color(0xFF8B4513), size: 60),
-                                  SizedBox(height: 12),
-                                  Text(
-                                    'Gambar tidak dapat dimuat',
-                                    style: TextStyle(color: Color(0xFF8B4513), fontSize: 14),
+                              );
+                            },
+                          )
+                          : Image.asset(
+                            _kopi!.gambar,
+                            height: 320,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (
+                              BuildContext context,
+                              Object exception,
+                              StackTrace? stackTrace,
+                            ) {
+                              return Container(
+                                height: 320,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFE8E0D0),
+                                      Color(0xFFD4C4A8),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          _kopi!.gambar,
-                          height: 320,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                            return Container(
-                              height: 320,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFE8E0D0), Color(0xFFD4C4A8)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
                                 ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.broken_image_outlined, color: Color(0xFF8B4513), size: 60),
-                                  SizedBox(height: 12),
-                                  Text(
-                                    'Gambar tidak dapat dimuat',
-                                    style: TextStyle(color: Color(0xFF8B4513), fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image_outlined,
+                                      color: Color(0xFF8B4513),
+                                      size: 60,
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Gambar tidak dapat dimuat',
+                                      style: TextStyle(
+                                        color: Color(0xFF8B4513),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                 ),
               ),
               // Gradient overlay untuk readability teks
@@ -399,10 +469,7 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.6),
-                    ],
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
                     stops: [0.6, 1.0],
                   ),
                 ),
@@ -424,7 +491,11 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                     ],
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B4513), size: 20),
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Color(0xFF8B4513),
+                      size: 20,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -438,7 +509,10 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Color(0xFF8B4513).withOpacity(0.8),
                         borderRadius: BorderRadius.circular(20),
