@@ -140,22 +140,32 @@ class _AdminDashboardContentPageState extends State<AdminDashboardContentPage> {
             'Apakah Anda yakin ingin menghapus menu "${kopiItem.nama_kopi}"? Tindakan ini tidak dapat diurungkan.',
           ),
           actions: <Widget>[
-            TextButton(
-              child: const Text(
-                'Batal',
-                style: TextStyle(color: kCafeMediumBrown),
-              ),
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-            ),
-            TextButton(
-              child: Text(
-                'Hapus',
-                style: TextStyle(
-                  color: Colors.red[700],
-                  fontWeight: FontWeight.bold,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: kCafeMediumBrown),
+                  ),
+                  child: TextButton(
+                    child: const Text(
+                      'Batal',
+                      style: TextStyle(color: kCafeMediumBrown),
+                    ),
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                  ),
                 ),
-              ),
-              onPressed: () => Navigator.of(dialogContext).pop(true),
+                TextButton(
+                  child: Text(
+                    'Hapus',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                ),
+              ],
             ),
           ],
         );

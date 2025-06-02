@@ -154,25 +154,6 @@ class AdminHistoryCard extends StatelessWidget {
                 },
                 separatorBuilder: (context, index) => const SizedBox(height: 12), // Spasi antar item
               ),
-
-            // Tombol "Lihat Semua Riwayat" jika item lebih dari 3
-            if (loginHistory.length > 3)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Center(
-                  child: TextButton.icon(
-                    icon: const Icon(Icons.history_rounded, size: 18, color: AdminProfileColors.primaryColor),
-                    label: const Text(
-                      'Lihat Semua Riwayat',
-                      style: TextStyle(
-                        color: AdminProfileColors.primaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onPressed: onViewAllPressed, // Panggil callback
-                  ),
-                ),
-              ),
           ],
         ),
       ),
