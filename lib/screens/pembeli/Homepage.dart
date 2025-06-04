@@ -6,7 +6,7 @@ import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/Homepage/banner_slider.dart';
 import 'package:kopiqu/widgets/Homepage/gridHomepage_widget.dart';
 import 'package:kopiqu/services/cart_ui_service.dart';
-import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:kopiqu/controllers/keranjang/Keranjang_Controller.dart';
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/widgets/Homepage/tag_list.dart';

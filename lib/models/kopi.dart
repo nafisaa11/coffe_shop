@@ -5,6 +5,7 @@ class Kopi {
   final String komposisi;
   final String deskripsi;
   final int harga;
+  final int stok; 
   final DateTime? createdAt;
 
   Kopi({
@@ -14,6 +15,7 @@ class Kopi {
     required this.komposisi,
     required this.deskripsi,
     required this.harga,
+    required this.stok,
     this.createdAt,
   });
 
@@ -25,6 +27,7 @@ class Kopi {
       komposisi: map['komposisi'] ?? 'Tidak ada komposisi',
       deskripsi: map['deskripsi'] ?? 'Tidak ada deskripsi',
       harga: map['harga'] ?? 0,
+      stok: map['stok'] ?? 50,
       createdAt: map['created_at'] == null
               ? null
               : DateTime.tryParse(map['created_at'] as String),

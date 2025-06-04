@@ -51,8 +51,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   Widget build(BuildContext context) {
     // 👇 5. Ambil data pengguna terbaru SETIAP KALI widget di-build ulang
     final user = Supabase.instance.client.auth.currentUser;
-    final String displayName =
-        user?.userMetadata?['display_name'] ?? 'Pengguna';
+    final String displayName = user?.userMetadata?['display_name'] ?? 'Pengguna';
     final String email = user?.email ?? 'Tidak ada email';
     final String? photoUrl = user?.userMetadata?['photo_url'] as String?;
 

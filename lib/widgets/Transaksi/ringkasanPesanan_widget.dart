@@ -1,25 +1,56 @@
 // widgets/transaksi/ringkasan_pesanan_widget.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kopiqu/models/kopi.dart'; // Pastikan path ini benar
+import 'package:kopiqu/models/kopi.dart';
 
-class RingkasanPesanan extends StatelessWidget {
-  final TextEditingController namaPembeliController;
-  final List<Map<String, dynamic>> itemDipilih; // Item yang sudah dipilih dari keranjang
-  final int totalItem; // Total jumlah unit produk yang dipilih
-  final int subtotal; // Subtotal dari item yang dipilih (setelah penyesuaian harga ukuran)
-  final int pajak; // Pajak yang dihitung dari subtotal
-  final int totalPembayaran; // Total akhir (subtotal + pajak)
+class RingkasanPesanan extends StatefulWidget {
+  final String displayName; // Nama default yang akan ditampilkan
+  final List<Map<String, dynamic>> itemDipilih;
+  final int totalItem;
+  final int subtotal;
+  final int pajak;
+  final int totalPembayaran;
+  final Function(String)? onNamaChanged; // Callback untuk update nama
 
   const RingkasanPesanan({
-    super.key, // Menggunakan super.key untuk konstruktor modern
-    required this.namaPembeliController,
+    super.key,
+    required this.displayName,
     required this.itemDipilih,
     required this.totalItem,
     required this.subtotal,
     required this.pajak,
     required this.totalPembayaran,
+    this.onNamaChanged, // Optional callback
   });
+
+  @override
+  State<RingkasanPesanan> createState() => _RingkasanPesananState();
+}
+
+class _RingkasanPesananState extends State<RingkasanPesanan> {
+  late TextEditingController namaPembeliController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set nilai awal dari TextField ke displayName
+    namaPembeliController = TextEditingController(text: widget.displayName);
+  }
+
+  @override
+  void didUpdateWidget(RingkasanPesanan oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update controller jika displayName berubah dari parent
+    if (oldWidget.displayName != widget.displayName) {
+      namaPembeliController.text = widget.displayName;
+    }
+  }
+
+  @override
+  void dispose() {
+    namaPembeliController.dispose();
+    super.dispose();
+  }
 
   String formatRupiah(int harga) {
     return NumberFormat.currency(
@@ -32,14 +63,14 @@ class RingkasanPesanan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch, // Agar Container mengisi lebar
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Input nama pembeli
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12), // Sedikit lebih rounded
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.15),
@@ -56,12 +87,18 @@ class RingkasanPesanan extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.brown, // Warna konsisten
+                  color: Colors.brown,
                 ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: namaPembeliController,
+                onChanged: (value) {
+                  // Panggil callback jika ada
+                  if (widget.onNamaChanged != null) {
+                    widget.onNamaChanged!(value);
+                  }
+                },
                 decoration: InputDecoration(
                   hintText: 'Masukkan nama Anda',
                   border: OutlineInputBorder(
@@ -70,7 +107,10 @@ class RingkasanPesanan extends StatelessWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.brown, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: Colors.brown,
+                      width: 1.5,
+                    ),
                   ),
                   filled: true,
                   fillColor: Colors.brown.shade50.withOpacity(0.5),
@@ -85,7 +125,7 @@ class RingkasanPesanan extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 20), // Jarak antar card
+        const SizedBox(height: 20),
 
         // Card utama pesanan
         Container(
@@ -102,37 +142,42 @@ class RingkasanPesanan extends StatelessWidget {
           ),
           child: Column(
             children: [
-              // Header logo (opsional, bisa dihilangkan jika tidak perlu)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Image.asset("assets/kopiqu.png", height: 35), // Sesuaikan path aset
+                child: Image.asset("assets/kopiqu.png", height: 35),
               ),
               const Divider(height: 1, thickness: 0.5),
 
-              // List pesanan
-              if (itemDipilih.isEmpty)
+              if (widget.itemDipilih.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Tidak ada item yang dipilih untuk dipesan.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey,
+                    ),
                   ),
                 )
               else
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: itemDipilih.length,
-                  separatorBuilder: (context, index) =>
-                      Divider(height: 1, color: Colors.grey[200], indent: 16, endIndent: 16),
+                  itemCount: widget.itemDipilih.length,
+                  separatorBuilder:
+                      (context, index) => Divider(
+                        height: 1,
+                        color: Colors.grey[200],
+                        indent: 16,
+                        endIndent: 16,
+                      ),
                   itemBuilder: (context, index) {
-                    final item = itemDipilih[index];
-                    final Kopi kopi = item['kopi'] as Kopi; // Pastikan casting aman
+                    final item = widget.itemDipilih[index];
+                    final Kopi kopi = item['kopi'] as Kopi;
                     final int jumlah = item['jumlah'] as int;
                     final String ukuran = item['ukuran'] as String? ?? 'Sedang';
 
-                    // Perhitungan harga item dengan penyesuaian ukuran (logika sama seperti di PeriksaPesananScreen)
                     int hargaSatuan = kopi.harga;
                     if (ukuran == 'Besar') {
                       hargaSatuan += 5000;
@@ -143,37 +188,74 @@ class RingkasanPesanan extends StatelessWidget {
                     final int totalHargaItem = hargaSatuan * jumlah;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       child: Row(
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: kopi.gambar.startsWith('http')
-                                ? Image.network(
-                                    kopi.gambar,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        width: 60, height: 60,
-                                        alignment: Alignment.center,
-                                        color: Colors.grey[200],
-                                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.brown)),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(width: 60, height: 60, color: Colors.grey[200], child: Icon(Icons.broken_image, size: 30, color: Colors.grey[400])),
-                                  )
-                                : Image.asset(
-                                    kopi.gambar, // Pastikan path asset valid
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(width: 60, height: 60, color: Colors.grey[200], child: Icon(Icons.broken_image, size: 30, color: Colors.grey[400])),
-                                  ),
+                            child:
+                                kopi.gambar.startsWith('http')
+                                    ? Image.network(
+                                      kopi.gambar,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (
+                                        context,
+                                        child,
+                                        loadingProgress,
+                                      ) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Container(
+                                          width: 60,
+                                          height: 60,
+                                          alignment: Alignment.center,
+                                          color: Colors.grey[200],
+                                          child:
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.brown),
+                                              ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 60,
+                                                height: 60,
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.broken_image,
+                                                  size: 30,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                    )
+                                    : Image.asset(
+                                      kopi.gambar,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 60,
+                                                height: 60,
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.broken_image,
+                                                  size: 30,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                    ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -183,7 +265,7 @@ class RingkasanPesanan extends StatelessWidget {
                                 Text(
                                   kopi.nama_kopi,
                                   style: const TextStyle(
-                                    fontSize: 15, // Sedikit lebih kecil agar rapi
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
                                   ),
@@ -215,7 +297,7 @@ class RingkasanPesanan extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                               Text(
+                              Text(
                                 'x $jumlah',
                                 style: TextStyle(
                                   fontSize: 14,
@@ -233,7 +315,7 @@ class RingkasanPesanan extends StatelessWidget {
                                 ),
                               ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     );
@@ -261,27 +343,29 @@ class RingkasanPesanan extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _buildBiayaRow('Subtotal ($totalItem Produk)', formatRupiah(subtotal)),
+              _buildBiayaRow(
+                'Subtotal (${widget.totalItem} Produk)',
+                formatRupiah(widget.subtotal),
+              ),
               const SizedBox(height: 8),
-              _buildBiayaRow('Pajak (10%)', formatRupiah(pajak)),
+              _buildBiayaRow('Pajak (10%)', formatRupiah(widget.pajak)),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Divider(thickness: 0.5),
               ),
               _buildBiayaRow(
                 'Total Pembayaran',
-                formatRupiah(totalPembayaran),
+                formatRupiah(widget.totalPembayaran),
                 isTotal: true,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16), // Padding tambahan di bawah
+        const SizedBox(height: 16),
       ],
     );
   }
 
-  // Helper widget untuk baris biaya agar lebih konsisten
   Widget _buildBiayaRow(String label, String nilai, {bool isTotal = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

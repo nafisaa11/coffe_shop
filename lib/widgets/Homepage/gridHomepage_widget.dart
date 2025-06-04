@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
-import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:kopiqu/controllers/keranjang/Keranjang_Controller.dart';
 import 'package:lottie/lottie.dart'; // Pastikan Anda sudah menambahkan dependensi lottie di pubspec.yaml
 
 // Import KopiQuColors dari Homepage atau buat file terpisah untuk colors

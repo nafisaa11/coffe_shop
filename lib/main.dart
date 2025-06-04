@@ -1,7 +1,7 @@
 // main.dart
 import 'dart:async'; // 👈 1. IMPORT dart:async untuk StreamSubscription
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:kopiqu/controllers/keranjang/Keranjang_Controller.dart';
 import 'package:kopiqu/screens/login_registrasi/loginpage.dart';
 import 'package:kopiqu/screens/pembeli/Homepage.dart';
 import 'package:kopiqu/screens/pembeli/keranjangScreen.dart'; // Pastikan ini benar PeriksaPesananScreen atau KeranjangScreen?

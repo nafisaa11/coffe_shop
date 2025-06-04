@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:kopiqu/models/keranjang.dart';
 import 'package:kopiqu/models/kopi.dart'; // Untuk tipe Kopi
-import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:kopiqu/controllers/keranjang/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -59,7 +59,7 @@ class KeranjangCardWidget extends StatelessWidget {
           Checkbox(
             value: dipilih,
             onChanged:
-                (_) => keranjangCtrl.togglePilihDiSupabase(kopi, currentUkuran),
+                (_) => keranjangCtrl.togglePilih(kopi, currentUkuran),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),

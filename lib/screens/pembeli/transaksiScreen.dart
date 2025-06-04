@@ -1,7 +1,7 @@
 // screens/periksa_pesanan_screen.dart
 import 'dart:ui'; // Untuk ImageFilter
 import 'package:flutter/material.dart';
-import 'package:kopiqu/controllers/Keranjang_Controller.dart'; // Pastikan path ini benar
+import 'package:kopiqu/controllers/keranjang/Keranjang_Controller.dart'; // Pastikan path ini benar
 import 'package:kopiqu/models/transaksi.dart'; // Pastikan path ini benar
 import 'package:kopiqu/screens/pembeli/struk.dart'; // Pastikan path ini benar
 import 'package:kopiqu/widgets/Transaksi/ringkasanPesanan_widget.dart'; // Pastikan path ini benar
@@ -9,8 +9,9 @@ import 'package:provider/provider.dart';
 import 'package:kopiqu/models/kopi.dart'; // Pastikan path ini benar
 import 'package:kopiqu/models/keranjang.dart'; // Pastikan path ini benar
 import 'package:intl/intl.dart';
-import 'package:kopiqu/services/riwayat_service.dart'; // Pastikan path ini benar
-import 'package:lottie/lottie.dart'; // Untuk animasi Lottie
+// import 'package:kopiqu/services/riwayat_service.dart'; // Pastikan path ini benar
+import 'package:lottie/lottie.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Untuk animasi Lottie
 
 class PeriksaPesananScreen extends StatefulWidget {
   const PeriksaPesananScreen({super.key});
@@ -21,8 +22,39 @@ class PeriksaPesananScreen extends StatefulWidget {
 
 class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
   final TextEditingController _namaPembeliController = TextEditingController();
-  final RiwayatService _riwayatService = RiwayatService();
+  // final RiwayatService _riwayatService = RiwayatService();
   bool _isProcessingOrder = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pindahkan initState ke tempat yang benar
+    _loadUserDisplayName();
+  }
+
+  void _loadUserDisplayName() {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        // Coba beberapa kemungkinan lokasi display name
+        String displayName = user.userMetadata?['display_name'] ?? 
+                            user.userMetadata?['full_name'] ?? 
+                            user.userMetadata?['name'] ?? 
+                            user.email?.split('@').first ?? 
+                            'Pengunjung';
+        
+        _namaPembeliController.text = displayName;
+        print('[PeriksaPesananScreen] Display name loaded: $displayName');
+        print('[PeriksaPesananScreen] User metadata: ${user.userMetadata}');
+      } else {
+        _namaPembeliController.text = 'Pengunjung';
+        print('[PeriksaPesananScreen] No user found, using default name');
+      }
+    } catch (e) {
+      print('[PeriksaPesananScreen] Error loading display name: $e');
+      _namaPembeliController.text = 'Pengunjung';
+    }
+  }
 
   String formatRupiah(int harga) {
     return NumberFormat.currency(
@@ -117,28 +149,6 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
       return;
     }
 
-    // 6. Simpan Transaksi ke Riwayat di Supabase
-    bool riwayatBerhasilDisimpan = false;
-    try {
-      await _riwayatService.simpanTransaksiKeSupabase(transaksi);
-      riwayatBerhasilDisimpan = true;
-      print('[PeriksaPesananScreen] Transaksi disimpan ke riwayat.');
-    } catch (e) {
-      print('[PeriksaPesananScreen] GAGAL simpan riwayat: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Gagal menyimpan pesanan ke riwayat: $e. Struk tetap akan ditampilkan.',
-            ),
-            backgroundColor: Colors.orange[700],
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-      // Proses tetap lanjut ke struk meskipun simpan riwayat gagal
-    }
-
     // 7. Bersihkan item yang dipilih dari keranjang (Supabase dan lokal)
     // Ini dilakukan setelah transaksi dibuat dan riwayat (dicoba) disimpan.
     // Method bersihkanItemDipilihDariSupabase() di KeranjangController akan menghapus
@@ -147,7 +157,7 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
       print(
         '[PeriksaPesananScreen] Membersihkan item yang dipilih dari keranjang...',
       );
-      await keranjangCtrl.bersihkanItemDipilihDariSupabase();
+      keranjangCtrl.bersihkanItemDipilih();
       print(
         '[PeriksaPesananScreen] Item yang dipilih telah dibersihkan dari keranjang.',
       );
@@ -238,12 +248,16 @@ class _PeriksaPesananScreenState extends State<PeriksaPesananScreen> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: RingkasanPesanan(
-                  namaPembeliController: _namaPembeliController,
+                  displayName: _namaPembeliController.text, // Pass current controller text
                   itemDipilih: itemUntukDitampilkan,
                   totalItem: totalItem,
                   subtotal: subtotal,
                   pajak: pajak,
                   totalPembayaran: totalPembayaran,
+                  // Pass callback untuk update nama
+                  onNamaChanged: (String newName) {
+                    _namaPembeliController.text = newName;
+                  },
                 ),
               ),
             ),

@@ -7,7 +7,7 @@ import 'package:kopiqu/widgets/Homepage/search_widget.dart';
 import 'package:kopiqu/widgets/Layout/sliver_search_header_delegate.dart'; // 👈 IMPORT DELEGATE
 import 'package:kopiqu/widgets/Homepage/tag_list.dart'; // Anda menyebutkan TagList dihilangkan di MenuPage, jadi ini bisa dihapus jika tidak dipakai
 import 'package:kopiqu/services/cart_ui_service.dart';
-import 'package:kopiqu/controllers/Keranjang_Controller.dart';
+import 'package:kopiqu/controllers/keranjang/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
