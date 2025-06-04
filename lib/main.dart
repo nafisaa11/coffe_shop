@@ -207,7 +207,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// AuthGate Anda (tampaknya sudah baik, saya hanya merapikan sedikit)
+// AuthGate
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 

@@ -1,11 +1,9 @@
 // screens/menupage.dart
-import 'package:flutter/material.dart';
-import 'dart:math'; // Untuk Random jika Anda menggunakannya di _applyFilters (saat ini tidak di MenuPage)
+import 'package:flutter/material.dart'; // Untuk Random jika Anda menggunakannya di _applyFilters (saat ini tidak di MenuPage)
 import 'package:kopiqu/models/kopi.dart';
 import 'package:kopiqu/widgets/Homepage/kopiCard_widget.dart';
 import 'package:kopiqu/widgets/Homepage/search_widget.dart';
-import 'package:kopiqu/widgets/Layout/sliver_search_header_delegate.dart'; // 👈 IMPORT DELEGATE
-import 'package:kopiqu/widgets/Homepage/tag_list.dart'; // Anda menyebutkan TagList dihilangkan di MenuPage, jadi ini bisa dihapus jika tidak dipakai
+import 'package:kopiqu/widgets/Layout/sliver_search_header_delegate.dart'; // 👈 IMPORT DELEGATE// Anda menyebutkan TagList dihilangkan di MenuPage, jadi ini bisa dihapus jika tidak dipakai
 import 'package:kopiqu/services/cart_ui_service.dart';
 import 'package:kopiqu/controllers/Keranjang_Controller.dart';
 import 'package:provider/provider.dart';
@@ -237,48 +235,43 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         ),
       );
     } else if (_filteredKopiList.isEmpty && _searchQuery.isNotEmpty) {
-  kopiGridSliver = SliverFillRemaining(
-    child: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon pencarian tidak ditemukan
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: Colors.grey[400],
+      kopiGridSliver = SliverFillRemaining(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Icon pencarian tidak ditemukan
+                Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+
+                // Judul
+                const Text(
+                  'Kopi Tidak Ditemukan',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF3E2723), // KopiQuColors.textPrimary
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Pesan
+                Text(
+                  'Kopi dengan nama "$_searchQuery" tidak ditemukan.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF8D6E63), // KopiQuColors.textMuted
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
-            const SizedBox(height: 16),
-            
-            // Judul
-            const Text(
-              'Kopi Tidak Ditemukan',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF3E2723), // KopiQuColors.textPrimary
-              ),
-            ),
-            const SizedBox(height: 8),
-            
-            // Pesan
-            Text(
-              'Kopi dengan nama "$_searchQuery" tidak ditemukan.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF8D6E63), // KopiQuColors.textMuted
-              ),
-            ),
-            const SizedBox(height: 16),
-          
-          ],
+          ),
         ),
-      ),
-    ),
-  );
+      );
     } else {
       kopiGridSliver = SliverPadding(
         padding: const EdgeInsets.all(16.0), // Padding untuk keseluruhan grid
@@ -288,7 +281,7 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
             childAspectRatio:
-                0.65, // Sesuaikan childAspectRatio dengan desain CoffeeCard
+                0.68, // Sesuaikan childAspectRatio dengan desain CoffeeCard
           ),
           delegate: SliverChildBuilderDelegate((context, index) {
             final kopi = _filteredKopiList[index];
@@ -330,7 +323,7 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
               // Warna latar belakang untuk area search bar.
               // Gunakan Theme.of(context).scaffoldBackgroundColor agar menyatu,
               // atau Theme.of(context).appBarTheme.backgroundColor jika ingin sama dengan AppBar
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             ),
           ),
           // Jika Anda ingin TagList di MenuPage, uncomment baris berikut
