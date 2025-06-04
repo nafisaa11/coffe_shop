@@ -479,7 +479,7 @@ class KeranjangController extends ChangeNotifier {
         _keranjangHabis =
             keranjangItems.where((item) => item.kopi.stok <= 0).toList();
 
-        _errorMessage = null;
+        _errorMessage = null;     
 
         print(
           '[KeranjangController] Keranjang berhasil di-fetch. Item tersedia: ${_keranjang.length}, Item habis: ${_keranjangHabis.length}',
